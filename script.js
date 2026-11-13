@@ -1,15 +1,22 @@
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+let userId = 'pilot_' + Math.floor(Math.random() * 100000);
+let myPilotName = 'Ты (Пилот)';
+
 if (tg) {
     tg.expand();
     tg.ready();
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const user = tg.initDataUnsafe.user;
-        document.getElementById('pilot-name').innerText = user.first_name || 'Пилот';
-        document.getElementById('avatar').innerText = (user.first_name || 'A').toUpperCase();
+        userId = user.id;
+        myPilotName = user.first_name || 'Пилот';
+        document.getElementById('pilot-name').innerText = myPilotName;
+        document.getElementById('avatar').innerText = myPilotName.charAt(0).toUpperCase();
     }
 }
 
-let state = JSON.parse(localStorage.getItem('aerotap_save_v3')) || {
+const BOT_USERNAME = 'aerotap_bot';
+
+let state = JSON.parse(localStorage.getItem('aerotap_save_v5')) || {
     balance: 0,
     totalTaps: 0,
     fuel: 1000,
@@ -22,6 +29,10 @@ let state = JSON.parse(localStorage.getItem('aerotap_save_v3')) || {
     profitPerHour: 0,
     lastDaily: '',
     cipherClaimed: false,
+    lastExitTime: Date.now(),
+    refCount: 0,
+    refEarned: 0,
+    tasks: { tg: false, x: false },
     cards: {
         hub: { level: 0, cost: 300, profit: 450 },
         vip: { level: 0, cost: 1200, profit: 1800 },
@@ -30,29 +41,53 @@ let state = JSON.parse(localStorage.getItem('aerotap_save_v3')) || {
     }
 };
 
+const rivals = [
+    { name: 'Captain_TON', rank: 'Космонавт $AERO', score: 850000 },
+    { name: 'SkyWalker_99', rank: 'Ас Истребитель', score: 420000 },
+    { name: 'AeroWhale 🐋', rank: 'Ас Истребитель', score: 195000 },
+    { name: 'Maverick_Jet', rank: 'Капитан', score: 88000 },
+    { name: 'CryptoPilot', rank: 'Капитан', score: 42000 },
+    { name: 'Falcon_X', rank: 'Второй пилот', score: 18500 },
+    { name: 'JetStream', rank: 'Второй пилот', score: 7400 },
+    { name: 'CloudRunner', rank: 'Кадет', score: 2900 },
+    { name: 'WingMan', rank: 'Кадет', score: 950 },
+    { name: 'NoviceFlyer', rank: 'Кадет', score: 250 }
+];
+
 const cardMeta = [
     { id: 'hub', icon: '🛫', name: 'Взлетная полоса', desc: 'Региональные рейсы' },
-    { id: 'vip', icon: '🥂', name: 'Бизнес-терминал', desc: 'Обслуживание частных джетов' },
-    { id: 'cargo', icon: '📦', name: 'Грузовой хаб $AERO', desc: 'Международная логистика' },
-    { id: 'space', icon: '🛰️', name: 'Орбитальный космопорт', desc: 'Полеты на Луну и Марс' }
+    { id: 'vip', icon: '🥂', name: 'Бизнес-терминал', desc: 'Обслуживание джетов' },
+    { id: 'cargo', icon: '📦', name: 'Грузовой хаб $AERO', desc: 'Мировая логистика' },
+    { id: 'space', icon: '🛰️', name: 'Орбитальный космопорт', desc: 'Рейсы на Луну и Марс' }
 ];
 
 const ranks = [
-    { min: 0, title: 'Кадет', icon: '🛩️', model: 'Cessna 172' },
-    { min: 2500, title: 'Второй пилот', icon: '🛫', model: 'Boeing 737' },
-    { min: 15000, title: 'Капитан', icon: '✈️', model: 'Airbus A380' },
-    { min: 75000, title: 'Ас Истребитель', icon: '🚀', model: 'F-22 Raptor' },
-    { min: 300000, title: 'Космонавт $AERO', icon: '🛸', model: 'Aero Starship' }
+    { min: 0, title: 'Кадет', icon: '🛩️', model: 'Cessna 172', league: '🥉 Бронзовая лига' },
+    { min: 2500, title: 'Второй пилот', icon: '🛫', model: 'Boeing 737', league: '🥈 Серебряная лига' },
+    { min: 15000, title: 'Капитан', icon: '✈️', model: 'Airbus A380', league: '🥇 Золотая лига' },
+    { min: 75000, title: 'Ас Истребитель', icon: '🚀', model: 'F-22 Raptor', league: '💎 Платиновая лига' },
+    { min: 300000, title: 'Космонавт $AERO', icon: '🛸', model: 'Aero Starship', league: '👑 Бриллиантовая лига' }
 ];
 
 let isTurbo = false;
 let turboCooldown = 0;
 
 function showMsg(text) {
-    if (tg) {
-        tg.showAlert(text);
-    } else {
-        alert(text);
+    if (tg) { tg.showAlert(text); } else { alert(text); }
+}
+function checkOfflineEarnings() {
+    if (state.profitPerHour > 0 && state.lastExitTime) {
+        const now = Date.now();
+        const secondsPassed = Math.min(10800, Math.floor((now - state.lastExitTime) / 1000));
+        if (secondsPassed > 60) {
+            const earned = Math.floor((state.profitPerHour / 3600) * secondsPassed);
+            if (earned > 0) {
+                state.balance += earned;
+                setTimeout(function() {
+                    showMsg(`✈️ Автопилот работал, пока тебя не было! Получено: +${earned.toLocaleString()} $AERO`);
+                }, 600);
+            }
+        }
     }
 }
 
@@ -63,7 +98,6 @@ function renderCards() {
         const meta = cardMeta[i];
         const data = state.cards[meta.id];
         const disabled = state.balance < data.cost ? 'disabled' : '';
-        
         container.innerHTML += `
             <div class="upgrade-card">
                 <div class="upgrade-info">
@@ -78,12 +112,61 @@ function renderCards() {
     }
 }
 
+function renderLeaderboard(currentRankTitle) {
+    const listEl = document.getElementById('leaderboard-list');
+    if (!listEl) return;
+
+    const allPlayers = rivals.map(function(r) {
+        return { name: r.name, rank: r.rank, score: r.score, isMe: false };
+    });
+
+    allPlayers.push({
+        name: myPilotName + ' (Вы)',
+        rank: currentRankTitle,
+        score: Math.floor(state.balance),
+        isMe: true
+    });
+
+    allPlayers.sort(function(a, b) { return b.score - a.score; });
+
+    let html = '';
+    let myPosition = 1;
+
+    for (let i = 0; i < allPlayers.length; i++) {
+        const p = allPlayers[i];
+        const pos = i + 1;
+        if (p.isMe) myPosition = pos;
+
+        let medal = '#' + pos;
+        if (pos === 1) medal = '🥇';
+        else if (pos === 2) medal = '🥈';
+        else if (pos === 3) medal = '🥉';
+
+        html += `
+            <div class="leader-row ${p.isMe ? 'is-me' : ''}">
+                <div class="leader-left">
+                    <div class="leader-pos">${medal}</div>
+                    <div>
+                        <div class="leader-name">${p.name}</div>
+                        <div class="leader-tag">${p.rank}</div>
+                    </div>
+                </div>
+                <div class="leader-score">${p.score.toLocaleString()} 🪙</div>
+            </div>
+        `;
+    }
+
+    listEl.innerHTML = html;
+    document.getElementById('my-world-rank').innerText = '#' + myPosition + ' из ' + allPlayers.length;
+}
+
 function updateUI() {
     document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
     document.getElementById('fuel-current').innerText = Math.floor(state.fuel);
     document.getElementById('fuel-max').innerText = state.maxFuel;
     document.getElementById('profit-per-hour').innerText = state.profitPerHour.toLocaleString();
-    document.getElementById('stat-taps').innerText = state.totalTaps.toLocaleString();
+    document.getElementById('ref-count').innerText = state.refCount;
+    document.getElementById('ref-earned').innerText = state.refEarned.toLocaleString() + ' $AERO';
 
     const fuelPercent = (state.fuel / state.maxFuel) * 100;
     document.getElementById('fuel-bar').style.width = fuelPercent + '%';
@@ -97,21 +180,31 @@ function updateUI() {
     document.getElementById('cost-fuel').innerText = state.fuelCost.toLocaleString();
     document.getElementById('btn-buy-fuel').disabled = state.balance < state.fuelCost;
 
-    let currentRank = ranks;
+    if (state.tasks.tg) {
+        const btnTg = document.getElementById('task-tg');
+        btnTg.innerText = 'Готово ✅';
+        btnTg.disabled = true;
+    }
+    if (state.tasks.x) {
+        const btnX = document.getElementById('task-x');
+        btnX.innerText = 'Готово ✅';
+        btnX.disabled = true;
+    }
+
+    let currentRank = ranks[0];
     for (let i = 0; i < ranks.length; i++) {
-        if (state.balance >= ranks[i].min) {
-            currentRank = ranks[i];
-        }
+        if (state.balance >= ranks[i].min) { currentRank = ranks[i]; }
     }
     document.getElementById('pilot-rank').innerText = 'Ранг: ' + currentRank.title;
-    document.getElementById('stat-rank').innerText = currentRank.title;
+    document.getElementById('league-badge').innerText = currentRank.league;
     document.getElementById('plane-icon').innerText = currentRank.icon;
     document.getElementById('plane-model').innerText = currentRank.model;
 
+    state.lastExitTime = Date.now();
     renderCards();
-    localStorage.setItem('aerotap_save_v3', JSON.stringify(state));
+    renderLeaderboard(currentRank.title);
+    localStorage.setItem('aerotap_save_v5', JSON.stringify(state));
 }
-
 function handleTap(x, y) {
     const multiplier = isTurbo ? 5 : 1;
     const gain = state.tapPower * multiplier;
@@ -119,30 +212,22 @@ function handleTap(x, y) {
     if (isTurbo || state.fuel >= state.tapPower) {
         state.balance += gain;
         state.totalTaps += 1;
-        if (!isTurbo) {
-            state.fuel -= state.tapPower;
-        }
-
+        if (!isTurbo) { state.fuel -= state.tapPower; }
         if (tg && tg.HapticFeedback) {
             tg.HapticFeedback.impactOccurred(isTurbo ? 'heavy' : 'medium');
         }
-
         createFloatingText(x, y, '+' + gain);
         updateUI();
-    } else {
-        if (tg && tg.HapticFeedback) {
-            tg.HapticFeedback.notificationOccurred('error');
-        }
+    } else if (tg && tg.HapticFeedback) {
+        tg.HapticFeedback.notificationOccurred('error');
     }
 }
 
 const planeBtn = document.getElementById('plane-btn');
-
 planeBtn.addEventListener('touchstart', function(e) {
     e.preventDefault();
     for (let i = 0; i < e.changedTouches.length; i++) {
-        const touch = e.changedTouches[i];
-        handleTap(touch.clientX, touch.clientY);
+        handleTap(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
     }
 }, { passive: false });
 
@@ -160,10 +245,25 @@ function createFloatingText(x, y, text) {
     setTimeout(function() { el.remove(); }, 800);
 }
 
-// Режим Форсажа x5 на 15 секунд
+function spawnDrone() {
+    const drone = document.getElementById('bonus-drone');
+    drone.style.display = 'flex';
+    setTimeout(function() { drone.style.display = 'none'; }, 4500);
+}
+
+function catchDrone() {
+    document.getElementById('bonus-drone').style.display = 'none';
+    const reward = (state.tapLevel * 1500) + Math.floor(Math.random() * 2000);
+    state.balance += reward;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    showMsg(`🛸 Перехвачен груз снабжения! Награда: +${reward.toLocaleString()} $AERO!`);
+    updateUI();
+}
+
+setInterval(spawnDrone, 32000);
+
 function activateTurbo() {
     if (isTurbo || turboCooldown > 0) return;
-
     isTurbo = true;
     document.body.classList.add('turbo-active');
     const btn = document.getElementById('turbo-btn');
@@ -200,7 +300,6 @@ function startTurboCooldown() {
     }, 1000);
 }
 
-// Ежедневный бонус
 function claimDaily() {
     const today = new Date().toDateString();
     if (state.lastDaily === today) {
@@ -210,11 +309,10 @@ function claimDaily() {
     state.lastDaily = today;
     state.balance += 5000;
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-    showMsg('🎁 Поздравляем! Получен ежедневный бонус: +5,000 $AERO!');
+    showMsg('🎁 Получен ежедневный бонус пилота: +5,000 $AERO!');
     updateUI();
 }
 
-// Секретный код дня (секретное слово: AERO)
 function openCipher() {
     if (state.cipherClaimed) {
         showMsg('Секретный код этого рейса уже активирован!');
@@ -230,6 +328,32 @@ function openCipher() {
     } else if (code !== null) {
         showMsg('❌ Неверный код! Ищи актуальный шифр в официальном канале проекта.');
     }
+}
+
+function inviteFriend() {
+    const refLink = `https://t.me{BOT_USERNAME}?start=${userId}`;
+    const shareText = encodeURIComponent('🚀 Залетай в AeroTap, качай самолеты и забирай +10,000 $AERO бонусом до листинга!');
+    const fullUrl = `https://t.me{encodeURIComponent(refLink)}&text=${shareText}`;
+    state.refCount += 1;
+    state.refEarned += 10000;
+    state.balance += 10000;
+    updateUI();
+    if (tg) { tg.openTelegramLink(fullUrl); } else { window.open(fullUrl, '_blank'); }
+}
+
+function copyRefLink() {
+    const refLink = `https://t.me{BOT_USERNAME}?start=${userId}`;
+    navigator.clipboard.writeText(refLink);
+    showMsg('📋 Реферальная ссылка скопирована! Отправь её друзьям.');
+}
+
+function completeTask(taskId, reward, url) {
+    if (state.tasks[taskId]) return;
+    state.tasks[taskId] = true;
+    state.balance += reward;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    updateUI();
+    if (tg && url.includes('t.me')) { tg.openTelegramLink(url); } else { window.open(url, '_blank'); }
 }
 
 function buyUpgrade(type) {
@@ -265,7 +389,6 @@ function buyCard(id) {
 function switchTab(tabName, btn) {
     document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
     document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-    
     document.getElementById('tab-' + tabName).classList.add('active');
     btn.classList.add('active');
 }
@@ -275,13 +398,10 @@ function connectWallet() {
 }
 
 setInterval(function() {
-    if (state.fuel < state.maxFuel) {
-        state.fuel = Math.min(state.maxFuel, state.fuel + 4);
-    }
-    if (state.profitPerHour > 0) {
-        state.balance += (state.profitPerHour / 3600);
-    }
+    if (state.fuel < state.maxFuel) { state.fuel = Math.min(state.maxFuel, state.fuel + 4); }
+    if (state.profitPerHour > 0) { state.balance += (state.profitPerHour / 3600); }
     updateUI();
 }, 1000);
 
+checkOfflineEarnings();
 updateUI();
