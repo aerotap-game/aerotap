@@ -3,143 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>$AERO — Cyber Arcade</title>
+    <title>$AERO // STREET DROP</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
-    <div class="glow-spot spot-1"></div>
-    <div class="glow-spot spot-2"></div>
+    <header class="street-header">
+        <button class="tag-profile" onclick="openNameModal()">
+            <span class="tag-ava" id="ava">A</span>
+            <span id="username">CryptoPilot</span>
+            <span>✎</span>
+        </button>
 
-    <header class="top-bar">
-        <div class="pilot-pill" onclick="openNameModal()">
-            <div class="pilot-ava" id="ava">A</div>
-            <div class="pilot-meta">
-                <span class="pilot-nick" id="username">CryptoPilot</span>
-                <span class="pilot-edit">сменить ник ✎</span>
-            </div>
-        </div>
-
-        <div class="top-actions">
-            <button class="mute-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
-            <div class="wallet-pill">
-                <span class="ticker-tag">$AERO</span>
-                <span class="wallet-sum" id="balance">1 000</span>
+        <div class="header-right">
+            <button class="box-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+            <div class="price-tag">
+                <span class="pt-coin">$AERO</span>
+                <span class="pt-val" id="balance">1 000</span>
             </div>
         </div>
     </header>
 
-    <!-- ЭКРАН 1: РАКЕТА (CRASH) -->
-    <main id="view-crash" class="screen active" style="display: flex;">
-        <div class="ticker-row" id="history-strip">
-            <span class="x-tag hi">x14.20 🔥</span>
-            <span class="x-tag lo">x1.15</span>
-            <span class="x-tag md">x3.40</span>
-            <span class="x-tag hi">x28.90 🚀</span>
+    <nav class="top-tabs">
+        <button class="tab-folder active" onclick="switchView('crash', this)">🚀 КРАШ</button>
+        <button class="tab-folder" onclick="switchView('arcade', this)">🎮 8 ИГР</button>
+        <button class="tab-folder" onclick="switchView('mine', this)">⚡ ФАРМ</button>
+        <button class="tab-folder" onclick="switchView('hype', this)">🪂 ДРОП</button>
+    </nav>
+
+    <main id="view-crash" class="screen" style="display: flex;">
+        <div class="strip-log" id="history-strip">
+            <span class="st-chip lime">x14.20</span>
+            <span class="st-chip red">x1.15</span>
+            <span class="st-chip">x3.40</span>
+            <span class="st-chip lime">x28.90</span>
         </div>
 
-        <div class="flight-box" id="radar-screen">
-            <svg class="curve-svg" viewBox="0 0 300 160" preserveAspectRatio="none">
-                <defs>
-                    <linearGradient id="sunsetGrad" x1="0" y1="1" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#00f2fe"/>
-                        <stop offset="100%" stop-color="#ff3366"/>
-                    </linearGradient>
-                </defs>
-                <path id="flight-curve" d="M 12 148 Q 12 148 12 148" fill="none" stroke="url(#sunsetGrad)" stroke-width="5" stroke-linecap="round"/>
+        <div class="radar-box" id="radar-screen">
+            <svg class="radar-svg" viewBox="0 0 300 160" preserveAspectRatio="none">
+                <path id="flight-curve" d="M 12 148 Q 12 148 12 148" fill="none" stroke="#000000" stroke-width="6" stroke-linecap="round"/>
             </svg>
-
-            <div class="flight-hud">
-                <div class="flight-badge" id="flight-status">ГОТОВ К СТАРТУ</div>
-                <div class="flight-mult" id="mult-text">x1.00</div>
-                <div class="flight-ship" id="rocket-ship">🚀</div>
+            <div class="radar-center">
+                <div class="sticker-status" id="flight-status">ГОТОВ К ВЗЛЕТУ</div>
+                <div class="hero-x" id="mult-text">x1.00</div>
+                <div class="hero-jet" id="rocket-ship">🚀</div>
             </div>
         </div>
 
-        <div class="deck-card">
-            <div class="chips-grid">
-                <button class="chip" onclick="setBet('bet-input', 100)">100</button>
-                <button class="chip" onclick="setBet('bet-input', 500)">500</button>
-                <button class="chip" onclick="halfBet('bet-input')">½</button>
-                <button class="chip" onclick="doubleBet('bet-input')">2x</button>
-                <button class="chip max-chip" onclick="maxBet('bet-input')">MAX</button>
+        <div class="brutal-card">
+            <div class="btn-strip">
+                <button class="mini-key" onclick="setBet('bet-input', 100)">100</button>
+                <button class="mini-key" onclick="setBet('bet-input', 500)">500</button>
+                <button class="mini-key" onclick="halfBet('bet-input')">½</button>
+                <button class="mini-key" onclick="doubleBet('bet-input')">2X</button>
+                <button class="mini-key lime" onclick="maxBet('bet-input')">ALL IN</button>
             </div>
-
-            <div class="bet-field">
-                <span>СТАВКА</span>
+            <div class="brutal-input">
+                <span>СТАВКА:</span>
                 <input type="number" id="bet-input" value="100" min="10">
-                <span class="cur">$AERO</span>
+                <span>$AERO</span>
             </div>
-
-            <button class="action-btn" id="crash-btn" onclick="handleCrashAction()">
-                🚀 ВЗЛЕТЕТЬ
+            <button class="mega-punch-btn" id="crash-btn" onclick="handleCrashAction()">
+                🚀 ЗАПУСТИТЬ РАКЕТУ
             </button>
         </div>
     </main>
-    <!-- ЭКРАН 2: АРКАДА (8 ИГР) -->
     <main id="view-arcade" class="screen" style="display: none;">
         <div id="arcade-lobby">
-            <div class="lobby-head">
-                <h2>🎮 Игровая Арена</h2>
-                <p>Выбирай режим и умножай банк $AERO</p>
-            </div>
-
-            <div class="arcade-grid">
-                <div class="arc-card wide-card" onclick="openMiniGame('jet')">
-                    <div class="arc-ico">✈️</div>
+            <div class="games-matrix">
+                <div class="game-box wide-box lime-bg" onclick="openMiniGame('jet')">
+                    <span class="gb-ico">✈️</span>
                     <div>
-                        <b>Перехватчик (Риск-полет)</b>
-                        <span>Жми «Лететь», собирай бонусы до x50 или увернись от ПВО</span>
+                        <b>ПЕРЕХВАТЧИК (ХИТ)</b>
+                        <small>Жми «Лететь», хватай бонусы до x50 или увернись от ПВО</small>
                     </div>
                 </div>
-                <div class="arc-card" onclick="openMiniGame('mines')">
-                    <div class="arc-ico">💣</div>
-                    <b>Мины</b>
-                    <span>до x50</span>
+                <div class="game-box" onclick="openMiniGame('mines')">
+                    <span class="gb-ico">💣</span>
+                    <b>МИНЫ</b>
+                    <small>до x50</small>
                 </div>
-                <div class="arc-card" onclick="openMiniGame('coin')">
-                    <div class="arc-ico">🪙</div>
-                    <b>Монетка</b>
-                    <span>x1.95</span>
+                <div class="game-box" onclick="openMiniGame('coin')">
+                    <span class="gb-ico">🪙</span>
+                    <b>МОНЕТКА</b>
+                    <small>x1.95</small>
                 </div>
-                <div class="arc-card" onclick="openMiniGame('dice')">
-                    <div class="arc-ico">🎲</div>
-                    <b>Кости</b>
-                    <span>x1.95</span>
+                <div class="game-box" onclick="openMiniGame('dice')">
+                    <span class="gb-ico">🎲</span>
+                    <b>КОСТИ</b>
+                    <small>x1.95</small>
                 </div>
-                <div class="arc-card" onclick="openMiniGame('wheel')">
-                    <div class="arc-ico">🎡</div>
-                    <b>Колесо</b>
-                    <span>до x15</span>
+                <div class="game-box" onclick="openMiniGame('wheel')">
+                    <span class="gb-ico">🎡</span>
+                    <b>КОЛЕСО</b>
+                    <small>до x15</small>
                 </div>
-                <div class="arc-card" onclick="openMiniGame('hilo')">
-                    <div class="arc-ico">↕️</div>
-                    <b>Выше/Ниже</b>
-                    <span>x1.90</span>
+                <div class="game-box" onclick="openMiniGame('hilo')">
+                    <span class="gb-ico">↕️</span>
+                    <b>ВЫШЕ/НИЖЕ</b>
+                    <small>x1.90</small>
                 </div>
-                <div class="arc-card" onclick="openMiniGame('slots')">
-                    <div class="arc-ico">🎰</div>
-                    <b>Слот 777</b>
-                    <span>до x15</span>
+                <div class="game-box" onclick="openMiniGame('slots')">
+                    <span class="gb-ico">🎰</span>
+                    <b>СЛОТ 777</b>
+                    <small>до x15</small>
                 </div>
-                <div class="arc-card wide-card" onclick="openMiniGame('boxes')">
-                    <div class="arc-ico">🎁</div>
+                <div class="game-box wide-box purple-bg" onclick="openMiniGame('boxes')">
+                    <span class="gb-ico">🎁</span>
                     <div>
-                        <b>Сейфы Удачи (1 из 3)</b>
-                        <span>Угадай сейф с золотом и забери x2.8</span>
+                        <b>СЕЙФЫ УДАЧИ (1 ИЗ 3)</b>
+                        <small>Взломай нужный сейф и забери x2.8</small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="mg-jet" class="mg-screen" style="display: none;">
-            <div class="mg-top">
-                <button class="back-pill" onclick="backToLobby()">← Назад</button>
-                <span>✈️ Перехватчик (<b id="jet-mult">x1.00</b>)</span>
+        <div id="mg-jet" class="mg-wrap" style="display: none;">
+            <div class="mg-bar">
+                <button class="back-tag" onclick="backToLobby()">← НАЗАД</button>
+                <span>✈️ ПЕРЕХВАТЧИК (<b id="jet-mult">x1.00</b>)</span>
             </div>
-            <div class="jet-arena">
-                <div class="jet-bar" id="jet-steps">
+            <div class="jet-zone">
+                <div class="jet-scale">
                     <span class="j-step">x1.3</span>
                     <span class="j-step">x1.8</span>
                     <span class="j-step">x2.6</span>
@@ -148,200 +134,197 @@
                     <span class="j-step">x15</span>
                     <span class="j-step">x50</span>
                 </div>
-                <div class="jet-icon" id="jet-sprite">✈️</div>
-                <div class="mg-hint" id="jet-res">Сделай ставку и жми «Лететь дальше»!</div>
+                <div class="jet-plane" id="jet-sprite">✈️</div>
+                <div class="mg-msg" id="jet-res">Сделай ставку и жми «Лететь дальше»!</div>
             </div>
-            <div class="deck-card">
-                <div class="bet-field">
-                    <span>СТАВКА</span>
+            <div class="brutal-card">
+                <div class="brutal-input">
+                    <span>СТАВКА:</span>
                     <input type="number" id="jet-bet" value="100" min="10">
-                    <span class="cur">$AERO</span>
+                    <span>$AERO</span>
                 </div>
-                <div class="chips-grid">
-                    <button class="action-btn" id="jet-fly-btn" onclick="stepJetGame()">✈️ ЛЕТЕТЬ ДАЛЬШЕ</button>
-                    <button class="action-btn gold-btn" id="jet-cash-btn" style="display: none;" onclick="cashoutJetGame()">💰 ЗАБРАТЬ</button>
+                <div class="btn-strip">
+                    <button class="mega-punch-btn" id="jet-fly-btn" onclick="stepJetGame()">✈️ ЛЕТЕТЬ</button>
+                    <button class="mega-punch-btn yellow" id="jet-cash-btn" style="display: none;" onclick="cashoutJetGame()">💰 ЗАБРАТЬ</button>
                 </div>
             </div>
         </div>
 
-        <div id="mg-mines" class="mg-screen" style="display: none;">
-            <div class="mg-top">
-                <button class="back-pill" onclick="backToLobby()">← Назад</button>
-                <span>💣 Мины (<b id="mines-mult">x1.00</b>)</span>
+        <div id="mg-mines" class="mg-wrap" style="display: none;">
+            <div class="mg-bar">
+                <button class="back-tag" onclick="backToLobby()">← НАЗАД</button>
+                <span>💣 МИНЫ (<b id="mines-mult">x1.00</b>)</span>
             </div>
-            <div class="mines-matrix" id="mines-grid"></div>
-            <div class="deck-card">
-                <div class="chips-grid">
-                    <button class="chip active-chip" id="m-btn-3" onclick="setMinesCount(3, this)">3 мины</button>
-                    <button class="chip" id="m-btn-5" onclick="setMinesCount(5, this)">5 мин</button>
-                    <button class="chip" id="m-btn-10" onclick="setMinesCount(10, this)">10 мин</button>
+            <div class="mines-grid" id="mines-grid"></div>
+            <div class="brutal-card">
+                <div class="btn-strip">
+                    <button class="mini-key lime" id="m-btn-3" onclick="setMinesCount(3, this)">3 МИНЫ</button>
+                    <button class="mini-key" id="m-btn-5" onclick="setMinesCount(5, this)">5 МИН</button>
+                    <button class="mini-key" id="m-btn-10" onclick="setMinesCount(10, this)">10 МИН</button>
                 </div>
-                <div class="bet-field">
-                    <span>СТАВКА</span>
+                <div class="brutal-input">
+                    <span>СТАВКА:</span>
                     <input type="number" id="mines-bet" value="100" min="10">
-                    <span class="cur">$AERO</span>
+                    <span>$AERO</span>
                 </div>
-                <button class="action-btn" id="mines-action-btn" onclick="handleMinesAction()">💎 ИГРАТЬ</button>
+                <button class="mega-punch-btn" id="mines-action-btn" onclick="handleMinesAction()">💎 ИГРАТЬ</button>
             </div>
         </div>
-        <div id="mg-coin" class="mg-screen" style="display: none;">
-            <div class="mg-top">
-                <button class="back-pill" onclick="backToLobby()">← Назад</button>
-                <span>🪙 Монетка (x1.95)</span>
+        <div id="mg-coin" class="mg-wrap" style="display: none;">
+            <div class="mg-bar">
+                <button class="back-tag" onclick="backToLobby()">← НАЗАД</button>
+                <span>🪙 МОНЕТКА (x1.95)</span>
             </div>
-            <div class="mg-stage">
-                <div class="big-emoji" id="coin-visual">🪙</div>
-                <div class="mg-hint" id="coin-res">Выбери сторону монеты</div>
+            <div class="mg-center">
+                <div class="huge-ico" id="coin-visual">🪙</div>
+                <div class="mg-msg" id="coin-res">Выбери сторону монеты</div>
             </div>
-            <div class="deck-card">
-                <div class="bet-field">
-                    <span>СТАВКА</span>
+            <div class="brutal-card">
+                <div class="brutal-input">
+                    <span>СТАВКА:</span>
                     <input type="number" id="coin-bet" value="100" min="10">
-                    <span class="cur">$AERO</span>
+                    <span>$AERO</span>
                 </div>
-                <div class="chips-grid">
-                    <button class="action-btn" onclick="playCoin('eagle')">🦅 ОРЕЛ</button>
-                    <button class="action-btn pink-btn" onclick="playCoin('tails')">👑 РЕШКА</button>
+                <div class="btn-strip">
+                    <button class="mega-punch-btn" onclick="playCoin('eagle')">🦅 ОРЕЛ</button>
+                    <button class="mega-punch-btn purple" onclick="playCoin('tails')">👑 РЕШКА</button>
                 </div>
             </div>
         </div>
 
-        <div id="mg-dice" class="mg-screen" style="display: none;">
-            <div class="mg-top">
-                <button class="back-pill" onclick="backToLobby()">← Назад</button>
-                <span>🎲 Кибер-Кости</span>
+        <div id="mg-dice" class="mg-wrap" style="display: none;">
+            <div class="mg-bar">
+                <button class="back-tag" onclick="backToLobby()">← НАЗАД</button>
+                <span>🎲 КОСТИ (x1.95)</span>
             </div>
-            <div class="mg-stage">
-                <div class="big-num" id="dice-roll">50</div>
-                <div class="mg-hint" id="dice-res">Выбери условие броска (1–100)</div>
+            <div class="mg-center">
+                <div class="huge-num" id="dice-roll">50</div>
+                <div class="mg-msg" id="dice-res">Выбери условие броска (1–100)</div>
             </div>
-            <div class="deck-card">
-                <div class="bet-field">
-                    <span>СТАВКА</span>
+            <div class="brutal-card">
+                <div class="brutal-input">
+                    <span>СТАВКА:</span>
                     <input type="number" id="dice-bet" value="100" min="10">
-                    <span class="cur">$AERO</span>
+                    <span>$AERO</span>
                 </div>
-                <div class="chips-grid">
-                    <button class="action-btn" onclick="playDice('low')">Меньше 50 (x1.95)</button>
-                    <button class="action-btn pink-btn" onclick="playDice('high')">Больше 50 (x1.95)</button>
+                <div class="btn-strip">
+                    <button class="mega-punch-btn" onclick="playDice('low')">МЕНЬШЕ 50</button>
+                    <button class="mega-punch-btn purple" onclick="playDice('high')">БОЛЬШЕ 50</button>
                 </div>
             </div>
         </div>
 
-        <div id="mg-wheel" class="mg-screen" style="display: none;">
-            <div class="mg-top">
-                <button class="back-pill" onclick="backToLobby()">← Назад</button>
-                <span>🎡 Колесо Удачи</span>
+        <div id="mg-wheel" class="mg-wrap" style="display: none;">
+            <div class="mg-bar">
+                <button class="back-tag" onclick="backToLobby()">← НАЗАД</button>
+                <span>🎡 КОЛЕСО УДАЧИ</span>
             </div>
-            <div class="mg-stage">
-                <div class="big-emoji" id="wheel-visual">🎡</div>
-                <div class="mg-hint" id="wheel-res">Сектора: x0, x0.5, x1.5, x3, x5, x15</div>
+            <div class="mg-center">
+                <div class="huge-ico" id="wheel-visual">🎡</div>
+                <div class="mg-msg" id="wheel-res">Сектора: x0, x0.5, x1.5, x3, x5, x15</div>
             </div>
-            <div class="deck-card">
-                <div class="bet-field">
-                    <span>СТАВКА</span>
+            <div class="brutal-card">
+                <div class="brutal-input">
+                    <span>СТАВКА:</span>
                     <input type="number" id="wheel-bet" value="100" min="10">
-                    <span class="cur">$AERO</span>
+                    <span>$AERO</span>
                 </div>
-                <button class="action-btn" onclick="playWheel()">🎡 КРУТИТЬ КОЛЕСО</button>
+                <button class="mega-punch-btn" onclick="playWheel()">🎡 КРУТИТЬ КОЛЕСО</button>
             </div>
         </div>
 
-        <div id="mg-hilo" class="mg-screen" style="display: none;">
-            <div class="mg-top">
-                <button class="back-pill" onclick="backToLobby()">← Назад</button>
-                <span>↕️ Выше или Ниже (x1.9)</span>
+        <div id="mg-hilo" class="mg-wrap" style="display: none;">
+            <div class="mg-bar">
+                <button class="back-tag" onclick="backToLobby()">← НАЗАД</button>
+                <span>↕️ ВЫШЕ / НИЖЕ (x1.9)</span>
             </div>
-            <div class="mg-stage">
-                <div class="big-num" id="hilo-card">7</div>
-                <div class="mg-hint" id="hilo-res">Число от 1 до 13. Что выпадет дальше?</div>
+            <div class="mg-center">
+                <div class="huge-num" id="hilo-card">7</div>
+                <div class="mg-msg" id="hilo-res">Число от 1 до 13. Что дальше?</div>
             </div>
-            <div class="deck-card">
-                <div class="bet-field">
-                    <span>СТАВКА</span>
+            <div class="brutal-card">
+                <div class="brutal-input">
+                    <span>СТАВКА:</span>
                     <input type="number" id="hilo-bet" value="100" min="10">
-                    <span class="cur">$AERO</span>
+                    <span>$AERO</span>
                 </div>
-                <div class="chips-grid">
-                    <button class="action-btn" onclick="playHiLo('hi')">⬆️ ВЫШЕ</button>
-                    <button class="action-btn pink-btn" onclick="playHiLo('lo')">⬇️ НИЖЕ</button>
+                <div class="btn-strip">
+                    <button class="mega-punch-btn" onclick="playHiLo('hi')">⬆️ ВЫШЕ</button>
+                    <button class="mega-punch-btn purple" onclick="playHiLo('lo')">⬇️ НИЖЕ</button>
                 </div>
-            </div>
-        </div>
-        <div id="mg-slots" class="mg-screen" style="display: none;">
-            <div class="mg-top">
-                <button class="back-pill" onclick="backToLobby()">← Назад</button>
-                <span>🎰 Слот-машина $AERO</span>
-            </div>
-            <div class="mg-stage">
-                <div class="reels-row">
-                    <div class="slot-cell" id="reel-1">💎</div>
-                    <div class="slot-cell" id="reel-2">🚀</div>
-                    <div class="slot-cell" id="reel-3">💎</div>
-                </div>
-                <div class="mg-hint" id="slots-res">2 одинаковых = x2 | 3 одинаковых = x15</div>
-            </div>
-            <div class="deck-card">
-                <div class="bet-field">
-                    <span>СТАВКА</span>
-                    <input type="number" id="slots-bet" value="100" min="10">
-                    <span class="cur">$AERO</span>
-                </div>
-                <button class="action-btn" onclick="playSlots()">🎰 КРУТИТЬ БАРАБАН</button>
             </div>
         </div>
 
-        <div id="mg-boxes" class="mg-screen" style="display: none;">
-            <div class="mg-top">
-                <button class="back-pill" onclick="backToLobby()">← Назад</button>
-                <span>🎁 Сейфы (1 из 3 — приз x2.8)</span>
+        <div id="mg-slots" class="mg-wrap" style="display: none;">
+            <div class="mg-bar">
+                <button class="back-tag" onclick="backToLobby()">← НАЗАД</button>
+                <span>🎰 СЛОТ 777</span>
             </div>
-            <div class="mg-stage">
-                <div class="safes-row">
-                    <button class="safe-btn" onclick="playBoxes(0)">🔒</button>
-                    <button class="safe-btn" onclick="playBoxes(1)">🔒</button>
-                    <button class="safe-btn" onclick="playBoxes(2)">🔒</button>
+            <div class="mg-center">
+                <div class="slots-box">
+                    <div class="reel-box" id="reel-1">💎</div>
+                    <div class="reel-box" id="reel-2">🚀</div>
+                    <div class="reel-box" id="reel-3">💎</div>
                 </div>
-                <div class="mg-hint" id="boxes-res">Выбери любой закрытый сейф!</div>
+                <div class="mg-msg" id="slots-res">2 одинаковых = x2 | 3 одинаковых = x15</div>
             </div>
-            <div class="deck-card">
-                <div class="bet-field">
-                    <span>СТАВКА</span>
+            <div class="brutal-card">
+                <div class="brutal-input">
+                    <span>СТАВКА:</span>
+                    <input type="number" id="slots-bet" value="100" min="10">
+                    <span>$AERO</span>
+                </div>
+                <button class="mega-punch-btn" onclick="playSlots()">🎰 КРУТИТЬ</button>
+            </div>
+        </div>
+
+        <div id="mg-boxes" class="mg-wrap" style="display: none;">
+            <div class="mg-bar">
+                <button class="back-tag" onclick="backToLobby()">← НАЗАД</button>
+                <span>🎁 СЕЙФЫ (ПРИЗ x2.8)</span>
+            </div>
+            <div class="mg-center">
+                <div class="safes-box">
+                    <button class="safe-item" onclick="playBoxes(0)">🔒</button>
+                    <button class="safe-item" onclick="playBoxes(1)">🔒</button>
+                    <button class="safe-item" onclick="playBoxes(2)">🔒</button>
+                </div>
+                <div class="mg-msg" id="boxes-res">Выбери любой сейф!</div>
+            </div>
+            <div class="brutal-card">
+                <div class="brutal-input">
+                    <span>СТАВКА:</span>
                     <input type="number" id="boxes-bet" value="100" min="10">
-                    <span class="cur">$AERO</span>
+                    <span>$AERO</span>
                 </div>
             </div>
         </div>
     </main>
 
     <main id="view-mine" class="screen" style="display: none;">
-        <div class="mine-title">
-            <span class="auto-badge">⚡ Пассив: +<span id="passive-rate">0</span>/ч</span>
-            <h2>Реактор $AERO</h2>
+        <div class="farm-top">
+            <span class="sticker-status">АВТО-МАЙНИНГ: +<span id="passive-rate">0</span>/Ч</span>
         </div>
 
-        <div class="orb-zone" id="tap-core">
-            <div class="orb-ring"></div>
-            <div class="orb-core">
-                <span class="orb-ufo">🛸</span>
-                <span class="orb-plus">+<span id="tap-power">5</span> за тап</span>
-            </div>
-        </div>
+        <button class="big-tap-btn" id="tap-core">
+            <span class="tap-ufo">🛸</span>
+            <span class="tap-txt">ЖМИ ЗА +<span id="tap-power">5</span></span>
+        </button>
 
-        <div class="deck-card">
-            <div class="nrg-head">
-                <span>🔋 Энергия</span>
+        <div class="brutal-card">
+            <div class="nrg-row">
+                <span>⚡ ЭНЕРГИЯ</span>
                 <span><span id="energy">1000</span> / <span id="max-energy">1000</span></span>
             </div>
-            <div class="nrg-rail"><div class="nrg-fill" id="energy-bar"></div></div>
+            <div class="brutal-bar"><div class="brutal-fill" id="energy-bar"></div></div>
 
-            <div class="boost-pair">
-                <button class="boost-box" onclick="buyBoost('tap')">
-                    <span>⚡ Сила тапа (Ур.<span id="lvl-tap">1</span>)</span>
+            <div class="btn-strip">
+                <button class="boost-key" onclick="buyBoost('tap')">
+                    <span>⚡ СИЛА УР.<span id="lvl-tap">1</span></span>
                     <b><span id="cost-tap">250</span> $AERO</b>
                 </button>
-                <button class="boost-box" onclick="buyBoost('node')">
-                    <span>🛰️ Спутник (Ур.<span id="lvl-node">0</span>)</span>
+                <button class="boost-key" onclick="buyBoost('node')">
+                    <span>🛰️ УЗЕЛ УР.<span id="lvl-node">0</span></span>
                     <b><span id="cost-node">500</span> $AERO</b>
                 </button>
             </div>
@@ -349,72 +332,44 @@
     </main>
 
     <main id="view-hype" class="screen" style="display: none;">
-        <div class="squad-card">
-            <div class="season-tag">AIRDROP SEASON 1</div>
-            <h3>Пригласи экипаж</h3>
-            <p>Забирай <b>+5,000 $AERO</b> каждые 12 часов за приглашение друзей!</p>
-            <button class="invite-cta" id="invite-btn" onclick="inviteSquad()">🔥 Пригласить друга (+5,000)</button>
+        <div class="brutal-card lime-bg">
+            <h3>🪂 AIRDROP $AERO</h3>
+            <p style="font-size: 12px; font-weight: 700;">Зови друзей каждые 12 часов и забирай +5,000 $AERO!</p>
+            <button class="mega-punch-btn yellow" id="invite-btn" onclick="inviteSquad()">🔥 ПРИГЛАСИТЬ (+5,000)</button>
         </div>
 
-        <div class="socials-stack">
-            <div class="soc-item" onclick="claimSocial('tg', 15000, 'https://t.me')">
-                <div class="soc-left">
-                    <span>📢</span>
-                    <div>
-                        <b>Канал @aerotap</b>
-                        <small>+15,000 $AERO</small>
-                    </div>
+        <div class="soc-list">
+            <div class="soc-card" onclick="claimSocial('tg', 15000, 'https://t.me')">
+                <div>
+                    <b>📢 КАНАЛ @AEROTAP</b>
+                    <small>+15,000 $AERO</small>
                 </div>
-                <button class="soc-btn" id="btn-tg">Перейти</button>
+                <button class="mini-key lime" id="btn-tg">ЗАБРАТЬ</button>
             </div>
-
-            <div class="soc-item" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
-                <div class="soc-left">
-                    <span>📺</span>
-                    <div>
-                        <b>YouTube канал $AERO</b>
-                        <small>+15,000 $AERO</small>
-                    </div>
+            <div class="soc-card" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
+                <div>
+                    <b>📺 YOUTUBE КАНАЛ</b>
+                    <small>+15,000 $AERO</small>
                 </div>
-                <button class="soc-btn" id="btn-yt">Перейти</button>
+                <button class="mini-key lime" id="btn-yt">ЗАБРАТЬ</button>
             </div>
         </div>
 
-        <div class="deck-card">
-            <div class="top-title">🏆 Топ пилотов</div>
+        <div class="brutal-card">
+            <b style="font-size: 13px;">🏆 ТОП ПИЛОТОВ</b>
             <div id="top-list"></div>
         </div>
     </main>
 
-    <div class="modal-bg" id="name-modal" style="display: none;">
-        <div class="modal-box">
-            <h3>Позывной пилота</h3>
-            <p>Отображается в рейтинге всех игроков</p>
+    <div class="modal-overlay" id="name-modal" style="display: none;">
+        <div class="brutal-card modal-win">
+            <h3>НОВЫЙ НИКНЕЙМ</h3>
             <input type="text" id="nick-input" maxlength="15" placeholder="Введи ник...">
-            <button class="action-btn" onclick="saveNick()">Сохранить</button>
-            <button class="cancel-link" onclick="closeNameModal()">Отмена</button>
+            <button class="mega-punch-btn" onclick="saveNick()">СОХРАНИТЬ</button>
+            <button class="mini-key" style="width: 100%;" onclick="closeNameModal()">ОТМЕНА</button>
         </div>
     </div>
 
-    <nav class="bottom-dock">
-        <button class="dock-tab active" onclick="switchView('crash', this)">
-            <span>🚀</span>
-            <small>Ракета</small>
-        </button>
-        <button class="dock-tab" onclick="switchView('arcade', this)">
-            <span>🎮</span>
-            <small>Игры (8)</small>
-        </button>
-        <button class="dock-tab" onclick="switchView('mine', this)">
-            <span>⚡</span>
-            <small>Майнинг</small>
-        </button>
-        <button class="dock-tab" onclick="switchView('hype', this)">
-            <span>🪂</span>
-            <small>Дроп</small>
-        </button>
-    </nav>
-
-    <script src="script.js?v=9"></script>
+    <script src="script.js?v=10"></script>
 </body>
 </html>
