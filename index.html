@@ -69,7 +69,7 @@
     let score = 0, power = 1, level = 1, cost = 100, energy = 1000, maxEnergy = 1000, mult = 1, shared = false, userId = 'pilot';
 
     try {
-      const saved = JSON.parse(localStorage.getItem('aerotap_v5'));
+      const saved = JSON.parse(localStorage.getItem('aerotap_v6'));
       if (saved) { score = saved.score; power = saved.power; level = saved.level; cost = saved.cost; energy = saved.energy; maxEnergy = saved.maxEnergy; shared = saved.shared || false; }
       if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
@@ -80,7 +80,6 @@
           userId = u.id || 'pilot';
         }
       }
-      // Начисляем приветственный бонус +250, если друг зашел по реферальной ссылке
       const urlParams = new URLSearchParams(window.location.search);
       const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param || urlParams.get('tgWebAppStartParam');
       if (startParam && !localStorage.getItem('aerotap_ref_used')) {
@@ -106,7 +105,7 @@
         invBtn.innerText = '📋 Copy Invite Link (+500 Claimed)';
         invBtn.classList.add('btn-done');
       }
-      try { localStorage.setItem('aerotap_v5', JSON.stringify({ score, power, level, cost, energy, maxEnergy, shared })); } catch (e) {}
+      try { localStorage.setItem('aerotap_v6', JSON.stringify({ score, power, level, cost, energy, maxEnergy, shared })); } catch (e) {}
     }
 
     function tapPlane(e) {
@@ -155,7 +154,7 @@
 
     function inviteFriend() {
       const refLink = 'https://t.me_' + userId;
-      const inviteText = '🚀 Join AeroTap with me and get +250 $AERO bonus points before token listing!\n👉 ' + refLink;
+      const inviteText = '🚀 Join AeroTap with me and get +250 $AERO bonus points before token listing!\n\n🔥 Залетай в AeroTap по моей ссылке и забирай +250 $AERO бонусом до листинга токена!\n👉 ' + refLink;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(inviteText);
       }
@@ -168,7 +167,7 @@
         invBtn.innerText = '✅ Invite Message Copied!';
         setTimeout(render, 1200);
       }
-      const shareUrl = 'https://t.me' + encodeURIComponent(refLink) + '&text=' + encodeURIComponent('🚀 Join AeroTap with me and get +250 $AERO bonus points!');
+      const shareUrl = 'https://t.me' + encodeURIComponent(refLink) + '&text=' + encodeURIComponent('🚀 Join AeroTap & get +250 $AERO! / Залетай в AeroTap и забирай +250 $AERO до листинга!');
       try {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
           window.Telegram.WebApp.openTelegramLink(shareUrl);
