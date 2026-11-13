@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AeroTap — $AERO Empire</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <!-- Вкладка: ПОЛЕТ -->
+    <!-- Вкладка 1: ПОЛЕТ -->
     <div id="tab-fly" class="tab-content active">
         <div class="top-actions">
             <button class="action-pill" onclick="claimDaily()">🎁 Бонус дня</button>
@@ -40,6 +40,7 @@
 
         <div class="tap-zone" id="tap-zone">
             <div class="radar-circle" id="radar-circle"></div>
+            <button class="bonus-drone" id="bonus-drone" onclick="catchDrone()">🛸</button>
             <div class="plane-btn" id="plane-btn">
                 <div class="plane-icon" id="plane-icon">🛩️</div>
                 <div class="plane-model" id="plane-model">Cessna 172</div>
@@ -63,7 +64,7 @@
         </div>
     </div>
 
-    <!-- Вкладка: АНГАР (Прокачка + Карточки) -->
+    <!-- Вкладка 2: ИМПЕРИЯ -->
     <div id="tab-hangar" class="tab-content">
         <h3 class="section-title">⚡ Тюнинг борта</h3>
         <div class="upgrades-list">
@@ -88,24 +89,73 @@
             </div>
         </div>
 
-        <h3 class="section-title" style="margin-top: 20px;">🌍 Авиа-империя (Пассивный доход)</h3>
-        <div class="upgrades-list" id="cards-container">
-            <!-- Карточки генерируются через JS -->
+        <h3 class="section-title" style="margin-top: 18px;">🌍 Авиа-империя (Пассивный доход)</h3>
+        <div class="upgrades-list" id="cards-container"></div>
+    </div>
+
+    <!-- Вкладка 3: ТОП ПИЛОТОВ (Таблица лидеров) -->
+    <div id="tab-top" class="tab-content">
+        <div class="league-header">
+            <div class="league-badge" id="league-badge">🥉 Бронзовая лига</div>
+            <h2 style="margin-top: 6px;">Топ пилотов $AERO</h2>
+            <p class="airdrop-desc">Обгоняй соперников и забирай главный пул наград при листинге!</p>
+        </div>
+
+        <div class="leaderboard-list" id="leaderboard-list">
+            <!-- Список лидеров генерируется через JS -->
+        </div>
+
+        <div class="my-rank-bar">
+            <span>Твоя позиция в мире:</span>
+            <b id="my-world-rank" style="color: var(--gold);">#11</b>
         </div>
     </div>
 
-    <!-- Вкладка: AIRDROP -->
+    <!-- Вкладка 4: ДРУЗЬЯ -->
+    <div id="tab-friends" class="tab-content">
+        <div class="friends-header">
+            <div style="font-size: 48px;">👨‍✈️</div>
+            <h2>Твоя Эскадрилья</h2>
+            <p class="airdrop-desc">Приглашай друзей в AeroTap и получай <b>+10,000 $AERO</b> за каждого нового пилота!</p>
+        </div>
+
+        <div class="stats-summary" style="width: 100%; text-align: center;">
+            <div>Приглашено пилотов: <b id="ref-count" style="color: var(--accent);">0</b></div>
+            <div>Заработано с друзей: <b id="ref-earned" style="color: var(--gold);">0 $AERO</b></div>
+        </div>
+
+        <div class="ref-actions">
+            <button class="wallet-btn" onclick="inviteFriend()">🚀 Пригласить друга</button>
+            <button class="copy-btn" onclick="copyRefLink()">📋 Скопировать ссылку</button>
+        </div>
+    </div>
+
+    <!-- Вкладка 5: AIRDROP -->
     <div id="tab-airdrop" class="tab-content">
-        <div class="airdrop-box">
+        <div class="airdrop-box" style="width: 100%;">
             <div class="airdrop-icon">🪂</div>
             <h2>Листинг токена $AERO</h2>
             <p class="airdrop-desc">
-                Твой финальный дроп зависит от <b>прибыли в час</b>, <b>ранга пилота</b> и количества выполненных рейсов. Качай империю на максимум!
+                Выполняй задания, качай прибыль в час и поднимайся в Топ-10 пилотов для максимального дропа.
             </p>
-            <div class="stats-summary">
-                <div>Всего натапано: <b id="stat-taps">0</b></div>
-                <div>Ранг: <b id="stat-rank">Кадет</b></div>
+            
+            <div class="tasks-list">
+                <div class="upgrade-card">
+                    <div class="upgrade-info">
+                        <h4>📢 Канал $AERO Community</h4>
+                        <p>Награда: +15,000 $AERO</p>
+                    </div>
+                    <button class="buy-btn" id="task-tg" onclick="completeTask('tg', 15000, 'https://t.me')">Забрать</button>
+                </div>
+                <div class="upgrade-card">
+                    <div class="upgrade-info">
+                        <h4>🐦 Подписка на X (Twitter)</h4>
+                        <p>Награда: +15,000 $AERO</p>
+                    </div>
+                    <button class="buy-btn" id="task-x" onclick="completeTask('x', 15000, 'https://x.com')">Забрать</button>
+                </div>
             </div>
+
             <button class="wallet-btn" onclick="connectWallet()">💎 Подключить TON Кошелек</button>
         </div>
     </div>
@@ -119,12 +169,20 @@
             <span class="nav-icon">🏢</span>
             <span>Империя</span>
         </button>
+        <button class="nav-item" onclick="switchTab('top', this)">
+            <span class="nav-icon">🏆</span>
+            <span>Топ</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('friends', this)">
+            <span class="nav-icon">👥</span>
+            <span>Друзья</span>
+        </button>
         <button class="nav-item" onclick="switchTab('airdrop', this)">
             <span class="nav-icon">🪂</span>
             <span>Airdrop</span>
         </button>
     </div>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>
