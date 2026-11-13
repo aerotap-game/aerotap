@@ -315,7 +315,7 @@
     }
 
     function onSpin() {
-      const p =;
+      const p = new Array(1000, 2500, 5000, 10000);
       const w = p[Math.floor(Math.random() * p.length)];
       s.score += w; s.en = s.maxEn;
       toast('🎰 Jackpot: +' + w.toLocaleString() + ' $ATAP & Full Fuel!');
