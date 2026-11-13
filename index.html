@@ -128,15 +128,7 @@
 
   <script>
     let state = {
-      score: 0,
-      power: 1,
-      level: 1,
-      cost: 100,
-      energy: 1000,
-      maxEnergy: 1000,
-      pph: 0,
-      shared: false,
-      lastTime: Date.now(),
+      score: 0, power: 1, level: 1, cost: 100, energy: 1000, maxEnergy: 1000, pph: 0, shared: false, lastTime: Date.now(),
       cards: [
         { id: 'autoclicker', name: 'Auto-Clicker Bot', icon: '🤖', baseCost: 500, basePph: 1000, lvl: 0 },
         { id: 'hangar', name: 'Private Hangar', icon: '🏢', baseCost: 2000, basePph: 4500, lvl: 0 },
@@ -144,21 +136,17 @@
         { id: 'spaceport', name: 'Orbital Spaceport', icon: '🛰️', baseCost: 50000, basePph: 150000, lvl: 0 }
       ]
     };
-
     let mult = 1, userId = 'pilot', AdController = null;
 
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.innerText = msg;
-      t.style.display = 'block';
+      t.innerText = msg; t.style.display = 'block';
       setTimeout(() => { t.style.display = 'none'; }, 2500);
     }
 
     try {
-      if (window.Adsgram) {
-        AdController = window.Adsgram.init({ blockId: "59556" });
-      }
-      const saved = JSON.parse(localStorage.getItem('aerotap_v9'));
+      if (window.Adsgram) AdController = window.Adsgram.init({ blockId: "59556" });
+      const saved = JSON.parse(localStorage.getItem('aerotap_v10'));
       if (saved) {
         state = { ...state, ...saved };
         if (state.pph > 0 && state.lastTime) {
@@ -173,148 +161,101 @@
         }
       }
       if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand();
         const u = window.Telegram.WebApp.initDataUnsafe?.user;
-        if (u) {document.getElementById('user-name').innerText = '@' + (u.username || u.first_name);
-userId = u.id || 'pilot';
-}
-}
-const urlParams = new URLSearchParams(window.location.search);
-const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param || urlParams.get('tgWebAppStartParam');
-if (startParam && !localStorage.getItem('aerotap_ref_used')) {
-state.score += 250;
-localStorage.setItem('aerotap_ref_used', '1');
-}
-} catch (e) {}
-function getCardCost(card) {
-return Math.floor(card.baseCost * Math.pow(1.6, card.lvl));
-}
-function renderShop() {
-const container = document.getElementById('cards-container');
-container.innerHTML = '';
-state.cards.forEach((card, idx) => {
-const cCost = getCardCost(card);
-const div = document.createElement('div');
-div.className = 'card';
-div.innerHTML = <div class="card-info"> <div class="card-icon">${card.icon}</div> <div> <div class="card-name">${card.name}</div> <div class="card-sub">+${card.basePph.toLocaleString()} / hr</div> <div class="card-lvl">Level ${card.lvl}</div> </div> </div> <button class="buy-btn" onclick="buyCard(${idx})">${cCost.toLocaleString()}</button>;
-container.appendChild(div);
-});
-}
-function buyCard(idx) {
-const card = state.cards[idx];
-const cCost = getCardCost(card);
-if (state.score >= cCost) {
-state.score -= cCost;
-card.lvl += 1;
-state.pph += card.basePph;
-showToast('✅ ' + card.name + ' upgraded to Lvl ' + card.lvl + '!');
-renderShop();
-render();
-} else {
-showToast('❌ Need ' + cCost.toLocaleString() + ' $AERO');
-}
-}
-function switchTab(tab) {
-document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-document.getElementById('tab-' + tab).classList.add('active');
-document.getElementById('nav-' + tab).classList.add('active');
-if (tab === 'shop') renderShop();
-}
-function render() {
-document.getElementById('score').innerText = Math.floor(state.score).toLocaleString();
-document.getElementById('stat-tap').innerText = '+' + (state.power * mult);
-document.getElementById('stat-pph').innerText = state.pph.toLocaleString() + ' / hr';
-document.getElementById('tap-power').innerText = '+' + (state.power * mult) + ' per tap';
-document.getElementById('upgrade-btn').innerText = '⬆️ Tap Lvl (' + state.cost + ')';
-document.getElementById('energy-val').innerText = Math.floor(state.energy) + ' / ' + state.maxEnergy;
-document.getElementById('energy-bar').style.width = (state.energy / state.maxEnergy * 100) + '%';
-let rName = 'Level ' + state.level + ': Prop Plane', rIcon = '🛩️';
-if (state.level >= 10) { rName = 'Level ' + state.level + ': Stratosphere'; rIcon = '🚀'; }
-else if (state.level >= 6) { rName = 'Level ' + state.level + ': Supersonic'; rIcon = '✈️'; }
-else if (state.level >= 3) { rName = 'Level ' + state.level + ': Business Jet'; rIcon = '🛫'; }
-document.getElementById('rank-name').innerText = rName;
-document.getElementById('jet-icon').innerText = rIcon;
-if (state.shared) {
-const invBtn = document.getElementById('invite-btn');
-invBtn.innerText = '📋 Copy Invite Link (+500 Claimed)';
-invBtn.classList.add('btn-done');
-}
-state.lastTime = Date.now();
-try { localStorage.setItem('aerotap_v9', JSON.stringify(state)); } catch (e) {}
-}
-function tapPlane(e) {
-if (state.energy < state.power) return;
-const gain = state.power * mult;
-state.score += gain;
-state.energy -= state.power;
-const el = document.createElement('div');
-el.className = 'float-num';
-el.innerText = '+' + gain;
-el.style.left = ((e.clientX || 150) - 20) + 'px';
-el.style.top = ((e.clientY || 250) - 30) + 'px';
-document.body.appendChild(el);
-setTimeout(() => el.remove(), 700);
-render();
-}
-function buyUpgrade() {
-if (state.score >= state.cost) {
-state.score -= state.cost;
-state.level += 1;
-state.power += 1;
-state.maxEnergy += 200;
-state.cost = Math.floor(state.cost * 1.8);
-render();
-} else {
-showToast('❌ Need ' + state.cost + ' $AERO');
-}
-}
-function startBoost() {
-mult = 3;
-document.getElementById('jet-btn').classList.add('boost');
-document.getElementById('ad-btn').innerText = '🔥 Turbo x3 ON!';
-render();
-setTimeout(() => {
-mult = 1;
-document.getElementById('jet-btn').classList.remove('boost');
-document.getElementById('ad-btn').innerText = '📺 Turbo x3 (Ad)';
-render();
-}, 30000);
-}
-function activateTurbo() {
-if (mult === 3) return;
-if (AdController) {
-AdController.show().then(() => {
-startBoost();
-}).catch(() => {
-startBoost();
-});
-} else {
-startBoost();
-}
-}
-function inviteFriend() {
-const refLink = 't.me_' + userId;
-const inviteText = '🚀 Join AeroTap with me and get +250 $AERO bonus points before token listing!\n\n🔥 Залетай в AeroTap по моей ссылке и забирай +250 $AERO бонусом до листинга токена!\n👉 ' + refLink;
-if (navigator.clipboard) navigator.clipboard.writeText(inviteText);
-if (!state.shared) {
-state.score += 500;
-state.shared = true;
-showToast('✅ +500 $AERO claimed & link copied!');
-render();
-} else {
-showToast('📋 Invite message copied!');
-}
-}
-setInterval(() => {
-if (state.energy < state.maxEnergy) {
-state.energy = Math.min(state.maxEnergy, state.energy + 3);
-}
-if (state.pph > 0) {
-state.score += state.pph / 3600;
-}
-render();
-}, 1000);
-renderShop();
-render();
+        if (u) { document.getElementById('user-name').innerText = '@' + (u.username || u.first_name); userId = u.id || 'pilot'; }
+      }
+    } catch (e) {}
+
+    function getCardCost(card) { return Math.floor(card.baseCost * Math.pow(1.6, card.lvl)); }
+
+    function renderShop() {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '';
+      state.cards.forEach((card, idx) => {
+        const cCost = getCardCost(card);
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<div class="card-info"><div class="card-icon">${card.icon}</div><div><div class="card-name">${card.name}</div><div class="card-sub">+${card.basePph.toLocaleString()} / hr</div><div class="card-lvl">Level ${card.lvl}</div></div></div><button class="buy-btn" onclick="buyCard(${idx})">${cCost.toLocaleString()}</button>`;
+        container.appendChild(div);
+      });
+    }
+
+    function buyCard(idx) {
+      const card = state.cards[idx], cCost = getCardCost(card);
+      if (state.score >= cCost) {
+        state.score -= cCost; card.lvl += 1; state.pph += card.basePph;
+        showToast('✅ ' + card.name + ' Lvl ' + card.lvl + '!'); renderShop(); render();
+      } else { showToast('❌ Need ' + cCost.toLocaleString() + ' $AERO'); }
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('nav-' + tab).classList.add('active');
+      if (tab === 'shop') renderShop();
+    }
+
+    function render() {
+      document.getElementById('score').innerText = Math.floor(state.score).toLocaleString();
+      document.getElementById('stat-tap').innerText = '+' + (state.power * mult);
+      document.getElementById('stat-pph').innerText = state.pph.toLocaleString() + ' / hr';
+      document.getElementById('tap-power').innerText = '+' + (state.power * mult) + ' per tap';
+      document.getElementById('upgrade-btn').innerText = '⬆️ Tap Lvl (' + state.cost + ')';
+      document.getElementById('energy-val').innerText = Math.floor(state.energy) + ' / ' + state.maxEnergy;
+      document.getElementById('energy-bar').style.width = (state.energy / state.maxEnergy * 100) + '%';
+      let rName = 'Level ' + state.level + ': Prop Plane', rIcon = '🛩️';
+      if (state.level >= 10) { rName = 'Level ' + state.level + ': Stratosphere'; rIcon = '🚀'; }
+      else if (state.level >= 6) { rName = 'Level ' + state.level + ': Supersonic'; rIcon = '✈️'; }
+      else if (state.level >= 3) { rName = 'Level ' + state.level + ': Business Jet'; rIcon = '🛫'; }
+      document.getElementById('rank-name').innerText = rName; document.getElementById('jet-icon').innerText = rIcon;
+      if (state.shared) {
+        const invBtn = document.getElementById('invite-btn');
+        invBtn.innerText = '📋 Copy Invite Link (+500 Claimed)'; invBtn.classList.add('btn-done');
+      }
+      state.lastTime = Date.now();
+      try { localStorage.setItem('aerotap_v10', JSON.stringify(state)); } catch (e) {}
+    }
+
+    function tapPlane(e) {
+      if (state.energy < state.power) return;
+      const gain = state.power * mult; state.score += gain; state.energy -= state.power;
+      const el = document.createElement('div'); el.className = 'float-num'; el.innerText = '+' + gain;
+      el.style.left = ((e.clientX || 150) - 20) + 'px'; el.style.top = ((e.clientY || 250) - 30) + 'px';
+      document.body.appendChild(el); setTimeout(() => el.remove(), 700); render();
+    }
+
+    function buyUpgrade() {
+      if (state.score >= state.cost) {
+        state.score -= state.cost; state.level += 1; state.power += 1; state.maxEnergy += 200; state.cost = Math.floor(state.cost * 1.8); render();
+      } else { showToast('❌ Need ' + state.cost + ' $AERO'); }
+    }
+
+    function startBoost() {
+      mult = 3; document.getElementById('jet-btn').classList.add('boost'); document.getElementById('ad-btn').innerText = '🔥 Turbo x3 ON!'; render();
+      setTimeout(() => { mult = 1; document.getElementById('jet-btn').classList.remove('boost'); document.getElementById('ad-btn').innerText = '📺 Turbo x3 (Ad)'; render(); }, 30000);
+    }
+
+    function activateTurbo() {
+      if (mult === 3) return;
+      if (AdController) { AdController.show().then(() => startBoost()).catch(() => startBoost()); } else { startBoost(); }
+    }
+
+    function inviteFriend() {
+      const refLink = 'https://t.me_' + userId;
+      const inviteText = '🚀 Join AeroTap with me and get +250 $AERO bonus points before token listing!\n\n🔥 Залетай в AeroTap по моей ссылке и забирай +250 $AERO бонусом до листинга токена!\n👉 ' + refLink;
+      if (navigator.clipboard) navigator.clipboard.writeText(inviteText);
+      if (!state.shared) { state.score += 500; state.shared = true; showToast('✅ +500 $AERO claimed & link copied!'); render(); } else { showToast('📋 Invite message copied!'); }
+    }
+
+    setInterval(() => {
+      if (state.energy < state.maxEnergy) state.energy = Math.min(state.maxEnergy, state.energy + 3);
+      if (state.pph > 0) state.score += state.pph / 3600;
+      render();
+    }, 1000);
+
+    renderShop(); render();
+  </script>
+</body>
+</html>
