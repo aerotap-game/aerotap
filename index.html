@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AeroTap — $AERO Empire</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
     <div class="header">
-        <div class="pilot-info">
+        <div class="pilot-info" onclick="changePilotName()" style="cursor: pointer;" title="Нажми, чтобы сменить имя">
             <div class="avatar" id="avatar">✈️</div>
             <div>
-                <div class="pilot-name" id="pilot-name">Пилот #001</div>
+                <div class="pilot-name"><span id="pilot-name">Пилот #001</span> <span style="font-size: 11px; opacity: 0.7;">✏️</span></div>
                 <div class="pilot-rank" id="pilot-rank">Ранг: Кадет</div>
             </div>
         </div>
@@ -125,7 +125,7 @@
 
         <div class="ref-actions">
             <button class="wallet-btn" id="invite-btn" onclick="inviteFriend()">🚀 Пригласить друга (+10,000)</button>
-            <button class="copy-btn" onclick="copyRefLink()">📋 Скопировать ссылку</button>
+            <button class="copy-btn" onclick="copyRefLink()">📋 Скопировать приглашение</button>
         </div>
     </div>
 
@@ -207,7 +207,6 @@
         </button>
     </div>
 
-        <script src="script.js?v=10"></script>
-
+    <script src="script.js?v=13"></script>
 </body>
 </html>
