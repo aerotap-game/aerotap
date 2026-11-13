@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>AeroTap</title>
-  <script src="https://telegram.org"></script>
-  <script src="https://adsgram.ai"></script>
   <style>
     *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent;font-family:-apple-system,sans-serif}
     body{margin:0;background:#0b0f17;color:#fff;display:flex;flex-direction:column;height:100vh;overflow:hidden}
@@ -33,7 +31,7 @@
     <div><div style="color:#94a3b8">Profit/Hr</div><div class="sv" id="sph">0</div></div>
     <div><div style="color:#94a3b8">Streak</div><div class="sv" id="sdy">Day 1</div></div>
   </div>
-  <div style="text-align:center;margin-top:10px"><div style="font-size:11px;color:#94a3b8">$ATAP BALANCE</div><div style="font-size:38px;font-weight:800" id="sc">0</div></div>
+  <div style="text-align:center;margin-top:10px"><div style="font-size:11px;color:#94a3b8">$AERO BALANCE</div><div style="font-size:38px;font-weight:800" id="sc">0</div></div>
   <div class="tab act" id="t-tap">
     <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative">
       <div class="jet" id="jet" onclick="tap(event)">
@@ -51,51 +49,46 @@
       <button class="btn" style="background:#8b5cf6;border:none" id="sb" onclick="spn()">🎰 Spin (Ad)</button>
     </div>
   </div>
-
   <div class="tab" id="t-shop"><div style="padding:12px 16px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">🛒 Auto-Clickers & Passive Income</div><div id="cds"></div></div></div>
   <div class="tab" id="t-quests"><div style="padding:12px 16px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">🎯 Daily Bonus & Secret Code</div><div id="qst"></div></div></div>
   <div class="tab" id="t-friends">
     <div style="padding:16px;text-align:center">
       <div style="background:#131a26;border:1px solid #1f293a;border-radius:16px;padding:18px;margin-bottom:14px">
         <div style="font-size:40px;margin-bottom:8px">🎁</div>
-        <div style="font-size:17px;font-weight:800;margin-bottom:6px">Invite Pilots & Earn $ATAP</div>
-        <div style="font-size:12px;color:#94a3b8">You get <b>+500 $ATAP</b> and your friend gets <b>+250 $ATAP</b>!</div>
+        <div style="font-size:17px;font-weight:800;margin-bottom:6px">Invite Pilots & Earn $AERO</div>
+        <div style="font-size:12px;color:#94a3b8">You get <b>+500 $AERO</b> and your friend gets <b>+250 $AERO</b>!</div>
       </div>
-      <button class="btn" style="width:100%;background:#0284c7;border:none;padding:14px;font-size:14px" id="ib" onclick="inv()">👥 Share & Claim +500 $ATAP</button>
+      <button class="btn" style="width:100%;background:#0284c7;border:none;padding:14px;font-size:14px" id="ib" onclick="inv()">👥 Share & Claim +500 $AERO</button>
     </div>
   </div>
-
   <div class="nav">
     <button class="nb act" id="n-tap" onclick="go('tap')">✈️<br>Flight</button>
     <button class="nb" id="n-shop" onclick="go('shop')">🛒<br>Shop</button>
     <button class="nb" id="n-quests" onclick="go('quests')">🎯<br>Tasks</button>
     <button class="nb" id="n-friends" onclick="go('friends')">👥<br>Friends</button>
   </div>
-
   <script>
-    let s={sc:0,pw:1,lv:1,cs:100,en:1000,me:1000,ph:0,sh:false,lt:Date.now(),dl:0,sk:1,tp:0,ls:0,cd:false,q:{},
-      c:new Array({n:'Auto-Clicker Bot',i:'🤖',c:500,p:1000,l:0},{n:'Private Hangar',i:'🏢',c:2000,p:4500,l:0},{n:'Global Airline',i:'🌍',c:10000,p:25000,l:0},{n:'Orbital Spaceport',i:'🛰️',c:50000,p:150000,l:0})
-    };
-    let ml=1,uid='pilot',Ad=null;
+    let s={sc:0,pw:1,lv:1,cs:100,en:1000,me:1000,ph:0,sh:false,lt:Date.now(),dl:0,sk:1,tp:0,ls:0,cd:false,q:{},c:new Array({n:'Auto-Clicker Bot',i:'🤖',c:500,p:1000,l:0},{n:'Private Hangar',i:'🏢',c:2000,p:4500,l:0},{n:'Global Airline',i:'🌍',c:10000,p:25000,l:0},{n:'Orbital Spaceport',i:'🛰️',c:50000,p:150000,l:0})};
+    let ml=1,Ad=null;
     function tst(m){const t=document.getElementById('tst');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
-    try{
-      if(window.Adsgram)Ad=window.Adsgram.init({blockId:"59556"});
-      const sv=JSON.parse(localStorage.getItem('atap_v15'));
-      if(sv){s={...s,...sv};const sec=Math.min(10800,Math.floor((Date.now()-s.lt)/1000));if(s.ph>0&&sec>10){const e=Math.floor((s.ph/3600)*sec);s.sc+=e;setTimeout(()=>tst('🤖 Auto-Clicker: +'+e+' $ATAP!'),500)}}
-      if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();const u=window.Telegram.WebApp.initDataUnsafe?.user;if(u){document.getElementById('un').innerText='@'+(u.username||u.first_name);uid=u.id}}
-    }catch(e){}
+    const sc=document.createElement('script');sc.src='https://adsgram.ai>{if(window.Adsgram)Ad=window.Adsgram.init({blockId:"59556"})};document.head.appendChild(sc);
+    try{const sv=JSON.parse(localStorage.getItem('aero_v18'));if(sv){s={...s,...sv};const sec=Math.min(10800,Math.floor((Date.now()-s.lt)/1000));if(s.ph>0&&sec>10){const e=Math.floor((s.ph/3600)*sec);s.sc+=e;setTimeout(()=>tst('🤖 Auto-Clicker: +'+e+' $AERO!'),500)}}}catch(e){}
     function cc(c){return Math.floor(c.c*Math.pow(1.6,c.l))}
-    function rSh(){document.getElementById('cds').innerHTML=s.c.map((c,i)=>`<div class="card"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:24px;background:#1e293b;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center">${c.i}</div><div><div style="font-size:13px;font-weight:700">${c.n}</div><div style="font-size:11px;color:#38bdf8">+${c.p.toLocaleString()}/hr • Lvl ${c.l}</div></div></div><button class="bb" onclick="bC(${i})">${cc(c).toLocaleString()}</button></div>`).join('')}
+    function rSh(){let h='';s.c.forEach((c,i)=>{h+='<div class="card"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:24px;background:#1e293b;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center">'+c.i+'</div><div><div style="font-size:13px;font-weight:700">'+c.n+'</div><div style="font-size:11px;color:#38bdf8">+'+c.p.toLocaleString()+'/hr • Lvl '+c.l+'</div></div></div><button class="bb" onclick="bC('+i+')">'+cc(c).toLocaleString()+'</button></div>'});document.getElementById('cds').innerHTML=h}
     function bC(i){const c=s.c.at(i),cs=cc(c);if(s.sc>=cs){s.sc-=cs;c.l++;s.ph+=c.p;tst('✅ Upgraded!');rSh();rn()}else tst('❌ Need '+cs)}
     function rQs(){
-      const d=(Date.now()-s.dl)>86400000;
-      const cb=s.cd?`<div class="card"><div style="font-size:13px;font-weight:700;color:#94a3b8">🔐 Secret Code Claimed (+25,000)</div><button class="bb dn">Done</button></div>`:`<div class="card" style="flex-direction:column;align-items:stretch;gap:8px"><div style="font-size:13px;font-weight:700">🔐 Secret YouTube Code (+25,000 $ATAP)</div><div style="display:flex;gap:8px"><input id="cin" type="text" placeholder="Enter code..." style="flex:1;background:#1e293b;border:1px solid #334155;color:#fff;padding:8px 10px;border-radius:10px;font-size:13px;outline:none"/><button class="bb" onclick="chk()">Claim</button></div></div>`;
-      document.getElementById('qst').innerHTML=cb+`<div class="card"><div><div style="font-size:13px;font-weight:700">📅 Daily Bonus (Day ${s.sk})</div><div style="font-size:11px;color:#38bdf8">+${(s.sk*1000).toLocaleString()} $ATAP</div></div><button class="bb ${d?'':'dn'}" onclick="gD()">${d?'Claim':'Done'}</button></div><div class="card"><div><div style="font-size:13px;font-weight:700">▶️ Watch AeroScale Shorts</div><div style="font-size:11px;color:#38bdf8">+3,000 $ATAP</div></div><button class="bb ${s.q.yt?'dn':''}" onclick="gQ('yt',3000,'https://youtube.com')">${s.q.yt?'Done':'Go'}</button></div><div class="card"><div><div style="font-size:13px;font-weight:700">✈️ Make 100 Taps (${Math.min(100,s.tp)}/100)</div><div style="font-size:11px;color:#38bdf8">+1,500 $ATAP</div></div><button class="bb ${s.q.tp?'dn':''}" onclick="gT()">${s.q.tp?'Done':'Claim'}</button></div>`;
+      const d=(Date.now()-s.dl)>86400000;let h='';
+      if(s.cd)h+='<div class="card"><div style="font-size:13px;font-weight:700;color:#94a3b8">🔐 Secret Code Claimed (+25,000)</div><button class="bb dn">Done</button></div>';
+      else h+='<div class="card" style="flex-direction:column;align-items:stretch;gap:8px"><div style="font-size:13px;font-weight:700">🔐 Secret YouTube Code (+25,000 $AERO)</div><div style="display:flex;gap:8px"><input id="cin" type="text" placeholder="Enter code..." style="flex:1;background:#1e293b;border:1px solid #334155;color:#fff;padding:8px 10px;border-radius:10px;font-size:13px;outline:none"/><button class="bb" onclick="chk()">Claim</button></div></div>';
+      h+='<div class="card"><div><div style="font-size:13px;font-weight:700">📅 Daily Bonus (Day '+s.sk+')</div><div style="font-size:11px;color:#38bdf8">+'+(s.sk*1000).toLocaleString()+' $AERO</div></div><button class="bb '+(d?'':'dn')+'" onclick="gD()">'+(d?'Claim':'Done')+'</button></div>';
+      h+='<div class="card"><div><div style="font-size:13px;font-weight:700">▶️ Watch AeroScale Shorts</div><div style="font-size:11px;color:#38bdf8">+3,000 $AERO</div></div><button class="bb '+(s.q.yt?'dn':'')+'" onclick="gQ()">'+(s.q.yt?'Done':'Go')+'</button></div>';
+      h+='<div class="card"><div><div style="font-size:13px;font-weight:700">✈️ Make 100 Taps ('+Math.min(100,s.tp)+'/100)</div><div style="font-size:11px;color:#38bdf8">+1,500 $AERO</div></div><button class="bb '+(s.q.tp?'dn':'')+'" onclick="gT()">'+(s.q.tp?'Done':'Claim')+'</button></div>';
+      document.getElementById('qst').innerHTML=h;
     }
-    function chk(){const i=document.getElementById('cin');if(!i)return;const v=i.value.trim().toUpperCase();if(v==='AERO2026'||v==='BLACKBIRD'){s.cd=true;s.sc+=25000;tst('🔥 +25,000 $ATAP!');rQs();rn()}else tst('❌ Wrong code!')}
+    function chk(){const i=document.getElementById('cin');if(!i)return;const v=i.value.trim().toUpperCase();if(v==='AERO2026'||v==='BLACKBIRD'){s.cd=true;s.sc+=25000;tst('🔥 +25,000 $AERO!');rQs();rn()}else tst('❌ Wrong code!')}
     function gD(){if((Date.now()-s.dl)>86400000){s.sc+=s.sk*1000;s.dl=Date.now();s.sk++;tst('🎉 Daily claimed!');rQs();rn()}else tst('⏳ Tomorrow')}
-    function gQ(id,rw,u){if(!s.q.hasOwnProperty(id)){s.q[id]=true;s.sc+=rw;tst('🎉 +'+rw+' $ATAP!');rQs();rn();window.open(u,'_blank')}}
-    function gT(){if(!s.q.tp&&s.tp>=100){s.q.tp=true;s.sc+=1500;tst('🎉 +1,500 $ATAP!');rQs();rn()}else if(!s.q.tp)tst('❌ Tap '+(100-s.tp)+' more!')}
+    function gQ(){if(!s.q.yt){s.q.yt=true;s.sc+=3000;tst('🎉 +3,000 $AERO!');rQs();rn();window.open('https://youtube.com','_blank')}}
+    function gT(){if(!s.q.tp&&s.tp>=100){s.q.tp=true;s.sc+=1500;tst('🎉 +1,500 $AERO!');rQs();rn()}else if(!s.q.tp)tst('❌ Tap '+(100-s.tp)+' more!')}
     function go(t){document.querySelectorAll('.tab').forEach(e=>e.classList.remove('act'));document.querySelectorAll('.nb').forEach(e=>e.classList.remove('act'));document.getElementById('t-'+t).classList.add('act');document.getElementById('n-'+t).classList.add('act');if(t==='shop')rSh();if(t==='quests')rQs()}
     function rn(){
       document.getElementById('sc').innerText=Math.floor(s.sc).toLocaleString();document.getElementById('stp').innerText='+'+(s.pw*ml);document.getElementById('sph').innerText=s.ph.toLocaleString();document.getElementById('sdy').innerText='Day '+s.sk;
@@ -103,169 +96,17 @@
       let r='Lvl '+s.lv+': Prop Plane',i='🛩️';if(s.lv>=10){r='Lvl '+s.lv+': Stratosphere';i='🚀'}else if(s.lv>=6){r='Lvl '+s.lv+': Supersonic';i='✈️'}else if(s.lv>=3){r='Lvl '+s.lv+': Business Jet';i='🛫'}
       document.getElementById('rn').innerText=r;document.getElementById('ji').innerText=i;
       if(s.sh){document.getElementById('ib').innerText='📋 Copy Link (Claimed)';document.getElementById('ib').style.background='#1e293b'}
-      s.lt=Date.now();try{localStorage.setItem('atap_v15',JSON.stringify(s))}catch(e){}
+      s.lt=Date.now();try{localStorage.setItem('aero_v18',JSON.stringify(s))}catch(e){}
     }
     function tap(e){if(s.en<s.pw)return;const cr=Math.random()<.1,g=s.pw*ml*(cr?5:1);s.sc+=g;s.en-=s.pw;s.tp++;const el=document.createElement('div');el.className='fn';el.innerText=cr?'🔥 +'+g+' CRIT!':'+'+g;if(cr){el.style.color='#f59e0b';el.style.fontSize='32px'}el.style.left=((e.clientX||150)-25)+'px';el.style.top=((e.clientY||250)-30)+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),700);rn()}
     function up(){if(s.sc>=s.cs){s.sc-=s.cs;s.lv++;s.pw++;s.me+=200;s.cs=Math.floor(s.cs*1.8);rn()}else tst('❌ Need '+s.cs)}
     function oB(){ml=3;document.getElementById('jet').classList.add('bst');document.getElementById('ab').innerText='🔥 x3 ON!';rn();setTimeout(()=>{ml=1;document.getElementById('jet').classList.remove('bst');document.getElementById('ab').innerText='📺 Turbo x3';rn()},30000)}
     function trb(){if(ml===3)return;if(Ad)Ad.show().then(oB).catch(oB);else oB()}
-    function oS(){const p=new Array(1000,2500,5000,10000),w=p.at(Math.floor(Math.random()*p.length));s.sc+=w;s.en=s.me;s.ls=Date.now();tst('🎰 +'+w.toLocaleString()+' $ATAP & Full Fuel!');rn()}
+    function oS(){const p=new Array(1000,2500,5000,10000),w=p.at(Math.floor(Math.random()*p.length));s.sc+=w;s.en=s.me;s.ls=Date.now();tst('🎰 +'+w.toLocaleString()+' $AERO & Full Fuel!');rn()}
     function spn(){const w=7200000-(Date.now()-(s.ls||0));if(w>0){tst('⏳ Next spin in '+Math.ceil(w/60000)+'m!');return}if(Ad)Ad.show().then(oS).catch(oS);else oS()}
-    function inv(){const l='https://t.me('🚀 Join AeroTap & get +250 $ATAP!\n🔥 Залетай в AeroTap и забирай +250 $ATAP!\n👉 '+l);if(!s.sh){s.sc+=500;s.sh=true;tst('✅ +500 $ATAP claimed!');rn()}else tst('📋 Link copied!')}
-setInterval(()=>{if(s.en<s.me)s.en=Math.min(s.me,s.en+3);if(s.ph>0)s.sc+=s.ph/3600;const w=7200000-(Date.now()-(s.ls||0)),b=document.getElementById('sb');if(b){if(w>0){b.innerText='⏳ '+Math.ceil(w/60000)+'m';b.style.opacity='.6'}else{b.innerText='🎰 Spin (Ad)';b.style.opacity='1'}}rn()},1000);
-rSh();rQs();rn();
-                     <div class="tab act" id="t-tap">
-    <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative">
-      <div class="jet" id="jet" onclick="tap(event)">
-        <div id="ji" style="font-size:64px;pointer-events:none">🛩️</div>
-        <div id="tp" style="margin-top:4px;font-size:12px;color:#94a3b8;font-weight:600;pointer-events:none">+1 per tap</div>
-      </div>
-    </div>
-    <div style="padding:0 18px 10px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px"><span>⚡ Fuel</span><span id="ev">1000/1000</span></div>
-      <div style="width:100%;height:8px;background:#1e293b;border-radius:99px;overflow:hidden"><div id="eb" style="height:100%;background:#38bdf8;width:100%"></div></div>
-    </div>
-    <div style="padding:0 16px 10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <button class="btn" id="ub" onclick="up()">⬆️ Tap (100)</button>
-      <button class="btn" style="background:#f59e0b;border:none;color:#000" id="ab" onclick="trb()">📺 Turbo x3</button>
-      <button class="btn" style="background:#8b5cf6;border:none" id="sb" onclick="spn()">🎰 Spin (Ad)</button>
-    </div>
-  </div>
-  <div class="tab" id="t-shop"><div style="padding:12px 16px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">🛒 Auto-Clickers & Passive Income</div><div id="cds"></div></div></div>
-  <div class="tab" id="t-quests"><div style="padding:12px 16px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">🎯 Daily Bonus & Secret Code</div><div id="qst"></div></div></div>
-  <div class="tab" id="t-friends">
-    <div style="padding:16px;text-align:center">
-      <div style="background:#131a26;border:1px solid #1f293a;border-radius:16px;padding:18px;margin-bottom:14px">
-        <div style="font-size:40px;margin-bottom:8px">🎁</div>
-        <div style="font-size:17px;font-weight:800;margin-bottom:6px">Invite Pilots & Earn $ATAP</div>
-        <div style="font-size:12px;color:#94a3b8">You get <b>+500 $ATAP</b> and your friend gets <b>+250 $ATAP</b>!</div>
-      </div>
-      <button class="btn" style="width:100%;background:#0284c7;border:none;padding:14px;font-size:14px" id="ib" onclick="inv()">👥 Share & Claim +500 $ATAP</button>
-    </div>
-  </div>
-  <div class="nav">
-    <button class="nb act" id="n-tap" onclick="go('tap')">✈️<br>Flight</button>
-    <button class="nb" id="n-shop" onclick="go('shop')">🛒<br>Shop</button>
-    <button class="nb" id="n-quests" onclick="go('quests')">🎯<br>Tasks</button>
-    <button class="nb" id="n-friends" onclick="go('friends')">👥<br>Friends</button>
-  </div>
-   <script>
-    let s = { sc: 0, pw: 1, lv: 1, cs: 100, en: 1000, me: 1000, ph: 0, sh: false, lt: Date.now(), dl: 0, sk: 1, tp: 0, ls: 0, cd: false, q: {},
-      c: new Array(
-        { n: 'Auto-Clicker Bot', i: '🤖', c: 500, p: 1000, l: 0 },
-        { n: 'Private Hangar', i: '🏢', c: 2000, p: 4500, l: 0 },
-        { n: 'Global Airline', i: '🌍', c: 10000, p: 25000, l: 0 },
-        { n: 'Orbital Spaceport', i: '🛰️', c: 50000, p: 150000, l: 0 }
-      )
-    };
-    let ml = 1, uid = 'pilot', Ad = null;
-
-    function tst(m) {
-      const t = document.getElementById('tst');
-      t.innerText = m; t.style.display = 'block';
-      setTimeout(() => { t.style.display = 'none'; }, 2200);
-    }
-
-    try {
-      if (window.Adsgram) Ad = window.Adsgram.init({ blockId: "59556" });
-      const sv = JSON.parse(localStorage.getItem('aero_v17'));
-      if (sv) {
-        s = { ...s, ...sv };
-        const sec = Math.min(10800, Math.floor((Date.now() - s.lt) / 1000));
-        if (s.ph > 0 && sec > 10) {
-          const e = Math.floor((s.ph / 3600) * sec);
-          s.sc += e;
-          setTimeout(() => tst('🤖 Auto-Clicker: +' + e + ' $AERO!'), 500);
-        }
-      }
-      if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand();
-        const u = window.Telegram.WebApp.initDataUnsafe?.user;
-        if (u) { document.getElementById('un').innerText = '@' + (u.username || u.first_name); uid = u.id; }
-      }
-    } catch (e) {}
-
-    function cc(c) { return Math.floor(c.c * Math.pow(1.6, c.l)); }
-
-    function rSh() {
-      let h = '';
-      s.c.forEach((c, i) => {
-        h += '<div class="card"><div style="display:flex;align-items:center;gap:10px">';
-        h += '<div style="font-size:24px;background:#1e293b;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center">' + c.i + '</div>';
-        h += '<div><div style="font-size:13px;font-weight:700">' + c.n + '</div>';
-        h += '<div style="font-size:11px;color:#38bdf8">+' + c.p.toLocaleString() + '/hr • Lvl ' + c.l + '</div></div></div>';
-        h += '<button class="bb" onclick="bC(' + i + ')">' + cc(c).toLocaleString() + '</button></div>';
-      });
-      document.getElementById('cds').innerHTML = h;
-    }
-
-    function bC(i) {
-      const c = s.c.at(i), cs = cc(c);
-      if (s.sc >= cs) { s.sc -= cs; c.l++; s.ph += c.p; tst('✅ Upgraded!'); rSh(); rn(); }
-      else tst('❌ Need ' + cs);
-    }
-    function rQs() {
-      const d = (Date.now() - s.dl) > 86400000;
-      let h = '';
-      if (s.cd) {
-        h += '<div class="card"><div style="font-size:13px;font-weight:700;color:#94a3b8">🔐 Secret Code Claimed (+25,000)</div><button class="bb dn">Done</button></div>';
-      } else {
-        h += '<div class="card" style="flex-direction:column;align-items:stretch;gap:8px">';
-        h += '<div style="font-size:13px;font-weight:700">🔐 Secret YouTube Code (+25,000 $AERO)</div>';
-        h += '<div style="display:flex;gap:8px"><input id="cin" type="text" placeholder="Enter code..." style="flex:1;background:#1e293b;border:1px solid #334155;color:#fff;padding:8px 10px;border-radius:10px;font-size:13px;outline:none"/>';
-        h += '<button class="bb" onclick="chk()">Claim</button></div></div>';
-      }
-      h += '<div class="card"><div><div style="font-size:13px;font-weight:700">📅 Daily Bonus (Day ' + s.sk + ')</div>';
-      h += '<div style="font-size:11px;color:#38bdf8">+' + (s.sk * 1000).toLocaleString() + ' $AERO</div></div>';
-      h += '<button class="bb ' + (d ? '' : 'dn') + '" onclick="gD()">' + (d ? 'Claim' : 'Done') + '</button></div>';
-      h += '<div class="card"><div><div style="font-size:13px;font-weight:700">▶️ Watch AeroScale Shorts</div>';
-      h += '<div style="font-size:11px;color:#38bdf8">+3,000 $AERO</div></div>';
-      h += '<button class="bb ' + (s.q.yt ? 'dn' : '') + '" onclick="gQ()">' + (s.q.yt ? 'Done' : 'Go') + '</button></div>';
-      h += '<div class="card"><div><div style="font-size:13px;font-weight:700">✈️ Make 100 Taps (' + Math.min(100, s.tp) + '/100)</div>';
-      h += '<div style="font-size:11px;color:#38bdf8">+1,500 $AERO</div></div>';
-      h += '<button class="bb ' + (s.q.tp ? 'dn' : '') + '" onclick="gT()">' + (s.q.tp ? 'Done' : 'Claim') + '</button></div>';
-      document.getElementById('qst').innerHTML = h;
-    }
-
-    function chk() {
-      const i = document.getElementById('cin'); if (!i) return;
-      const v = i.value.trim().toUpperCase();
-      if (v === 'AERO2026' || v === 'BLACKBIRD') { s.cd = true; s.sc += 25000; tst('🔥 +25,000 $AERO!'); rQs(); rn(); }
-      else tst('❌ Wrong code!');
-    }
-    function gD() { if ((Date.now() - s.dl) > 86400000) { s.sc += s.sk * 1000; s.dl = Date.now(); s.sk++; tst('🎉 Daily claimed!'); rQs(); rn(); } else tst('⏳ Tomorrow'); }
-    function gQ() { if (!s.q.yt) { s.q.yt = true; s.sc += 3000; tst('🎉 +3,000 $AERO!'); rQs(); rn(); window.open('https://youtube.com', '_blank'); } }
-    function gT() { if (!s.q.tp && s.tp >= 100) { s.q.tp = true; s.sc += 1500; tst('🎉 +1,500 $AERO!'); rQs(); rn(); } else if (!s.q.tp) tst('❌ Tap ' + (100 - s.tp) + ' more!'); }
-    function go(t) { document.querySelectorAll('.tab').forEach(e => e.classList.remove('act')); document.querySelectorAll('.nb').forEach(e => e.classList.remove('act')); document.getElementById('t-' + t).classList.add('act'); document.getElementById('n-' + t).classList.add('act'); if (t === 'shop') rSh(); if (t === 'quests') rQs(); }
-
-    function rn() {
-      document.getElementById('sc').innerText = Math.floor(s.sc).toLocaleString(); document.getElementById('stp').innerText = '+' + (s.pw * ml); document.getElementById('sph').innerText = s.ph.toLocaleString(); document.getElementById('sdy').innerText = 'Day ' + s.sk;
-      document.getElementById('tp').innerText = '+' + (s.pw * ml) + ' per tap'; document.getElementById('ub').innerText = '⬆️ Tap (' + s.cs + ')'; document.getElementById('ev').innerText = Math.floor(s.en) + '/' + s.me; document.getElementById('eb').style.width = (s.en / s.me * 100) + '%';
-      let r = 'Lvl ' + s.lv + ': Prop Plane', i = '🛩️';
-      if (s.lv >= 10) { r = 'Lvl ' + s.lv + ': Stratosphere'; i = '🚀'; } else if (s.lv >= 6) { r = 'Lvl ' + s.lv + ': Supersonic'; i = '✈️'; } else if (s.lv >= 3) { r = 'Lvl ' + s.lv + ': Business Jet'; i = '🛫'; }
-      document.getElementById('rn').innerText = r; document.getElementById('ji').innerText = i;
-      if (s.sh) { document.getElementById('ib').innerText = '📋 Copy Link (Claimed)'; document.getElementById('ib').style.background = '#1e293b'; }
-      s.lt = Date.now(); try { localStorage.setItem('aero_v17', JSON.stringify(s)); } catch (e) {}
-    }
-
-    function tap(e) { if (s.en < s.pw) return; const cr = Math.random() < 0.1, g = s.pw * ml * (cr ? 5 : 1); s.sc += g; s.en -= s.pw; s.tp++; const el = document.createElement('div'); el.className = 'fn'; el.innerText = cr ? '🔥 +' + g + ' CRIT!' : '+' + g; if (cr) { el.style.color = '#f59e0b'; el.style.fontSize = '32px'; } el.style.left = ((e.clientX || 150) - 25) + 'px'; el.style.top = ((e.clientY || 250) - 30) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 700); rn(); }
-    function up() { if (s.sc >= s.cs) { s.sc -= s.cs; s.lv++; s.pw++; s.me += 200; s.cs = Math.floor(s.cs * 1.8); rn(); } else tst('❌ Need ' + s.cs); }
-    function oB() { ml = 3; document.getElementById('jet').classList.add('bst'); document.getElementById('ab').innerText = '🔥 x3 ON!'; rn(); setTimeout(() => { ml = 1; document.getElementById('jet').classList.remove('bst'); document.getElementById('ab').innerText = '📺 Turbo x3'; rn(); }, 30000); }
-    function trb() { if (ml === 3) return; if (Ad) Ad.show().then(oB).catch(oB); else oB(); }
-    function oS() { const p = new Array(1000, 2500, 5000, 10000), w = p.at(Math.floor(Math.random() * p.length)); s.sc += w; s.en = s.me; s.ls = Date.now(); tst('🎰 +' + w.toLocaleString() + ' $AERO & Full Fuel!'); rn(); }
-    function spn() { const w = 7200000 - (Date.now() - (s.ls || 0)); if (w > 0) { tst('⏳ Next spin in ' + Math.ceil(w / 60000) + 'm!'); return; } if (Ad) Ad.show().then(oS).catch(oS); else oS(); }
-    function inv() { const l = 'https://t.me_' + uid; if (navigator.clipboard) navigator.clipboard.writeText('Join AeroTap & get +250 $AERO! / Залетай в AeroTap: ' + l); if (!s.sh) { s.sc += 500; s.sh = true; tst('✅ +500 $AERO claimed!'); rn(); } else tst('📋 Link copied!'); }
-
-    setInterval(() => {
-      if (s.en < s.me) s.en = Math.min(s.me, s.en + 3);
-      if (s.ph > 0) s.sc += s.ph / 3600;
-      const w = 7200000 - (Date.now() - (s.ls || 0)), b = document.getElementById('sb');
-      if (b) { if (w > 0) { b.innerText = '⏳ ' + Math.ceil(w / 60000) + 'm'; b.style.opacity = '.6'; } else { b.innerText = '🎰 Spin (Ad)'; b.style.opacity = '1'; } }
-      rn();
-    }, 1000);
-
-    rSh(); rQs(); rn();
+    function inv(){const l='https://t.me('Join AeroTap & get +250 $AERO! / Залетай в AeroTap: '+l);if(!s.sh){s.sc+=500;s.sh=true;tst('✅ +500 $AERO claimed!');rn()}else tst('📋 Link copied!')}
+    setInterval(()=>{if(s.en<s.me)s.en=Math.min(s.me,s.en+3);if(s.ph>0)s.sc+=s.ph/3600;const w=7200000-(Date.now()-(s.ls||0)),b=document.getElementById('sb');if(b){if(w>0){b.innerText='⏳ '+Math.ceil(w/60000)+'m';b.style.opacity='.6'}else{b.innerText='🎰 Spin (Ad)';b.style.opacity='1'}}rn()},1000);
+    rSh();rQs();rn();
   </script>
 </body>
 </html>
-
