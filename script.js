@@ -16,7 +16,7 @@ if (tg) {
 }
 
 var BOT_NAME = 'aerotap_bot';
-var DB_KEY = 'aero_arcade_v9';
+var DB_KEY = 'aero_brutal_v10';
 
 var data = JSON.parse(localStorage.getItem(DB_KEY)) || {
     nick: '',
@@ -52,31 +52,28 @@ function getNick() {
 var soundEnabled = true;
 var audioCtx = null;
 
-function initAudio() {
-    if (!audioCtx) {
-        var AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) audioCtx = new AudioContext();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-}
-
 function toggleSound() {
     soundEnabled = !soundEnabled;
-    document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
+    var btn = document.getElementById('sound-btn');
+    if (btn) btn.innerText = soundEnabled ? '🔊' : '🔇';
     if (soundEnabled) playPopSound();
 }
 
 function playPopSound() {
     if (!soundEnabled) return;
     try {
-        initAudio();
+        if (!audioCtx) {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) audioCtx = new AC();
+        }
         if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         var osc = audioCtx.createOscillator();
         var gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(170, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 0.06);
-        gain.gain.setValueAtTime(0.13, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(360, audioCtx.currentTime + 0.06);
+        gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.07);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -85,42 +82,44 @@ function playPopSound() {
     } catch (e) {}
 }
 
-function playSoftTone(freq, duration) {
-    if (!soundEnabled) return;
-    try {
-        initAudio();
-        if (!audioCtx) return;
-        var osc = audioCtx.createOscillator();
-        var gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-    } catch (e) {}
-}
-
 function playWinSound() {
-    playSoftTone(440, 0.14);
-    setTimeout(function() { playSoftTone(554, 0.14); }, 80);
-    setTimeout(function() { playSoftTone(659, 0.25); }, 160);
+    playPopSound();
+    setTimeout(playPopSound, 90);
 }
 
 function playBoomSound() {
-    playSoftTone(110, 0.35);
+    if (!soundEnabled) return;
+    try {
+        if (!audioCtx) return;
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    } catch (e) {}
 }
+
 function openNameModal() {
-    document.getElementById('nick-input').value = getNick();
-    document.getElementById('name-modal').style.display = 'flex';
+    var inp = document.getElementById('nick-input');
+    var mod = document.getElementById('name-modal');
+    if (inp) inp.value = getNick();
+    if (mod) mod.style.display = 'flex';
 }
+
 function closeNameModal() {
-    document.getElementById('name-modal').style.display = 'none';
+    var mod = document.getElementById('name-modal');
+    if (mod) mod.style.display = 'none';
 }
+
 function saveNick() {
-    var val = document.getElementById('nick-input').value.trim();
+    var inp = document.getElementById('nick-input');
+    if (!inp) return;
+    var val = inp.value.trim();
     if (val.length >= 2) {
         data.nick = val;
         save();
@@ -128,24 +127,30 @@ function saveNick() {
         closeNameModal();
     }
 }
-
-function setBet(id, val) { document.getElementById(id).value = val; playPopSound(); }
+function setBet(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.value = val;
+    playPopSound();
+}
 function halfBet(id) {
-    var v = Math.floor(Number(document.getElementById(id).value) / 2);
-    document.getElementById(id).value = Math.max(10, v);
+    var el = document.getElementById(id);
+    if (el) el.value = Math.max(10, Math.floor(Number(el.value) / 2));
 }
 function doubleBet(id) {
-    var v = Math.floor(Number(document.getElementById(id).value) * 2);
-    document.getElementById(id).value = Math.min(Math.floor(data.balance), v);
+    var el = document.getElementById(id);
+    if (el) el.value = Math.min(Math.floor(data.balance), Math.floor(Number(el.value) * 2));
 }
 function maxBet(id) {
-    document.getElementById(id).value = Math.max(10, Math.floor(data.balance));
+    var el = document.getElementById(id);
+    if (el) el.value = Math.max(10, Math.floor(data.balance));
 }
 
 function takeBet(inputId) {
-    var bet = Math.floor(Number(document.getElementById(inputId).value));
+    var el = document.getElementById(inputId);
+    if (!el) return 0;
+    var bet = Math.floor(Number(el.value));
     if (bet < 10 || bet > data.balance) {
-        alertBox('Недостаточно $AERO! Нафарми во вкладке Майнинг.');
+        alertBox('Недостаточно $AERO! Нафарми во вкладке ФАРМ.');
         return 0;
     }
     data.balance -= bet;
@@ -196,9 +201,9 @@ function handleCrashAction() {
         updateCurve(0);
 
         radar.classList.add('flying');
-        multEl.style.color = '#ffffff';
+        multEl.style.color = '#000000';
         statusEl.innerText = 'НАБОР ВЫСОТЫ...';
-        btn.classList.add('gold-btn');
+        btn.classList.add('yellow');
 
         flightLoop = setInterval(function() {
             currentMult += 0.02 + (currentMult * 0.015);
@@ -212,10 +217,10 @@ function handleCrashAction() {
                 clearInterval(flightLoop);
                 isFlying = false;
                 radar.classList.remove('flying');
-                multEl.style.color = '#ff3366';
+                multEl.style.color = '#ff3b30';
                 statusEl.innerText = '💥 УЛЕТЕЛ НА x' + crashPoint.toFixed(2);
-                btn.classList.remove('gold-btn');
-                btn.innerText = '🚀 ВЗЛЕТЕТЬ';
+                btn.classList.remove('yellow');
+                btn.innerText = '🚀 ЗАПУСТИТЬ РАКЕТУ';
                 addHistory(crashPoint);
                 playBoomSound();
             }
@@ -226,10 +231,10 @@ function handleCrashAction() {
         radar.classList.remove('flying');
         var totalWin = Math.floor(currentBet * currentMult);
         data.balance += totalWin;
-        multEl.style.color = '#ffd000';
+        multEl.style.color = '#8b5cf6';
         statusEl.innerText = '✅ ЗАБРАНО: +' + totalWin.toLocaleString();
-        btn.classList.remove('gold-btn');
-        btn.innerText = '🚀 ВЗЛЕТЕТЬ';
+        btn.classList.remove('yellow');
+        btn.innerText = '🚀 ЗАПУСТИТЬ РАКЕТУ';
         addHistory(currentMult);
         playWinSound();
         save();
@@ -239,40 +244,32 @@ function handleCrashAction() {
 
 function addHistory(val) {
     var strip = document.getElementById('history-strip');
-    var cls = val < 1.5 ? 'lo' : (val < 5 ? 'md' : 'hi');
+    if (!strip) return;
+    var cls = val < 1.5 ? 'red' : (val >= 5 ? 'lime' : '');
     var span = document.createElement('span');
-    span.className = 'x-tag ' + cls;
+    span.className = 'st-chip ' + cls;
     span.innerText = 'x' + val.toFixed(2);
     strip.insertBefore(span, strip.firstChild);
-    if (strip.children.length > 8) strip.removeChild(strip.lastChild);
+    if (strip.children.length > 7) strip.removeChild(strip.lastChild);
 }
+
 function openMiniGame(name) {
     document.getElementById('arcade-lobby').style.display = 'none';
-    document.querySelectorAll('.mg-screen').forEach(function(b) { b.style.display = 'none'; });
-    document.getElementById('mg-' + name).style.display = 'flex';
+    document.querySelectorAll('.mg-wrap').forEach(function(b) { b.style.display = 'none'; });
+    var target = document.getElementById('mg-' + name);
+    if (target) target.style.display = 'flex';
     playPopSound();
 }
 
 function backToLobby() {
-    document.querySelectorAll('.mg-screen').forEach(function(b) { b.style.display = 'none'; });
+    document.querySelectorAll('.mg-wrap').forEach(function(b) { b.style.display = 'none'; });
     document.getElementById('arcade-lobby').style.display = 'block';
     playPopSound();
 }
-
 var jetActive = false;
 var jetBet = 0;
 var jetStep = 0;
 var jetMults = Array.of(1.3, 1.8, 2.6, 4.0, 7.0, 15.0, 50.0);
-var jetTexts = Array.of('⚡ Турбо-ускорение!', '💎 Небесный кристалл!', '📦 Груз $AERO!', '🔥 Форсаж пройден!', '👑 Золотой коридор!', '🛸 Контакт с НЛО!', '🚀 СТРАТОСФЕРА x50!');
-
-function resetJetUI() {
-    document.querySelectorAll('.j-step').forEach(function(s) { s.classList.remove('passed'); });
-    var sprite = document.getElementById('jet-sprite');
-    if (sprite) {
-        sprite.innerText = '✈️';
-        sprite.style.transform = 'translateY(0px) scale(1)';
-    }
-}
 
 function stepJetGame() {
     var flyBtn = document.getElementById('jet-fly-btn');
@@ -286,14 +283,14 @@ function stepJetGame() {
         jetBet = bet;
         jetStep = 0;
         jetActive = true;
-        resetJetUI();
+        document.querySelectorAll('.j-step').forEach(function(s) { s.classList.remove('passed'); });
+        sprite.innerText = '✈️';
+        sprite.style.transform = 'translateY(0)';
     }
 
-    var crashChance = 0.22 + (jetStep * 0.055);
-    if (Math.random() < crashChance) {
+    if (Math.random() < (0.22 + jetStep * 0.055)) {
         jetActive = false;
         sprite.innerText = '💥';
-        sprite.style.transform = 'scale(1.25)';
         resEl.innerText = '💥 ПВО сбило борт! Ставка сгорела.';
         document.getElementById('jet-mult').innerText = 'x0.00';
         flyBtn.innerText = '✈️ ЛЕТЕТЬ СНОВА';
@@ -301,18 +298,13 @@ function stepJetGame() {
         playBoomSound();
     } else {
         var mult = 1.3;
-        var bText = '💎 Бонус!';
-        jetMults.forEach(function(val, idx) { if (idx === jetStep) mult = val; });
-        jetTexts.forEach(function(txt, idx) { if (idx === jetStep) bText = txt; });
-
-        var steps = document.querySelectorAll('.j-step');
-        steps.forEach(function(el, idx) { if (idx === jetStep) el.classList.add('passed'); });
-
+        jetMults.forEach(function(v, i) { if (i === jetStep) mult = v; });
+        document.querySelectorAll('.j-step').forEach(function(el, i) { if (i === jetStep) el.classList.add('passed'); });
         jetStep++;
         var winNow = Math.floor(jetBet * mult);
         document.getElementById('jet-mult').innerText = 'x' + mult.toFixed(1);
-        resEl.innerText = bText + ' Множитель x' + mult.toFixed(1);
-        sprite.style.transform = 'translateY(-' + (jetStep * 4) + 'px) rotate(-' + (jetStep * 3) + 'deg) scale(1.1)';
+        resEl.innerText = '⚡ Бонус собран! Множитель x' + mult.toFixed(1);
+        sprite.style.transform = 'translateY(-' + (jetStep * 4) + 'px) rotate(-' + (jetStep * 3) + 'deg)';
         playPopSound();
 
         if (jetStep >= 7) {
@@ -325,7 +317,7 @@ function stepJetGame() {
             save();
             render();
         } else {
-            flyBtn.innerText = '✈️ РИСКНУТЬ ДАЛЬШЕ';
+            flyBtn.innerText = '✈️ ДАЛЬШЕ';
             cashBtn.style.display = 'block';
             cashBtn.innerText = '💰 ЗАБРАТЬ ' + winNow.toLocaleString();
         }
@@ -335,12 +327,11 @@ function stepJetGame() {
 function cashoutJetGame() {
     if (!jetActive || jetStep === 0) return;
     var mult = 1.3;
-    jetMults.forEach(function(val, idx) { if (idx === jetStep - 1) mult = val; });
+    jetMults.forEach(function(v, i) { if (i === jetStep - 1) mult = v; });
     var winTotal = Math.floor(jetBet * mult);
     data.balance += winTotal;
     jetActive = false;
-
-    document.getElementById('jet-res').innerText = '✅ Посадка! Забрано: +' + winTotal.toLocaleString() + ' $AERO';
+    document.getElementById('jet-res').innerText = '✅ Забрано: +' + winTotal.toLocaleString() + ' $AERO';
     document.getElementById('jet-fly-btn').innerText = '✈️ НОВЫЙ ВЫЛЕТ';
     document.getElementById('jet-cash-btn').style.display = 'none';
     playWinSound();
@@ -358,8 +349,8 @@ var openedSafeCells = 0;
 function setMinesCount(count, btn) {
     if (minesActive) return;
     minesCount = count;
-    document.querySelectorAll('#mg-mines .chip').forEach(function(b) { b.classList.remove('active-chip'); });
-    if (btn) btn.classList.add('active-chip');
+    document.querySelectorAll('#mg-mines .mini-key').forEach(function(b) { b.classList.remove('lime'); });
+    if (btn) btn.classList.add('lime');
     playPopSound();
 }
 
@@ -372,9 +363,7 @@ function buildMinesGrid() {
         cell.className = 'mine-cell';
         cell.innerText = '✦';
         cell.setAttribute('data-idx', i);
-        cell.onclick = function() {
-            clickMineCell(Number(this.getAttribute('data-idx')), this);
-        };
+        cell.onclick = function() { clickMineCell(Number(this.getAttribute('data-idx')), this); };
         grid.appendChild(cell);
     }
 }
@@ -395,15 +384,14 @@ function handleMinesAction() {
         }
         buildMinesGrid();
         document.getElementById('mines-mult').innerText = 'x1.00';
-        btn.classList.add('gold-btn');
+        btn.classList.add('yellow');
         btn.innerText = '💰 ЗАБРАТЬ ' + bet.toLocaleString();
         playPopSound();
     } else {
         if (openedSafeCells === 0) return;
-        var winTotal = Math.floor(minesBetAmount * minesMultiplier);
-        data.balance += winTotal;
+        data.balance += Math.floor(minesBetAmount * minesMultiplier);
         minesActive = false;
-        btn.classList.remove('gold-btn');
+        btn.classList.remove('yellow');
         btn.innerText = '💎 ИГРАТЬ';
         revealAllMines();
         playWinSound();
@@ -420,53 +408,42 @@ function clickMineCell(idx, el) {
         minesActive = false;
         revealAllMines();
         var btn = document.getElementById('mines-action-btn');
-        btn.classList.remove('gold-btn');
+        btn.classList.remove('yellow');
         btn.innerText = '💎 ИГРАТЬ';
         playBoomSound();
     } else {
         el.classList.add('safe');
         el.innerText = '💎';
         openedSafeCells++;
-        var stepBonus = 0.14 + (minesCount * 0.045);
-        minesMultiplier = Number((minesMultiplier * (1 + stepBonus)).toFixed(2));
-        var currentWin = Math.floor(minesBetAmount * minesMultiplier);
+        minesMultiplier = Number((minesMultiplier * (1 + 0.14 + minesCount * 0.045)).toFixed(2));
         document.getElementById('mines-mult').innerText = 'x' + minesMultiplier.toFixed(2);
-        document.getElementById('mines-action-btn').innerText = '💰 ЗАБРАТЬ ' + currentWin.toLocaleString();
+        document.getElementById('mines-action-btn').innerText = '💰 ЗАБРАТЬ ' + Math.floor(minesBetAmount * minesMultiplier).toLocaleString();
         playPopSound();
     }
 }
 
 function revealAllMines() {
     document.querySelectorAll('.mine-cell').forEach(function(c, i) {
-        if (minesLocations.indexOf(i) !== -1) {
-            c.classList.add('boom');
-            c.innerText = '💣';
-        }
+        if (minesLocations.indexOf(i) !== -1) { c.classList.add('boom'); c.innerText = '💣'; }
     });
 }
+
 function playCoin(choice) {
     var bet = takeBet('coin-bet');
     if (!bet) return;
-    var disc = document.getElementById('coin-visual');
-    var resEl = document.getElementById('coin-res');
-    disc.style.transform = 'rotateY(720deg)';
-    playPopSound();
-    setTimeout(function() {
-        disc.style.transform = 'rotateY(0deg)';
-        var side = Math.random() < 0.5 ? 'eagle' : 'tails';
-        disc.innerText = side === 'eagle' ? '🦅' : '👑';
-        if (side === choice) {
-            var win = Math.floor(bet * 1.95);
-            data.balance += win;
-            resEl.innerText = '✅ Победа! +' + win.toLocaleString() + ' $AERO';
-            playWinSound();
-        } else {
-            resEl.innerText = '❌ Не угадал! Попробуй еще.';
-            playBoomSound();
-        }
-        save();
-        render();
-    }, 350);
+    var side = Math.random() < 0.5 ? 'eagle' : 'tails';
+    document.getElementById('coin-visual').innerText = side === 'eagle' ? '🦅' : '👑';
+    if (side === choice) {
+        var win = Math.floor(bet * 1.95);
+        data.balance += win;
+        document.getElementById('coin-res').innerText = '✅ Победа! +' + win.toLocaleString();
+        playWinSound();
+    } else {
+        document.getElementById('coin-res').innerText = '❌ Не угадал!';
+        playBoomSound();
+    }
+    save();
+    render();
 }
 
 function playDice(dir) {
@@ -474,15 +451,13 @@ function playDice(dir) {
     if (!bet) return;
     var roll = 1 + Math.floor(Math.random() * 100);
     document.getElementById('dice-roll').innerText = roll;
-    var resEl = document.getElementById('dice-res');
-    var won = (dir === 'low' && roll < 50) || (dir === 'high' && roll > 50);
-    if (won) {
+    if ((dir === 'low' && roll < 50) || (dir === 'high' && roll > 50)) {
         var win = Math.floor(bet * 1.95);
         data.balance += win;
-        resEl.innerText = '✅ Выпало ' + roll + '! Выигрыш: +' + win.toLocaleString();
+        document.getElementById('dice-res').innerText = '✅ Выпало ' + roll + '! +' + win.toLocaleString();
         playWinSound();
     } else {
-        resEl.innerText = '❌ Выпало ' + roll + '. Не повезло!';
+        document.getElementById('dice-res').innerText = '❌ Выпало ' + roll + '. Мимо!';
         playBoomSound();
     }
     save();
@@ -492,28 +467,14 @@ function playDice(dir) {
 function playWheel() {
     var bet = takeBet('wheel-bet');
     if (!bet) return;
-    var wheel = document.getElementById('wheel-visual');
-    var resEl = document.getElementById('wheel-res');
-    wheel.style.transform = 'rotate(' + (720 + Math.floor(Math.random() * 360)) + 'deg)';
-    playPopSound();
-    setTimeout(function() {
-        var r = Math.random();
-        var m = 0;
-        if (r < 0.30) m = 0;
-        else if (r < 0.55) m = 0.5;
-        else if (r < 0.78) m = 1.5;
-        else if (r < 0.90) m = 2;
-        else if (r < 0.96) m = 3;
-        else if (r < 0.99) m = 5;
-        else m = 15;
-
-        var win = Math.floor(bet * m);
-        data.balance += win;
-        resEl.innerText = m > 0 ? '🎉 Сектор x' + m + '! Забрано: +' + win.toLocaleString() : '💥 Сектор x0! Пусто.';
-        if (m >= 1.5) playWinSound(); else playBoomSound();
-        save();
-        render();
-    }, 550);
+    var r = Math.random();
+    var m = r < 0.3 ? 0 : (r < 0.55 ? 0.5 : (r < 0.8 ? 1.5 : (r < 0.93 ? 3 : (r < 0.99 ? 5 : 15))));
+    var win = Math.floor(bet * m);
+    data.balance += win;
+    document.getElementById('wheel-res').innerText = m > 0 ? '🎉 Сектор x' + m + '! +' + win.toLocaleString() : '💥 Сектор x0!';
+    if (m >= 1.5) playWinSound(); else playBoomSound();
+    save();
+    render();
 }
 
 var currentHiLo = 7;
@@ -521,17 +482,16 @@ function playHiLo(guess) {
     var bet = takeBet('hilo-bet');
     if (!bet) return;
     var next = 1 + Math.floor(Math.random() * 13);
-    var resEl = document.getElementById('hilo-res');
     var won = (guess === 'hi' && next > currentHiLo) || (guess === 'lo' && next < currentHiLo);
     document.getElementById('hilo-card').innerText = next;
     currentHiLo = next;
     if (won) {
         var win = Math.floor(bet * 1.9);
         data.balance += win;
-        resEl.innerText = '✅ Верно! Выпало ' + next + ' (+' + win.toLocaleString() + ')';
+        document.getElementById('hilo-res').innerText = '✅ Выпало ' + next + '! +' + win.toLocaleString();
         playWinSound();
     } else {
-        resEl.innerText = '❌ Выпало ' + next + '. Мимо!';
+        document.getElementById('hilo-res').innerText = '❌ Выпало ' + next + '. Мимо!';
         playBoomSound();
     }
     save();
@@ -545,24 +505,21 @@ function playSlots() {
     var r1 = Array.from(icons).sort(function() { return 0.5 - Math.random(); }).pop();
     var r2 = Array.from(icons).sort(function() { return 0.5 - Math.random(); }).pop();
     var r3 = Array.from(icons).sort(function() { return 0.5 - Math.random(); }).pop();
-
     document.getElementById('reel-1').innerText = r1;
     document.getElementById('reel-2').innerText = r2;
     document.getElementById('reel-3').innerText = r3;
-    var resEl = document.getElementById('slots-res');
-
     if (r1 === r2 && r2 === r3) {
         var jack = Math.floor(bet * 15);
         data.balance += jack;
-        resEl.innerText = '🔥 ДЖЕКПОТ x15! +' + jack.toLocaleString() + ' $AERO!';
+        document.getElementById('slots-res').innerText = '🔥 ДЖЕКПОТ x15! +' + jack.toLocaleString();
         playWinSound();
     } else if (r1 === r2 || r2 === r3 || r1 === r3) {
         var pair = Math.floor(bet * 2);
         data.balance += pair;
-        resEl.innerText = '✅ Пара! Выигрыш x2: +' + pair.toLocaleString();
+        document.getElementById('slots-res').innerText = '✅ Пара x2! +' + pair.toLocaleString();
         playWinSound();
     } else {
-        resEl.innerText = '❌ Нет совпадений. Крути еще!';
+        document.getElementById('slots-res').innerText = '❌ Пусто!';
         playBoomSound();
     }
     save();
@@ -573,171 +530,123 @@ function playBoxes(chosen) {
     var bet = takeBet('boxes-bet');
     if (!bet) return;
     var prizeBox = Math.floor(Math.random() * 3);
-    var allBoxes = document.querySelectorAll('.safe-btn');
-    var resEl = document.getElementById('boxes-res');
-
-    allBoxes.forEach(function(b, idx) {
-        b.innerText = idx === prizeBox ? '💰' : '💨';
-    });
-
+    var all = document.querySelectorAll('.safe-item');
+    all.forEach(function(b, i) { b.innerText = i === prizeBox ? '💰' : '💨'; });
     if (chosen === prizeBox) {
         var win = Math.floor(bet * 2.8);
         data.balance += win;
-        resEl.innerText = '🎉 Золото найдено! +' + win.toLocaleString() + ' $AERO!';
+        document.getElementById('boxes-res').innerText = '🎉 Нашел золото! +' + win.toLocaleString();
         playWinSound();
     } else {
-        resEl.innerText = '❌ Пустой сейф! Попробуй снова.';
-        playBoomSound();
-    }
-    save();
-    render();
-    setTimeout(function() {
-        allBoxes.forEach(function(b) { b.innerText = '🔒'; });
-    }, 1100);
+document.getElementById('boxes-res').innerText = '❌ Пусто!';
+playBoomSound();
 }
-
+save();
+render();
+setTimeout(function() { all.forEach(function(b) { b.innerText = '🔒'; }); }, 1000);
+}
 var core = document.getElementById('tap-core');
+if (core) {
 core.addEventListener('pointerdown', function(e) {
-    if (data.energy >= data.tapPower) {
-        data.balance += data.tapPower;
-        data.energy -= data.tapPower;
-        playPopSound();
-        if (tg && tg.HapticFeedback) {
-            try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
-        }
-        var num = document.createElement('div');
-        num.className = 'float-num';
-        num.innerText = '+' + data.tapPower;
-        num.style.left = e.clientX + 'px';
-        num.style.top = (e.clientY - 20) + 'px';
-        document.body.appendChild(num);
-        setTimeout(function() { num.remove(); }, 700);
-        save();
-        render();
-    }
+if (data.energy >= data.tapPower) {
+data.balance += data.tapPower;
+data.energy -= data.tapPower;
+playPopSound();
+var num = document.createElement('div');
+num.className = 'float-num';
+num.innerText = '+' + data.tapPower;
+num.style.left = e.clientX + 'px';
+num.style.top = (e.clientY - 20) + 'px';
+document.body.appendChild(num);
+setTimeout(function() { num.remove(); }, 700);
+save();
+render();
+}
 });
-
+}
 function buyBoost(type) {
-    if (type === 'tap' && data.balance >= data.tapCost) {
-        data.balance -= data.tapCost;
-        data.tapLvl++;
-        data.tapPower += 5;
-        data.tapCost = Math.floor(data.tapCost * 2);
-        playWinSound();
-    } else if (type === 'node' && data.balance >= data.nodeCost) {
-        data.balance -= data.nodeCost;
-        data.nodeLvl++;
-        data.passive += 1200;
-        data.nodeCost = Math.floor(data.nodeCost * 2.2);
-        playWinSound();
-    }
-    save();
-    render();
+if (type === 'tap' && data.balance >= data.tapCost) {
+data.balance -= data.tapCost;
+data.tapLvl++;
+data.tapPower += 5;
+data.tapCost = Math.floor(data.tapCost * 2);
+playWinSound();
+} else if (type === 'node' && data.balance >= data.nodeCost) {
+data.balance -= data.nodeCost;
+data.nodeLvl++;
+data.passive += 1200;
+data.nodeCost = Math.floor(data.nodeCost * 2.2);
+playWinSound();
 }
-
+save();
+render();
+}
 function formatCD(ms) {
-    var total = Math.ceil(ms / 1000);
-    var h = Math.floor(total / 3600);
-    var m = Math.floor((total % 3600) / 60);
-    var s = total % 60;
-    return h + 'ч ' + m + 'м ' + s + 'с';
+var total = Math.ceil(ms / 1000);
+var h = Math.floor(total / 3600);
+var m = Math.floor((total % 3600) / 60);
+var s = total % 60;
+return h + 'ч ' + m + 'м ' + s + 'с';
 }
-
 function inviteSquad() {
-    var now = Date.now();
-    var cd = 43200000;
-    var link = 'https://t.me' + BOT_NAME + '?start=' + userId;
-    var text = '🔥 Залетай в $AERO! Ставь на иксы в Ракете, рубись в 8 мини-игр и забирай дроп до листинга!';
-    var shareUrl = 'https://t.meshare/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
-
-    var left = (data.lastInvite + cd) - now;
-    if (left <= 0) {
-        data.lastInvite = now;
-        data.balance += 5000;
-        playWinSound();
-        save();
-        render();
-    }
-
-    if (tg && tg.openTelegramLink) {
-        tg.openTelegramLink(shareUrl);
-    } else {
-        window.open(shareUrl, '_blank');
-    }
+var now = Date.now();
+var link = 't.me' + BOT_NAME + '?start=' + userId;
+var text = '🔥 Залетай в $AERO! Рубись в 8 мини-игр и забирай дроп до листинга!';
+var shareUrl = 't.me' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
+if ((data.lastInvite + 43200000) - now <= 0) {
+data.lastInvite = now;
+data.balance += 5000;
+playWinSound();
+save();
+render();
 }
-
+if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
+else window.open(shareUrl, '_blank');
+}
 function claimSocial(id, reward, url) {
-    if (!data.tasks[id]) {
-        data.tasks[id] = true;
-        data.balance += reward;
-        playWinSound();
-        save();
-        render();
-    }
-    setTimeout(function() {
-        if (tg && url.indexOf('https://t.me') === 0 && tg.openTelegramLink) {
-            tg.openTelegramLink(url);
-        } else if (tg && tg.openLink) {
-            tg.openLink(url);
-        } else {
-            window.open(url, '_blank');
-        }
-    }, 150);
+if (!data.tasks[id]) {
+data.tasks[id] = true;
+data.balance += reward;
+playWinSound();
+save();
+render();
 }
-
+if (tg && url.indexOf('t.me') === 0 && tg.openTelegramLink) tg.openTelegramLink(url);
+else if (tg && tg.openLink) tg.openLink(url);
+else window.open(url, '_blank');
+}
 function switchView(name, btn) {
-    document.querySelectorAll('.screen').forEach(function(v) {
-        v.classList.remove('active');
-        v.style.display = 'none';
-    });
-    document.querySelectorAll('.dock-tab').forEach(function(b) {
-        b.classList.remove('active');
-    });
-    var target = document.getElementById('view-' + name);
-    if (target) {
-        target.classList.add('active');
-        target.style.display = 'flex';
-    }
-    if (btn) btn.classList.add('active');
-    playPopSound();
+document.querySelectorAll('.screen').forEach(function(v) { v.style.display = 'none'; });
+document.querySelectorAll('.tab-folder').forEach(function(b) { b.classList.remove('active'); });
+var target = document.getElementById('view-' + name);
+if (target) target.style.display = 'flex';
+if (btn) btn.classList.add('active');
+playPopSound();
 }
-
 function render() {
-    var now = Date.now();
-    document.getElementById('username').innerText = getNick();
-    document.getElementById('ava').innerText = getNick().charAt(0).toUpperCase();
-    document.getElementById('balance').innerText = Math.floor(data.balance).toLocaleString();
-    document.getElementById('passive-rate').innerText = data.passive.toLocaleString();
-    document.getElementById('tap-power').innerText = data.tapPower;
-    document.getElementById('energy').innerText = Math.floor(data.energy);
-    document.getElementById('max-energy').innerText = data.maxEnergy;
-    document.getElementById('energy-bar').style.width = ((data.energy / data.maxEnergy) * 100) + '%';
-
-    document.getElementById('lvl-tap').innerText = data.tapLvl;
-    document.getElementById('cost-tap').innerText = data.tapCost.toLocaleString();
-    document.getElementById('lvl-node').innerText = data.nodeLvl;
-    document.getElementById('cost-node').innerText = data.nodeCost.toLocaleString();
-
-    var invBtn = document.getElementById('invite-btn');
-    var left = (data.lastInvite + 43200000) - now;
-    if (invBtn) {
-        if (left > 0) {
-            invBtn.innerText = '⏳ Бонус через ' + formatCD(left);
-            invBtn.style.opacity = '0.65';
-        } else {
-            invBtn.innerText = '🔥 Пригласить друга (+5,000)';
-            invBtn.style.opacity = '1';
-        }
-    }
-
-    if (data.tasks.tg) document.getElementById('btn-tg').innerText = 'Готово ✅';
-    if (data.tasks.yt) document.getElementById('btn-yt').innerText = 'Готово ✅';
-
-    var leaders = Array.of(
-        { n: 'Whale_TON 🐋', s: 420000 },
-        { n: 'AeroKing_99', s: 185000 },
-{ n: getNick() + ' (Вы)', s: Math.floor(data.balance) },
-{ n: 'FlyToMoon', s: 45000 }
+var now = Date.now();
+document.getElementById('username').innerText = getNick();
+document.getElementById('ava').innerText = getNick().charAt(0).toUpperCase();
+document.getElementById('balance').innerText = Math.floor(data.balance).toLocaleString();
+document.getElementById('passive-rate').innerText = data.passive.toLocaleString();
+document.getElementById('tap-power').innerText = data.tapPower;
+document.getElementById('energy').innerText = Math.floor(data.energy);
+document.getElementById('max-energy').innerText = data.maxEnergy;
+document.getElementById('energy-bar').style.width = ((data.energy / data.maxEnergy) * 100) + '%';
+document.getElementById('lvl-tap').innerText = data.tapLvl;
+document.getElementById('cost-tap').innerText = data.tapCost.toLocaleString();
+document.getElementById('lvl-node').innerText = data.nodeLvl;
+document.getElementById('cost-node').innerText = data.nodeCost.toLocaleString();
+var invBtn = document.getElementById('invite-btn');
+var left = (data.lastInvite + 43200000) - now;
+if (invBtn) invBtn.innerText = left > 0 ? '⏳ БОНУС ЧЕРЕЗ ' + formatCD(left) : '🔥 ПРИГЛАСИТЬ (+5,000)';
+if (data.tasks.tg) document.getElementById('btn-tg').innerText = 'OK ✅';
+if (data.tasks.yt) document.getElementById('btn-yt').innerText = 'OK ✅';
+var leaders = Array.of(
+{ n: 'Whale_TON 🐋', s: 420000 },
+{ n: 'StreetDrop_01', s: 185000 },
+{ n: getNick() + ' (ВЫ)', s: Math.floor(data.balance) },
+{ n: 'AeroHype', s: 45000 }
 );
 leaders.sort(function(a, b) { return b.s - a.s; });
 var topHtml = '';
