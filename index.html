@@ -314,16 +314,28 @@
       if (Ad) { Ad.show().then(onBoost).catch(onBoost); } else { onBoost(); }
     }
 
-    function onSpin() {
+       function onSpin() {
       const p = new Array(1000, 2500, 5000, 10000);
-      const w = p[Math.floor(Math.random() * p.length)];
-      s.score += w; s.en = s.maxEn;
+      const w = p.at(Math.floor(Math.random() * p.length));
+      s.score += w;
+      s.en = s.maxEn;
+      s.lastSpin = Date.now();
       toast('🎰 Jackpot: +' + w.toLocaleString() + ' $ATAP & Full Fuel!');
       render();
     }
 
     function spin() {
-      if (Ad) { Ad.show().then(onSpin).catch(onSpin); } else { onSpin(); }
+      const wait = 7200000 - (Date.now() - (s.lastSpin || 0));
+      if (wait > 0) {
+        const mins = Math.ceil(wait / 60000);
+        toast('⏳ Next spin in ' + mins + ' min!');
+        return;
+      }
+      if (Ad) {
+        Ad.show().then(onSpin).catch(onSpin);
+      } else {
+        onSpin();
+      }
     }
 
     function invite() {
@@ -335,6 +347,18 @@
     setInterval(() => {
       if (s.en < s.maxEn) s.en = Math.min(s.maxEn, s.en + 3);
       if (s.pph > 0) s.score += s.pph / 3600;
+      const wait = 7200000 - (Date.now() - (s.lastSpin || 0));
+      const sbtn = document.getElementById('spin-btn');
+      if (sbtn) {
+        if (wait > 0) {
+          const m = Math.ceil(wait / 60000);
+          sbtn.innerText = '⏳ ' + m + 'm';
+          sbtn.style.opacity = '0.6';
+        } else {
+          sbtn.innerText = '🎰 Spin (Ad)';
+          sbtn.style.opacity = '1';
+        }
+      }
       render();
     }, 1000);
 
@@ -342,4 +366,5 @@
   </script>
 </body>
 </html>
+
 
