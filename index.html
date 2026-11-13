@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>AeroTap</title>
   <script src="https://telegram.org"></script>
+  <script src="https://adsgram.ai"></script>
   <style>
     * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
     body { margin: 0; background: #0b0f17; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -67,9 +68,13 @@
 
   <script>
     let score = 0, power = 1, level = 1, cost = 100, energy = 1000, maxEnergy = 1000, mult = 1, shared = false, userId = 'pilot';
+    let AdController = null;
 
     try {
-      const saved = JSON.parse(localStorage.getItem('aerotap_v6'));
+      if (window.Adsgram) {
+        AdController = window.Adsgram.init({ blockId: "59556" });
+      }
+      const saved = JSON.parse(localStorage.getItem('aerotap_v8'));
       if (saved) { score = saved.score; power = saved.power; level = saved.level; cost = saved.cost; energy = saved.energy; maxEnergy = saved.maxEnergy; shared = saved.shared || false; }
       if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
@@ -105,7 +110,7 @@
         invBtn.innerText = '📋 Copy Invite Link (+500 Claimed)';
         invBtn.classList.add('btn-done');
       }
-      try { localStorage.setItem('aerotap_v6', JSON.stringify({ score, power, level, cost, energy, maxEnergy, shared })); } catch (e) {}
+      try { localStorage.setItem('aerotap_v8', JSON.stringify({ score, power, level, cost, energy, maxEnergy, shared })); } catch (e) {}
     }
 
     function tapPlane(e) {
@@ -138,8 +143,7 @@
       }
     }
 
-    function activateTurbo() {
-      if (mult === 3) return;
+    function startBoost() {
       mult = 3;
       document.getElementById('jet-btn').classList.add('boost');
       document.getElementById('ad-btn').innerText = '🔥 Turbo x3 ON!';
@@ -152,27 +156,24 @@
       }, 30000);
     }
 
+    function activateTurbo() {
+      if (mult === 3) return;
+      if (AdController) {
+        AdController.show().then(() => {
+          startBoost();
+        }).catch(() => {
+          startBoost();
+        });
+      } else {
+        startBoost();
+      }
+    }
+
     function inviteFriend() {
       const refLink = 'https://t.me_' + userId;
       const inviteText = '🚀 Join AeroTap with me and get +250 $AERO bonus points before token listing!\n\n🔥 Залетай в AeroTap по моей ссылке и забирай +250 $AERO бонусом до листинга токена!\n👉 ' + refLink;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(inviteText);
-      }
-      if (!shared) {
-        score += 500;
-        shared = true;
-        render();
-      } else {
-        const invBtn = document.getElementById('invite-btn');
-        invBtn.innerText = '✅ Invite Message Copied!';
-        setTimeout(render, 1200);
-      }
-      const shareUrl = 'https://t.me' + encodeURIComponent(refLink) + '&text=' + encodeURIComponent('🚀 Join AeroTap & get +250 $AERO! / Залетай в AeroTap и забирай +250 $AERO до листинга!');
-      try {
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
-          window.Telegram.WebApp.openTelegramLink(shareUrl);
-        }
-      } catch (e) {}
+      if (navigator.clipboard) navigator.clipboard.writeText(inviteText);
+      if (!shared) { score += 500; shared = true; render(); }
     }
 
     setInterval(() => {
