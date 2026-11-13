@@ -186,7 +186,7 @@ rSh();rQs();rn();
     function trb(){if(ml===3)return;if(Ad)Ad.show().then(oB).catch(oB);else oB()}
     function oS(){const p=new Array(1000,2500,5000,10000),w=p.at(Math.floor(Math.random()*p.length));s.sc+=w;s.en=s.me;s.ls=Date.now();tst('🎰 +'+w.toLocaleString()+' $ATAP & Full Fuel!');rn()}
     function spn(){const w=7200000-(Date.now()-(s.ls||0));if(w>0){tst('⏳ Next spin in '+Math.ceil(w/60000)+'m!');return}if(Ad)Ad.show().then(oS).catch(oS);else oS()}
-    function inv(){const l='https://t.me('🚀 Join AeroTap & get +250 $ATAP!\n🔥 Залетай в AeroTap и забирай +250 $ATAP!\n👉 '+l);if(!s.sh){s.sc+=500;s.sh=true;tst('✅ +500 $ATAP claimed!');rn()}else tst('📋 Link copied!')}
+   function inv(){const l='https://t.me('Join AeroTap: '+l);if(!s.sh){s.sc+=500;s.sh=true;tst('+500 $ATAP claimed!');rn()}else tst('Link copied!')}
     setInterval(()=>{if(s.en<s.me)s.en=Math.min(s.me,s.en+3);if(s.ph>0)s.sc+=s.ph/3600;const w=7200000-(Date.now()-(s.ls||0)),b=document.getElementById('sb');if(b){if(w>0){b.innerText='⏳ '+Math.ceil(w/60000)+'m';b.style.opacity='.6'}else{b.innerText='🎰 Spin (Ad)';b.style.opacity='1'}}rn()},1000);
     rSh();rQs();rn();
   </script>
