@@ -256,3 +256,155 @@ body {
 .dock-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 17px; gap: 2px; border-radius: 12px; cursor: pointer; }
 .dock-btn span { font-size: 10px; font-weight: 700; }
 .dock-btn.active { color: var(--orange); background: rgba(255, 107, 0, 0.14); }
+/* Стили для горизонтальной ленты вкладок и новых рулеток */
+.mode-tabs-scroll {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    scrollbar-width: none;
+}
+.mode-tabs-scroll::-webkit-scrollbar { display: none; }
+.mode-tabs-scroll .m-tab { flex: 0 0 auto; padding: 8px 12px; }
+
+/* Колесо Фортуны */
+.wheel-stage {
+    position: relative;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+}
+.wheel-pointer {
+    position: absolute;
+    top: 2px;
+    font-size: 24px;
+    color: var(--gold);
+    z-index: 5;
+    text-shadow: 0 2px 8px #000;
+}
+.wheel-disc {
+    width: 165px;
+    height: 165px;
+    border-radius: 50%;
+    border: 4px solid var(--gold);
+    background: conic-gradient(#ff6b00 0deg 60deg, #1e2538 60deg 120deg, #00e5ff 120deg 180deg, #a855f7 180deg 240deg, #ffc400 240deg 300deg, #ff2a55 300deg 360deg);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 3.5s cubic-bezier(0.15, 0.85, 0.25, 1);
+    box-shadow: 0 0 25px rgba(255, 196, 0, 0.3);
+}
+.wheel-disc span {
+    position: absolute;
+    font-size: 13px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 1px 4px #000;
+    transform-origin: center;
+    height: 130px;
+}
+
+/* Лента Кейс-рулетки */
+.roulette-tape-wrap {
+    position: relative;
+    height: 86px;
+    background: #080a10;
+    border: 2px solid var(--orange);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+}
+.tape-center-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--gold);
+    z-index: 5;
+    box-shadow: 0 0 10px var(--gold);
+}
+.roulette-tape {
+    display: flex;
+    gap: 8px;
+    padding-left: 50%;
+    transition: transform 3.8s cubic-bezier(0.12, 0.88, 0.2, 1);
+}
+.tape-item {
+    flex: 0 0 76px;
+    height: 68px;
+    background: #161c2e;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+/* Рулетка цвета, Кости, Карты, Монетка */
+.roulette-ball-box, .dice-screen, .card-table {
+    height: 95px;
+    background: #080a10;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    font-weight: 900;
+    margin: 10px 0;
+}
+.coin-stage { height: 105px; display: flex; align-items: center; justify-content: center; margin: 8px 0; }
+.coin-disc {
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--gold), #b87a00);
+    border: 3px solid #fff3b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    transition: transform 0.8s ease;
+    box-shadow: 0 0 20px rgba(255, 196, 0, 0.4);
+}
+.coin-flip-anim { transform: rotateY(1080deg) scale(1.15); }
+
+/* Башня и Блиц 3x3 */
+.tower-grid { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.tower-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.tower-cell {
+    height: 36px;
+    background: #1a2033;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+}
+.tower-cell.safe { background: rgba(0, 229, 255, 0.25); border-color: var(--cyan); }
+.tower-cell.boom { background: rgba(255, 42, 85, 0.3); border-color: var(--red); }
+
+.blitz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+.blitz-cell {
+    height: 62px;
+    background: #1a2033;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+}
