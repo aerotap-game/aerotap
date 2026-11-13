@@ -3,171 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>$AERO — Crash, Mines & Mine</title>
+    <title>$AERO — NextGen Web3 App</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
-    <div class="top-bar">
-        <div class="user-pill" onclick="openNameModal()">
-            <div class="user-ava" id="ava">⚡</div>
-            <span id="username">CryptoPilot</span>
-            <span class="edit-icon">✎</span>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <!-- Шапка профиля -->
+    <header class="glass-header">
+        <div class="profile-chip" onclick="openNameModal()">
+            <div class="ava-circle" id="ava">A</div>
+            <div class="profile-meta">
+                <span class="nick-text" id="username">CryptoPilot</span>
+                <span class="nick-sub">Изменить ✎</span>
+            </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="sound-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
-            <div class="balance-pill">
-                <span class="token-badge">$AERO</span>
+
+        <div class="header-right">
+            <button class="icon-circle-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+            <div class="wallet-chip">
+                <span class="coin-dot">🪙</span>
                 <span id="balance">1 000</span>
             </div>
         </div>
+    </header>
+
+    <!-- Лента коэффициентов -->
+    <div class="ticker-bar" id="history-strip">
+        <span class="tick gold">x14.20</span>
+        <span class="tick pink">x1.15</span>
+        <span class="tick purple">x3.40</span>
+        <span class="tick gold">x28.90</span>
+        <span class="tick purple">x2.10</span>
     </div>
 
-    <div class="history-strip" id="history-strip">
-        <span class="hist-item high">x14.20</span>
-        <span class="hist-item low">x1.15</span>
-        <span class="hist-item mid">x3.40</span>
-        <span class="hist-item high">x28.90</span>
-        <span class="hist-item mid">x2.10</span>
-    </div>
+    <!-- ЭКРАН 1: ПОЛЕТ (CRASH С ГРАФИКОМ) -->
+    <main id="view-crash" class="screen active">
+        <div class="flight-stage" id="radar-screen">
+            <svg class="flight-svg" viewBox="0 0 300 160" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="lineGrad" x1="0" y1="1" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#8b5cf6"/>
+                        <stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                </defs>
+                <path id="flight-curve" d="M 10 150 Q 10 150 10 150" fill="none" stroke="url(#lineGrad)" stroke-width="4" stroke-linecap="round"/>
+            </svg>
 
-    <!-- ЭКРАН 1: КРАШ-ПОЛЕТ -->
-    <div id="view-crash" class="view active">
-        <div class="radar-screen" id="radar-screen">
-            <div class="grid-bg"></div>
-            <div class="multiplier-display" id="mult-text">x1.00</div>
-            <div class="status-sub" id="flight-status">ГОТОВ К ВЗЛЕТУ</div>
-            <div class="rocket-ship" id="rocket-ship">🚀</div>
+            <div class="hud-center">
+                <div class="hud-badge" id="flight-status">ОЖИДАНИЕ СТАРТА</div>
+                <div class="hud-mult" id="mult-text">x1.00</div>
+                <div class="hud-plane" id="rocket-ship">✈️</div>
+            </div>
         </div>
 
-        <div class="bet-panel">
-            <div class="bet-row">
-                <button class="quick-bet" onclick="setBet(100)">100</button>
-                <button class="quick-bet" onclick="setBet(500)">500</button>
-                <button class="quick-bet" onclick="halfBet()">1/2</button>
-                <button class="quick-bet" onclick="doubleBet()">x2</button>
-                <button class="quick-bet max" onclick="maxBet()">ALL IN</button>
+        <div class="glass-card control-deck">
+            <div class="chips-row">
+                <button class="chip-btn" onclick="setBet(100)">100</button>
+                <button class="chip-btn" onclick="setBet(500)">500</button>
+                <button class="chip-btn" onclick="halfBet()">½</button>
+                <button class="chip-btn" onclick="doubleBet()">2x</button>
+                <button class="chip-btn accent" onclick="maxBet()">MAX</button>
             </div>
-            <div class="bet-input-box">
-                <span>Ставка:</span>
+
+            <div class="amount-field">
+                <span class="field-label">СТАВКА</span>
                 <input type="number" id="bet-input" value="100" min="10">
-                <span>$AERO</span>
+                <span class="field-unit">$AERO</span>
             </div>
-            <button class="main-action-btn" id="crash-btn" onclick="handleCrashAction()">
-                🚀 ВЗЛЕТЕТЬ
+
+            <button class="primary-glow-btn" id="crash-btn" onclick="handleCrashAction()">
+                ВЗЛЕТЕТЬ В НЕБО
             </button>
         </div>
-    </div>
+    </main>
 
-    <!-- ЭКРАН 2: НОВЫЙ РЕЖИМ «НЕБЕСНЫЕ МИНЫ» -->
-    <div id="view-mines" class="view">
-        <div class="mines-top">
-            <div class="mines-info">
-                <span>Множитель: <b id="mines-mult" style="color: var(--neon-green);">x1.00</b></span>
-                <span>Выигрыш: <b id="mines-win" style="color: var(--neon-cyan);">0</b></span>
+    <!-- ЭКРАН 2: МИНЫ (РАДАР) -->
+    <main id="view-mines" class="screen">
+        <div class="mines-wrapper">
+            <div class="glass-stat-row">
+                <div>Коэффициент: <b id="mines-mult" class="text-gold">x1.00</b></div>
+                <div>К зачислению: <b id="mines-win" class="text-purple">0</b></div>
             </div>
-            <div class="mines-grid" id="mines-grid"></div>
+            <div class="radar-matrix" id="mines-grid"></div>
         </div>
 
-        <div class="bet-panel">
-            <div class="bet-row">
-                <button class="quick-bet active-mine" id="m-btn-3" onclick="setMinesCount(3, this)">💣 3 мины</button>
-                <button class="quick-bet" id="m-btn-5" onclick="setMinesCount(5, this)">💣 5 мин</button>
-                <button class="quick-bet" id="m-btn-10" onclick="setMinesCount(10, this)">💣 10 мин</button>
+        <div class="glass-card control-deck">
+            <div class="chips-row">
+                <button class="chip-btn active-chip" id="m-btn-3" onclick="setMinesCount(3, this)">💣 3 мины</button>
+                <button class="chip-btn" id="m-btn-5" onclick="setMinesCount(5, this)">💣 5 мин</button>
+                <button class="chip-btn" id="m-btn-10" onclick="setMinesCount(10, this)">💣 10 мин</button>
             </div>
-            <div class="bet-input-box">
-                <span>Ставка:</span>
+
+            <div class="amount-field">
+                <span class="field-label">СТАВКА</span>
                 <input type="number" id="mines-bet" value="100" min="10">
-                <span>$AERO</span>
+                <span class="field-unit">$AERO</span>
             </div>
-            <button class="main-action-btn" id="mines-action-btn" onclick="handleMinesAction()">
-                💎 НАЧАТЬ ИГРУ
+
+            <button class="primary-glow-btn" id="mines-action-btn" onclick="handleMinesAction()">
+                НАЧАТЬ ПОИСК 💎
             </button>
         </div>
-    </div>
+    </main>
 
     <!-- ЭКРАН 3: МАЙНИНГ -->
-    <div id="view-mine" class="view">
-        <div class="mine-header">
-            <div class="passive-tag">Авто-фарм: +<span id="passive-rate">0</span>/час</div>
-            <h2>Фарм топлива $AERO</h2>
+    <main id="view-mine" class="screen">
+        <div class="mine-top-info">
+            <span class="pill-tag">Пассивный доход: +<span id="passive-rate">0</span>/час</span>
+            <h2>Энергоблок $AERO</h2>
         </div>
 
-        <div class="core-reactor" id="tap-core">
-            <div class="core-ring"></div>
-            <div class="core-emoji">🛸</div>
-            <div class="core-label">ТАПАЙ ЗА +<span id="tap-power">5</span></div>
+        <div class="orb-container" id="tap-core">
+            <div class="orb-aura"></div>
+            <div class="orb-sphere">
+                <span class="orb-icon">🚀</span>
+                <span class="orb-gain">+<span id="tap-power">5</span></span>
+            </div>
         </div>
 
-        <div class="energy-box">
-            <div class="energy-text">
-                <span>⚡ Энергия реактора</span>
+        <div class="bottom-mine-dock">
+            <div class="fuel-row">
+                <span>⚡ Заряд турбин</span>
                 <span><span id="energy">1000</span> / <span id="max-energy">1000</span></span>
             </div>
-            <div class="energy-track"><div class="energy-fill" id="energy-bar"></div></div>
-        </div>
+            <div class="progress-rail"><div class="progress-fill" id="energy-bar"></div></div>
 
-        <div class="shop-grid">
-            <div class="shop-card" onclick="buyBoost('tap')">
-                <div class="shop-title">⚡ Турбо-клик (Ур.<span id="lvl-tap">1</span>)</div>
-                <div class="shop-price"><span id="cost-tap">250</span> $AERO</div>
-            </div>
-            <div class="shop-card" onclick="buyBoost('node')">
-                <div class="shop-title">🛰️ Спутник-майнер (Ур.<span id="lvl-node">0</span>)</div>
-                <div class="shop-price"><span id="cost-node">500</span> $AERO</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ЭКРАН 4: ДРОП И СКВАД -->
-    <div id="view-hype" class="view">
-        <div class="hype-card">
-            <h3>🪂 Airdrop $AERO на TON</h3>
-            <p>Залетай в комьюнити, зови сквад и забирай жирные бонусы до выхода монеты на биржу.</p>
-            <button class="neon-btn" onclick="inviteSquad()">🔥 Позвать сквад (+5,000 $AERO)</button>
-        </div>
-
-        <div class="tasks-block">
-            <div class="task-row" onclick="claimSocial('tg', 15000, 'https://t.me')">
-                <div>
-                    <b>📢 Telegram канал @aerotap</b>
-                    <span>+15,000 $AERO</span>
+            <div class="upgrade-pair">
+                <div class="glass-upgrade" onclick="buyBoost('tap')">
+                    <div class="up-icon">⚡</div>
+                    <div class="up-name">Мощность (Ур.<span id="lvl-tap">1</span>)</div>
+                    <div class="up-cost"><span id="cost-tap">250</span> 🪙</div>
                 </div>
-                <button class="mini-btn" id="btn-tg">Забрать</button>
-            </div>
-            <div class="task-row" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
-                <div>
-                    <b>📺 YouTube канал $AERO</b>
-                    <span>+15,000 $AERO</span>
+                <div class="glass-upgrade" onclick="buyBoost('node')">
+                    <div class="up-icon">🛰️</div>
+                    <div class="up-name">Спутник (Ур.<span id="lvl-node">0</span>)</div>
+                    <div class="up-cost"><span id="cost-node">500</span> 🪙</div>
                 </div>
-                <button class="mini-btn" id="btn-yt">Забрать</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ЭКРАН 4: ДРОП И ТОП -->
+    <main id="view-hype" class="screen">
+        <div class="promo-banner">
+            <h3>🪂 Сезон Airdrop $AERO</h3>
+            <p>Приглашай друзей в свой экипаж и забирай +5,000 монет за каждый вылет.</p>
+            <button class="gold-action-btn" onclick="inviteSquad()">Пригласить друзей (+5,000)</button>
+        </div>
+
+        <div class="quests-stack">
+            <div class="glass-quest" onclick="claimSocial('tg', 15000, 'https://t.me')">
+                <div class="q-left">
+                    <span class="q-ico">📢</span>
+                    <div>
+                        <b>Канал @aerotap</b>
+                        <small>+15,000 $AERO</small>
+                    </div>
+                </div>
+                <button class="q-btn" id="btn-tg">Забрать</button>
+            </div>
+
+            <div class="glass-quest" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
+                <div class="q-left">
+                    <span class="q-ico">📺</span>
+                    <div>
+                        <b>YouTube канал $AERO</b>
+                        <small>+15,000 $AERO</small>
+                    </div>
+                </div>
+                <button class="q-btn" id="btn-yt">Забрать</button>
             </div>
         </div>
 
-        <div class="mini-top">
-            <h4>🏆 Топ хайроллеров дня</h4>
+        <div class="glass-card leaderboard-box">
+            <h4>🏆 Лидеры сезона</h4>
             <div id="top-list"></div>
         </div>
-    </div>
+    </main>
 
-    <!-- Модалка смены ника -->
-    <div class="modal-bg" id="name-modal">
-        <div class="modal-card">
-            <h3>Твой Web3 никнейм</h3>
-            <input type="text" id="nick-input" maxlength="15" placeholder="Введи ник...">
-            <button class="main-action-btn" onclick="saveNick()">Сохранить</button>
-            <button class="close-link" onclick="closeNameModal()">Отмена</button>
+    <!-- Окно смены ника -->
+    <div class="overlay-modal" id="name-modal">
+        <div class="glass-modal">
+            <h3>Новый позывной</h3>
+            <p>Это имя увидят все в таблице лидеров</p>
+            <input type="text" id="nick-input" maxlength="15" placeholder="Введи никнейм...">
+            <button class="primary-glow-btn" onclick="saveNick()">Сохранить</button>
+            <button class="text-cancel" onclick="closeNameModal()">Закрыть</button>
         </div>
     </div>
 
-    <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="switchView('crash', this)">🚀 Полет</button>
-        <button class="nav-btn" onclick="switchView('mines', this)">💣 Мины</button>
-        <button class="nav-btn" onclick="switchView('mine', this)">⚡ Фарм</button>
-        <button class="nav-btn" onclick="switchView('hype', this)">🪂 Дроп</button>
+    <!-- Парящее нижнее меню -->
+    <nav class="floating-dock">
+        <button class="dock-tab active" onclick="switchView('crash', this)">
+            <span>✈️</span>
+            <small>Полет</small>
+        </button>
+        <button class="dock-tab" onclick="switchView('mines', this)">
+            <span>💎</span>
+            <small>Радар</small>
+        </button>
+        <button class="dock-tab" onclick="switchView('mine', this)">
+            <span>⚡</span>
+            <small>Фарм</small>
+        </button>
+        <button class="dock-tab" onclick="switchView('hype', this)">
+            <span>🪂</span>
+            <small>Дроп</small>
+        </button>
     </nav>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>
