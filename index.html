@@ -3,201 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AeroTap — $AERO Empire</title>
+    <title>$AERO — Crash & Mine</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=16">
+    <link rel="stylesheet" href="style.css?v=1">
 </head>
 <body>
 
-    <div class="header">
-        <div class="pilot-info" onclick="openNameModal()" style="cursor: pointer;">
-            <div class="avatar" id="avatar">✈️</div>
-            <div>
-                <div class="pilot-name"><span id="pilot-name">Пилот #001</span> <span style="font-size: 12px;">✏️</span></div>
-                <div class="pilot-rank" id="pilot-rank">Ранг: Кадет</div>
-            </div>
+    <!-- Верхняя панель -->
+    <div class="top-bar">
+        <div class="user-pill" onclick="openNameModal()">
+            <div class="user-ava" id="ava">⚡</div>
+            <span id="username">CryptoPilot</span>
+            <span class="edit-icon">✎</span>
         </div>
-        <div class="profit-box">
-            <div class="profit-label">Автопилот в час</div>
-            <div class="profit-val">+<span id="profit-per-hour">0</span> $AERO</div>
+        <div class="balance-pill">
+            <span class="token-badge">$AERO</span>
+            <span id="balance">1 000</span>
         </div>
     </div>
 
-    <div id="tab-fly" class="tab-content active">
-        <div class="top-actions">
-            <button class="action-pill" onclick="claimDaily()">🎁 Бонус дня</button>
-            <button class="action-pill" id="cupcake-btn" onclick="eatCupcake()">🧁 Кекс</button>
-            <button class="action-pill" onclick="openCipherModal()">🔐 Код</button>
+    <!-- Лента последних иксов (как в топ-криптоиграх) -->
+    <div class="history-strip" id="history-strip">
+        <span class="hist-item high">x14.20</span>
+        <span class="hist-item low">x1.15</span>
+        <span class="hist-item mid">x3.40</span>
+        <span class="hist-item high">x28.90</span>
+        <span class="hist-item mid">x2.10</span>
+    </div>
+
+    <!-- ЭКРАН 1: КРАШ-ПОЛЕТ (AVIATOR $AERO) -->
+    <div id="view-crash" class="view active">
+        <div class="radar-screen" id="radar-screen">
+            <div class="grid-bg"></div>
+            <div class="multiplier-display" id="mult-text">x1.00</div>
+            <div class="status-sub" id="flight-status">ГОТОВ К ВЗЛЕТУ</div>
+            <div class="rocket-ship" id="rocket-ship">🚀</div>
         </div>
 
-        <div class="balance-container">
-            <div class="coin-title">Баланс токенов $AERO</div>
-            <div class="balance">
-                <span>🪙</span>
-                <span id="balance">0</span>
+        <div class="bet-panel">
+            <div class="bet-row">
+                <button class="quick-bet" onclick="setBet(100)">100</button>
+                <button class="quick-bet" onclick="setBet(500)">500</button>
+                <button class="quick-bet" onclick="halfBet()">1/2</button>
+                <button class="quick-bet" onclick="doubleBet()">x2</button>
+                <button class="quick-bet max" onclick="maxBet()">ALL IN</button>
             </div>
-        </div>
-
-        <div class="tap-zone" id="tap-zone">
-            <div class="radar-circle" id="radar-circle"></div>
-            <button class="bonus-drone" id="bonus-drone" onclick="catchDrone()">🛸</button>
-            <div class="plane-btn" id="plane-btn">
-                <div class="plane-icon" id="plane-icon">🛩️</div>
-                <div class="plane-model" id="plane-model">Cessna 172</div>
+            <div class="bet-input-box">
+                <span>Ставка:</span>
+                <input type="number" id="bet-input" value="100" min="10">
+                <span>$AERO</span>
             </div>
-        </div>
-
-        <div class="bottom-controls">
-            <button class="turbo-btn" id="turbo-btn" onclick="activateTurbo()">
-                🔥 ФОРСАЖ x5 (<span id="turbo-status">ГОТОВ</span>)
+            <button class="main-action-btn" id="crash-btn" onclick="handleCrashAction()">
+                🚀 ВЗЛЕТЕТЬ
             </button>
+        </div>
+    </div>
 
-            <div class="fuel-container">
-                <div class="fuel-header">
-                    <span>⛽ Авиатопливо</span>
-                    <span><span id="fuel-current">1000</span> / <span id="fuel-max">1000</span></span>
-                </div>
-                <div class="fuel-bar-bg">
-                    <div class="fuel-bar-fill" id="fuel-bar"></div>
-                </div>
+    <!-- ЭКРАН 2: МАЙНИНГ (ТАПАЛКА + ПАССИВ) -->
+    <div id="view-mine" class="view">
+        <div class="mine-header">
+            <div class="passive-tag">Авто-фарм: +<span id="passive-rate">0</span>/час</div>
+            <h2>Фарм топлива $AERO</h2>
+        </div>
+
+        <div class="core-reactor" id="tap-core">
+            <div class="core-ring"></div>
+            <div class="core-emoji">🛸</div>
+            <div class="core-label">ТАПАЙ ЗА +<span id="tap-power">5</span></div>
+        </div>
+
+        <div class="energy-box">
+            <div class="energy-text">
+                <span>⚡ Энергия реактора</span>
+                <span><span id="energy">1000</span> / <span id="max-energy">1000</span></span>
+            </div>
+            <div class="energy-track"><div class="energy-fill" id="energy-bar"></div></div>
+        </div>
+
+        <div class="shop-grid">
+            <div class="shop-card" onclick="buyBoost('tap')">
+                <div class="shop-title">⚡ Турбо-клик (Ур.<span id="lvl-tap">1</span>)</div>
+                <div class="shop-price"><span id="cost-tap">250</span> $AERO</div>
+            </div>
+            <div class="shop-card" onclick="buyBoost('node')">
+                <div class="shop-title">🛰️ Спутник-майнер (Ур.<span id="lvl-node">0</span>)</div>
+                <div class="shop-price"><span id="cost-node">500</span> $AERO</div>
             </div>
         </div>
     </div>
 
-    <div id="tab-hangar" class="tab-content">
-        <h3 class="section-title">⚡ Тюнинг борта</h3>
-        <div class="upgrades-list">
-            <div class="upgrade-card">
-                <div class="upgrade-info">
-                    <h4>🚀 Мощность турбин (Ур. <span id="lvl-tap">1</span>)</h4>
-                    <p>За 1 тап: +<span id="val-tap">1</span> $AERO</p>
+    <!-- ЭКРАН 3: ХАЙП И ДРОП (СОЦСЕТИ + РЕФЕРАЛКА + ТОП) -->
+    <div id="view-hype" class="view">
+        <div class="hype-card">
+            <h3>🪂 Airdrop $AERO на TON</h3>
+            <p>Залетай в комьюнити, зови сквад и забирай жирные бонусы до выхода монеты на биржу.</p>
+            <button class="neon-btn" onclick="inviteSquad()">🔥 Позвать сквад (+5,000 $AERO)</button>
+        </div>
+
+        <div class="tasks-block">
+            <div class="task-row" onclick="claimSocial('tg', 15000, 'https://t.me')">
+                <div>
+                    <b>📢 Telegram канал @aerotap</b>
+                    <span>+15,000 $AERO</span>
                 </div>
-                <button class="buy-btn" id="btn-buy-tap" onclick="buyUpgrade('tap')">
-                    <span id="cost-tap">100</span> 🪙
-                </button>
+                <button class="mini-btn" id="btn-tg">Забрать</button>
             </div>
-
-            <div class="upgrade-card">
-                <div class="upgrade-info">
-                    <h4>⛽ Топливный бак (Ур. <span id="lvl-fuel">1</span>)</h4>
-                    <p>Запас топлива: +500</p>
+            <div class="task-row" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
+                <div>
+                    <b>📺 YouTube канал $AERO</b>
+                    <span>+15,000 $AERO</span>
                 </div>
-                <button class="buy-btn" id="btn-buy-fuel" onclick="buyUpgrade('fuel')">
-                    <span id="cost-fuel">150</span> 🪙
-                </button>
+                <button class="mini-btn" id="btn-yt">Забрать</button>
             </div>
         </div>
 
-        <h3 class="section-title" style="margin-top: 18px;">🌍 Авиа-империя (Пассивный доход)</h3>
-        <div class="upgrades-list" id="cards-container"></div>
-    </div>
-    <div id="tab-top" class="tab-content">
-        <div class="league-header">
-            <div class="league-badge" id="league-badge">🥉 Бронзовая лига</div>
-            <h2 style="margin-top: 6px;">Топ пилотов $AERO</h2>
-            <p class="airdrop-desc">Обгоняй соперников и забирай главный пул наград при листинге!</p>
-        </div>
-
-        <div class="leaderboard-list" id="leaderboard-list"></div>
-
-        <div class="my-rank-bar">
-            <span>Твоя позиция в мире:</span>
-            <b id="my-world-rank" style="color: var(--gold);">#11</b>
+        <div class="mini-top">
+            <h4>🏆 Топ хайроллеров дня</h4>
+            <div id="top-list"></div>
         </div>
     </div>
 
-    <div id="tab-friends" class="tab-content">
-        <div class="friends-header">
-            <div style="font-size: 48px;">👨‍✈️</div>
-            <h2>Твоя Эскадрилья</h2>
-            <p class="airdrop-desc">Отправляй приглашение друзьям раз в 12 часов и получай <b>+10,000 $AERO</b> за вылет!</p>
-        </div>
-
-        <div class="stats-summary" style="width: 100%; text-align: center;">
-            <div>Отправлено приглашений: <b id="ref-count" style="color: var(--accent);">0</b></div>
-            <div>Заработано на друзьях: <b id="ref-earned" style="color: var(--gold);">0 $AERO</b></div>
-        </div>
-
-        <div class="ref-actions">
-            <button class="wallet-btn" id="invite-btn" onclick="inviteFriend()">🚀 Пригласить друга (+10,000)</button>
-            <button class="copy-btn" onclick="copyRefLink()">📋 Скопировать приглашение</button>
+    <!-- Модалка смены ника -->
+    <div class="modal-bg" id="name-modal">
+        <div class="modal-card">
+            <h3>Твой Web3 никнейм</h3>
+            <input type="text" id="nick-input" maxlength="15" placeholder="Введи ник...">
+            <button class="main-action-btn" onclick="saveNick()">Сохранить</button>
+            <button class="close-link" onclick="closeNameModal()">Отмена</button>
         </div>
     </div>
 
-    <div id="tab-airdrop" class="tab-content">
-        <div class="airdrop-box" style="width: 100%;">
-            <div class="airdrop-icon">🪂</div>
-            <h2>Листинг токена $AERO</h2>
-            <p class="airdrop-desc">
-                Открывай авиа-кейс с анимацией, подписывайся на каналы и готовься к дропу в сети TON.
-            </p>
-            
-            <div class="tasks-list">
-                <div class="upgrade-card">
-                    <div class="upgrade-info">
-                        <h4>🎁 Авиа-кейс Удачи</h4>
-                        <p>Выиграй до +25,000 $AERO</p>
-                    </div>
-                    <button class="buy-btn" id="spin-btn" onclick="openCaseModal()">Открыть</button>
-                </div>
+    <!-- Нижнее меню -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="switchView('crash', this)">🚀 Полет x100</button>
+        <button class="nav-btn" onclick="switchView('mine', this)">⚡ Майнинг</button>
+        <button class="nav-btn" onclick="switchView('hype', this)">🪂 Дроп</button>
+    </nav>
 
-                <div class="upgrade-card">
-                    <div class="upgrade-info">
-                        <h4>📢 Канал @aerotap</h4>
-                        <p>Награда: +15,000 $AERO</p>
-                    </div>
-                    <button class="buy-btn" id="task-tg" onclick="completeTask('tg', 15000, 'https://t.me')">Забрать</button>
-                </div>
-
-                <div class="upgrade-card">
-                    <div class="upgrade-info">
-                        <h4>📺 Наш YouTube канал</h4>
-                        <p>Награда: +15,000 $AERO</p>
-                    </div>
-                    <button class="buy-btn" id="task-yt" onclick="completeTask('yt', 15000, 'https://youtube.com')">Забрать</button>
-                </div>
-            </div>
-
-            <button class="wallet-btn" onclick="connectWallet()">💎 Подключить TON Кошелек</button>
-        </div>
-    </div>
-
-    <div class="case-modal" id="case-modal">
-        <div class="case-window">
-            <h3>🎁 Открытие Авиа-кейса</h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Штурвал определяет твою награду...</p>
-            <div class="roulette-viewport">
-                <div class="roulette-pointer">▼</div>
-                <div class="roulette-track" id="roulette-track"></div>
-            </div>
-            <div class="case-result" id="case-result">Крутим барабан...</div>
-            <button class="wallet-btn" id="case-close-btn" style="display: none; margin-top: 12px;" onclick="closeCaseModal()">Забрать награду</button>
-        </div>
-    </div>
-
-    <div class="nav-bar">
-        <button class="nav-item active" onclick="switchTab('fly', this)">
-            <span class="nav-icon">✈️</span>
-            <span>Полет</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('hangar', this)">
-            <span class="nav-icon">🏢</span>
-            <span>Империя</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('top', this)">
-            <span class="nav-icon">🏆</span>
-            <span>Топ</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('friends', this)">
-            <span class="nav-icon">👥</span>
-            <span>Друзья</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('airdrop', this)">
-            <span class="nav-icon">🪂</span>
-            <span>Airdrop</span>
-        </button>
-    </div>
-
-    <script src="script.js?v=16"></script>
+    <script src="script.js?v=1"></script>
 </body>
 </html>
