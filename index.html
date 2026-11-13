@@ -80,7 +80,6 @@
     <div class="balance" id="score">0</div>
   </div>
 
-  <!-- Вкладка 1: Полет -->
   <div class="tab-content active" id="tab-tap">
     <div class="tap-area" id="tap-zone">
       <div class="jet-btn" id="jet-btn" onclick="tapPlane(event)">
@@ -103,7 +102,6 @@
     </div>
   </div>
 
-  <!-- Вкладка 2: Магазин (Автокликер и пассивный доход) -->
   <div class="tab-content" id="tab-shop">
     <div class="shop-list">
       <div class="shop-title">🛒 Auto-Clickers & Passive Income</div>
@@ -111,7 +109,6 @@
     </div>
   </div>
 
-  <!-- Вкладка 3: Друзья -->
   <div class="tab-content" id="tab-friends">
     <div class="friends-box">
       <div class="friends-card">
@@ -123,7 +120,6 @@
     </div>
   </div>
 
-  <!-- Нижняя навигация -->
   <div class="nav">
     <button class="nav-btn active" id="nav-tap" onclick="switchTab('tap')">✈️<span>Flight</span></button>
     <button class="nav-btn" id="nav-shop" onclick="switchTab('shop')">🛒<span>Shop</span></button>
@@ -165,7 +161,6 @@
       const saved = JSON.parse(localStorage.getItem('aerotap_v9'));
       if (saved) {
         state = { ...state, ...saved };
-        // Офлайн-фарм от автокликеров (максимум за 3 часа отсутствия)
         if (state.pph > 0 && state.lastTime) {
           const diffSec = Math.min(10800, Math.floor((Date.now() - state.lastTime) / 1000));
           if (diffSec > 10) {
@@ -178,3 +173,148 @@
         }
       }
       if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        const u = window.Telegram.WebApp.initDataUnsafe?.user;
+        if (u) {document.getElementById('user-name').innerText = '@' + (u.username || u.first_name);
+userId = u.id || 'pilot';
+}
+}
+const urlParams = new URLSearchParams(window.location.search);
+const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param || urlParams.get('tgWebAppStartParam');
+if (startParam && !localStorage.getItem('aerotap_ref_used')) {
+state.score += 250;
+localStorage.setItem('aerotap_ref_used', '1');
+}
+} catch (e) {}
+function getCardCost(card) {
+return Math.floor(card.baseCost * Math.pow(1.6, card.lvl));
+}
+function renderShop() {
+const container = document.getElementById('cards-container');
+container.innerHTML = '';
+state.cards.forEach((card, idx) => {
+const cCost = getCardCost(card);
+const div = document.createElement('div');
+div.className = 'card';
+div.innerHTML = <div class="card-info"> <div class="card-icon">${card.icon}</div> <div> <div class="card-name">${card.name}</div> <div class="card-sub">+${card.basePph.toLocaleString()} / hr</div> <div class="card-lvl">Level ${card.lvl}</div> </div> </div> <button class="buy-btn" onclick="buyCard(${idx})">${cCost.toLocaleString()}</button>;
+container.appendChild(div);
+});
+}
+function buyCard(idx) {
+const card = state.cards[idx];
+const cCost = getCardCost(card);
+if (state.score >= cCost) {
+state.score -= cCost;
+card.lvl += 1;
+state.pph += card.basePph;
+showToast('✅ ' + card.name + ' upgraded to Lvl ' + card.lvl + '!');
+renderShop();
+render();
+} else {
+showToast('❌ Need ' + cCost.toLocaleString() + ' $AERO');
+}
+}
+function switchTab(tab) {
+document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+document.getElementById('tab-' + tab).classList.add('active');
+document.getElementById('nav-' + tab).classList.add('active');
+if (tab === 'shop') renderShop();
+}
+function render() {
+document.getElementById('score').innerText = Math.floor(state.score).toLocaleString();
+document.getElementById('stat-tap').innerText = '+' + (state.power * mult);
+document.getElementById('stat-pph').innerText = state.pph.toLocaleString() + ' / hr';
+document.getElementById('tap-power').innerText = '+' + (state.power * mult) + ' per tap';
+document.getElementById('upgrade-btn').innerText = '⬆️ Tap Lvl (' + state.cost + ')';
+document.getElementById('energy-val').innerText = Math.floor(state.energy) + ' / ' + state.maxEnergy;
+document.getElementById('energy-bar').style.width = (state.energy / state.maxEnergy * 100) + '%';
+let rName = 'Level ' + state.level + ': Prop Plane', rIcon = '🛩️';
+if (state.level >= 10) { rName = 'Level ' + state.level + ': Stratosphere'; rIcon = '🚀'; }
+else if (state.level >= 6) { rName = 'Level ' + state.level + ': Supersonic'; rIcon = '✈️'; }
+else if (state.level >= 3) { rName = 'Level ' + state.level + ': Business Jet'; rIcon = '🛫'; }
+document.getElementById('rank-name').innerText = rName;
+document.getElementById('jet-icon').innerText = rIcon;
+if (state.shared) {
+const invBtn = document.getElementById('invite-btn');
+invBtn.innerText = '📋 Copy Invite Link (+500 Claimed)';
+invBtn.classList.add('btn-done');
+}
+state.lastTime = Date.now();
+try { localStorage.setItem('aerotap_v9', JSON.stringify(state)); } catch (e) {}
+}
+function tapPlane(e) {
+if (state.energy < state.power) return;
+const gain = state.power * mult;
+state.score += gain;
+state.energy -= state.power;
+const el = document.createElement('div');
+el.className = 'float-num';
+el.innerText = '+' + gain;
+el.style.left = ((e.clientX || 150) - 20) + 'px';
+el.style.top = ((e.clientY || 250) - 30) + 'px';
+document.body.appendChild(el);
+setTimeout(() => el.remove(), 700);
+render();
+}
+function buyUpgrade() {
+if (state.score >= state.cost) {
+state.score -= state.cost;
+state.level += 1;
+state.power += 1;
+state.maxEnergy += 200;
+state.cost = Math.floor(state.cost * 1.8);
+render();
+} else {
+showToast('❌ Need ' + state.cost + ' $AERO');
+}
+}
+function startBoost() {
+mult = 3;
+document.getElementById('jet-btn').classList.add('boost');
+document.getElementById('ad-btn').innerText = '🔥 Turbo x3 ON!';
+render();
+setTimeout(() => {
+mult = 1;
+document.getElementById('jet-btn').classList.remove('boost');
+document.getElementById('ad-btn').innerText = '📺 Turbo x3 (Ad)';
+render();
+}, 30000);
+}
+function activateTurbo() {
+if (mult === 3) return;
+if (AdController) {
+AdController.show().then(() => {
+startBoost();
+}).catch(() => {
+startBoost();
+});
+} else {
+startBoost();
+}
+}
+function inviteFriend() {
+const refLink = 't.me_' + userId;
+const inviteText = '🚀 Join AeroTap with me and get +250 $AERO bonus points before token listing!\n\n🔥 Залетай в AeroTap по моей ссылке и забирай +250 $AERO бонусом до листинга токена!\n👉 ' + refLink;
+if (navigator.clipboard) navigator.clipboard.writeText(inviteText);
+if (!state.shared) {
+state.score += 500;
+state.shared = true;
+showToast('✅ +500 $AERO claimed & link copied!');
+render();
+} else {
+showToast('📋 Invite message copied!');
+}
+}
+setInterval(() => {
+if (state.energy < state.maxEnergy) {
+state.energy = Math.min(state.maxEnergy, state.energy + 3);
+}
+if (state.pph > 0) {
+state.score += state.pph / 3600;
+}
+render();
+}, 1000);
+renderShop();
+render();
