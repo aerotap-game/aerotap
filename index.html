@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>$AERO — Crash & Mine</title>
+    <title>$AERO — Crash, Mines & Mine</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=1">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
-    <!-- Верхняя панель -->
     <div class="top-bar">
         <div class="user-pill" onclick="openNameModal()">
             <div class="user-ava" id="ava">⚡</div>
             <span id="username">CryptoPilot</span>
             <span class="edit-icon">✎</span>
         </div>
-        <div class="balance-pill">
-            <span class="token-badge">$AERO</span>
-            <span id="balance">1 000</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="sound-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+            <div class="balance-pill">
+                <span class="token-badge">$AERO</span>
+                <span id="balance">1 000</span>
+            </div>
         </div>
     </div>
 
-    <!-- Лента последних иксов (как в топ-криптоиграх) -->
     <div class="history-strip" id="history-strip">
         <span class="hist-item high">x14.20</span>
         <span class="hist-item low">x1.15</span>
@@ -31,7 +32,7 @@
         <span class="hist-item mid">x2.10</span>
     </div>
 
-    <!-- ЭКРАН 1: КРАШ-ПОЛЕТ (AVIATOR $AERO) -->
+    <!-- ЭКРАН 1: КРАШ-ПОЛЕТ -->
     <div id="view-crash" class="view active">
         <div class="radar-screen" id="radar-screen">
             <div class="grid-bg"></div>
@@ -59,7 +60,34 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 2: МАЙНИНГ (ТАПАЛКА + ПАССИВ) -->
+    <!-- ЭКРАН 2: НОВЫЙ РЕЖИМ «НЕБЕСНЫЕ МИНЫ» -->
+    <div id="view-mines" class="view">
+        <div class="mines-top">
+            <div class="mines-info">
+                <span>Множитель: <b id="mines-mult" style="color: var(--neon-green);">x1.00</b></span>
+                <span>Выигрыш: <b id="mines-win" style="color: var(--neon-cyan);">0</b></span>
+            </div>
+            <div class="mines-grid" id="mines-grid"></div>
+        </div>
+
+        <div class="bet-panel">
+            <div class="bet-row">
+                <button class="quick-bet active-mine" id="m-btn-3" onclick="setMinesCount(3, this)">💣 3 мины</button>
+                <button class="quick-bet" id="m-btn-5" onclick="setMinesCount(5, this)">💣 5 мин</button>
+                <button class="quick-bet" id="m-btn-10" onclick="setMinesCount(10, this)">💣 10 мин</button>
+            </div>
+            <div class="bet-input-box">
+                <span>Ставка:</span>
+                <input type="number" id="mines-bet" value="100" min="10">
+                <span>$AERO</span>
+            </div>
+            <button class="main-action-btn" id="mines-action-btn" onclick="handleMinesAction()">
+                💎 НАЧАТЬ ИГРУ
+            </button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 3: МАЙНИНГ -->
     <div id="view-mine" class="view">
         <div class="mine-header">
             <div class="passive-tag">Авто-фарм: +<span id="passive-rate">0</span>/час</div>
@@ -92,7 +120,7 @@
         </div>
     </div>
 
-    <!-- ЭКРАН 3: ХАЙП И ДРОП (СОЦСЕТИ + РЕФЕРАЛКА + ТОП) -->
+    <!-- ЭКРАН 4: ДРОП И СКВАД -->
     <div id="view-hype" class="view">
         <div class="hype-card">
             <h3>🪂 Airdrop $AERO на TON</h3>
@@ -133,13 +161,13 @@
         </div>
     </div>
 
-    <!-- Нижнее меню -->
     <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="switchView('crash', this)">🚀 Полет x100</button>
-        <button class="nav-btn" onclick="switchView('mine', this)">⚡ Майнинг</button>
+        <button class="nav-btn active" onclick="switchView('crash', this)">🚀 Полет</button>
+        <button class="nav-btn" onclick="switchView('mines', this)">💣 Мины</button>
+        <button class="nav-btn" onclick="switchView('mine', this)">⚡ Фарм</button>
         <button class="nav-btn" onclick="switchView('hype', this)">🪂 Дроп</button>
     </nav>
 
-    <script src="script.js?v=1"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>
