@@ -1,112 +1,614 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>AeroTap</title>
-  <style>
-    *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent;font-family:-apple-system,sans-serif}
-    body{margin:0;background:#0b0f17;color:#fff;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-    .hd{padding:12px 16px;display:flex;justify-content:space-between;background:#131a26;border-bottom:1px solid #1f293a;font-weight:600;font-size:13px}
-    .st{display:flex;justify-content:space-around;background:#131a26;padding:6px;border-bottom:1px solid #1f293a;font-size:11px;text-align:center}
-    .sv{color:#38bdf8;font-weight:700;font-size:13px}
-    .tab{flex:1;display:none;flex-direction:column;overflow-y:auto}.tab.act{display:flex}
-    .jet{width:185px;height:185px;border-radius:50%;background:radial-gradient(circle,#1e293b,#0f172a 75%);border:4px solid #38bdf8;box-shadow:0 0 35px rgba(56,189,248,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
-    .jet:active{transform:scale(.92)}.bst{border-color:#f59e0b!important;box-shadow:0 0 40px rgba(245,158,11,.7)!important}
-    .btn{background:#1e293b;border:1px solid #334155;color:#fff;padding:10px 6px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer}
-    .card{background:#131a26;border:1px solid #1f293a;border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .bb{background:#0284c7;border:none;color:#fff;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer}.bb.dn{background:#1e293b;color:#64748b}
-    .nav{display:grid;grid-template-columns:repeat(4,1fr);background:#131a26;border-top:1px solid #1f293a;padding:8px 8px 16px;gap:6px}
-    .nb{background:0 0;border:none;color:#64748b;font-size:11px;font-weight:700;padding:6px;border-radius:10px;cursor:pointer}.nb.act{background:#1e293b;color:#38bdf8}
-    .fn{position:absolute;font-size:26px;font-weight:800;color:#38bdf8;pointer-events:none;animation:up .7s ease-out forwards}
-    @keyframes up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-80px)}}
-    .tst{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#0284c7;color:#fff;padding:8px 16px;border-radius:99px;font-size:12px;font-weight:700;z-index:99;display:none;white-space:nowrap}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AeroTap — $AERO Miner</title>
+    <script src="https://telegram.org"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="tst" id="tst"></div>
-  <div class="hd"><div id="un">Pilot</div><div style="color:#38bdf8" id="rn">Lvl 1: Prop Plane</div></div>
-  <div class="st">
-    <div><div style="color:#94a3b8">Tap</div><div class="sv" id="stp">+1</div></div>
-    <div><div style="color:#94a3b8">Profit/Hr</div><div class="sv" id="sph">0</div></div>
-    <div><div style="color:#94a3b8">Streak</div><div class="sv" id="sdy">Day 1</div></div>
-  </div>
-  <div style="text-align:center;margin-top:10px"><div style="font-size:11px;color:#94a3b8">$AERO BALANCE</div><div style="font-size:38px;font-weight:800" id="sc">0</div></div>
-  <div class="tab act" id="t-tap">
-    <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative">
-      <div class="jet" id="jet" onclick="tap(event)">
-        <div id="ji" style="font-size:64px;pointer-events:none">🛩️</div>
-        <div id="tp" style="margin-top:4px;font-size:12px;color:#94a3b8;font-weight:600;pointer-events:none">+1 per tap</div>
-      </div>
+
+    <div class="header">
+        <div class="pilot-info">
+            <div class="avatar" id="avatar">✈️</div>
+            <div>
+                <div class="pilot-name" id="pilot-name">Пилот #001</div>
+                <div class="pilot-rank" id="pilot-rank">Ранг: Кадет</div>
+            </div>
+        </div>
+        <div class="profit-box">
+            <div class="profit-label">Автопилот в час</div>
+            <div class="profit-val">+<span id="profit-per-hour">0</span> $AERO</div>
+        </div>
     </div>
-    <div style="padding:0 18px 10px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px"><span>⚡ Fuel</span><span id="ev">1000/1000</span></div>
-      <div style="width:100%;height:8px;background:#1e293b;border-radius:99px;overflow:hidden"><div id="eb" style="height:100%;background:#38bdf8;width:100%"></div></div>
+
+    <div id="tab-fly" class="tab-content active">
+        <div class="balance-container">
+            <div class="coin-title">Баланс токенов $AERO</div>
+            <div class="balance">
+                <span>🪙</span>
+                <span id="balance">0</span>
+            </div>
+        </div>
+
+        <div class="tap-zone" id="tap-zone">
+            <div class="radar-circle"></div>
+            <div class="plane-btn" id="plane-btn">
+                <div class="plane-icon" id="plane-icon">🛩️</div>
+                <div class="plane-model" id="plane-model">Cessna 172</div>
+            </div>
+        </div>
+
+        <div class="fuel-container">
+            <div class="fuel-header">
+                <span>⛽ Авиатопливо</span>
+                <span><span id="fuel-current">1000</span> / <span id="fuel-max">1000</span></span>
+            </div>
+            <div class="fuel-bar-bg">
+                <div class="fuel-bar-fill" id="fuel-bar"></div>
+            </div>
+        </div>
     </div>
-    <div style="padding:0 16px 10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <button class="btn" id="ub" onclick="up()">⬆️ Tap (100)</button>
-      <button class="btn" style="background:#f59e0b;border:none;color:#000" id="ab" onclick="trb()">📺 Turbo x3</button>
-      <button class="btn" style="background:#8b5cf6;border:none" id="sb" onclick="spn()">🎰 Spin (Ad)</button>
+
+    <div id="tab-hangar" class="tab-content">
+        <h3 class="section-title">🛠️ Тюнинг и Флот</h3>
+        <div class="upgrades-list">
+            <div class="upgrade-card">
+                <div class="upgrade-info">
+                    <h4>🚀 Форсаж турбин (Ур. <span id="lvl-tap">1</span>)</h4>
+                    <p>Доход за 1 тап: +<span id="val-tap">1</span> $AERO</p>
+                </div>
+                <button class="buy-btn" id="btn-buy-tap" onclick="buyUpgrade('tap')">
+                    <span id="cost-tap">100</span> 🪙
+                </button>
+            </div>
+
+            <div class="upgrade-card">
+                <div class="upgrade-info">
+                    <h4>⛽ Топливный бак (Ур. <span id="lvl-fuel">1</span>)</h4>
+                    <p>Макс. запас топлива: +500</p>
+                </div>
+                <button class="buy-btn" id="btn-buy-fuel" onclick="buyUpgrade('fuel')">
+                    <span id="cost-fuel">150</span> 🪙
+                </button>
+            </div>
+
+            <div class="upgrade-card">
+                <div class="upgrade-info">
+                    <h4>🤖 Автопилот ИИ (Ур. <span id="lvl-auto">0</span>)</h4>
+                    <p>Пассивный фарм: +360/час</p>
+                </div>
+                <button class="buy-btn" id="btn-buy-auto" onclick="buyUpgrade('auto')">
+                    <span id="cost-auto">500</span> 🪙
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="tab" id="t-shop"><div style="padding:12px 16px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">🛒 Auto-Clickers & Passive Income</div><div id="cds"></div></div></div>
-  <div class="tab" id="t-quests"><div style="padding:12px 16px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">🎯 Daily Bonus & Secret Code</div><div id="qst"></div></div></div>
-  <div class="tab" id="t-friends">
-    <div style="padding:16px;text-align:center">
-      <div style="background:#131a26;border:1px solid #1f293a;border-radius:16px;padding:18px;margin-bottom:14px">
-        <div style="font-size:40px;margin-bottom:8px">🎁</div>
-        <div style="font-size:17px;font-weight:800;margin-bottom:6px">Invite Pilots & Earn $AERO</div>
-        <div style="font-size:12px;color:#94a3b8">You get <b>+500 $AERO</b> and your friend gets <b>+250 $AERO</b>!</div>
-      </div>
-      <button class="btn" style="width:100%;background:#0284c7;border:none;padding:14px;font-size:14px" id="ib" onclick="inv()">👥 Share & Claim +500 $AERO</button>
+
+    <div id="tab-airdrop" class="tab-content">
+        <div class="airdrop-box">
+            <div class="airdrop-icon">🪂</div>
+            <h2>Листинг $AERO</h2>
+            <p class="airdrop-desc">
+                Накапливай налет часов и монеты $AERO. Чем выше твой ранг пилота и пассивный доход, тем больше токенов ты получишь при дропе в сети TON!
+            </p>
+            <button class="wallet-btn" onclick="connectWallet()">💎 Подключить TON Кошелек</button>
+        </div>
     </div>
-  </div>
-  <div class="nav">
-    <button class="nb act" id="n-tap" onclick="go('tap')">✈️<br>Flight</button>
-    <button class="nb" id="n-shop" onclick="go('shop')">🛒<br>Shop</button>
-    <button class="nb" id="n-quests" onclick="go('quests')">🎯<br>Tasks</button>
-    <button class="nb" id="n-friends" onclick="go('friends')">👥<br>Friends</button>
-  </div>
-  <script>
-    let s={sc:0,pw:1,lv:1,cs:100,en:1000,me:1000,ph:0,sh:false,lt:Date.now(),dl:0,sk:1,tp:0,ls:0,cd:false,q:{},c:new Array({n:'Auto-Clicker Bot',i:'🤖',c:500,p:1000,l:0},{n:'Private Hangar',i:'🏢',c:2000,p:4500,l:0},{n:'Global Airline',i:'🌍',c:10000,p:25000,l:0},{n:'Orbital Spaceport',i:'🛰️',c:50000,p:150000,l:0})};
-    let ml=1,Ad=null;
-    function tst(m){const t=document.getElementById('tst');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
-    const sc=document.createElement('script');sc.src='https://adsgram.ai>{if(window.Adsgram)Ad=window.Adsgram.init({blockId:"59556"})};document.head.appendChild(sc);
-    try{const sv=JSON.parse(localStorage.getItem('aero_v18'));if(sv){s={...s,...sv};const sec=Math.min(10800,Math.floor((Date.now()-s.lt)/1000));if(s.ph>0&&sec>10){const e=Math.floor((s.ph/3600)*sec);s.sc+=e;setTimeout(()=>tst('🤖 Auto-Clicker: +'+e+' $AERO!'),500)}}}catch(e){}
-    function cc(c){return Math.floor(c.c*Math.pow(1.6,c.l))}
-    function rSh(){let h='';s.c.forEach((c,i)=>{h+='<div class="card"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:24px;background:#1e293b;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center">'+c.i+'</div><div><div style="font-size:13px;font-weight:700">'+c.n+'</div><div style="font-size:11px;color:#38bdf8">+'+c.p.toLocaleString()+'/hr • Lvl '+c.l+'</div></div></div><button class="bb" onclick="bC('+i+')">'+cc(c).toLocaleString()+'</button></div>'});document.getElementById('cds').innerHTML=h}
-    function bC(i){const c=s.c.at(i),cs=cc(c);if(s.sc>=cs){s.sc-=cs;c.l++;s.ph+=c.p;tst('✅ Upgraded!');rSh();rn()}else tst('❌ Need '+cs)}
-    function rQs(){
-      const d=(Date.now()-s.dl)>86400000;let h='';
-      if(s.cd)h+='<div class="card"><div style="font-size:13px;font-weight:700;color:#94a3b8">🔐 Secret Code Claimed (+25,000)</div><button class="bb dn">Done</button></div>';
-      else h+='<div class="card" style="flex-direction:column;align-items:stretch;gap:8px"><div style="font-size:13px;font-weight:700">🔐 Secret YouTube Code (+25,000 $AERO)</div><div style="display:flex;gap:8px"><input id="cin" type="text" placeholder="Enter code..." style="flex:1;background:#1e293b;border:1px solid #334155;color:#fff;padding:8px 10px;border-radius:10px;font-size:13px;outline:none"/><button class="bb" onclick="chk()">Claim</button></div></div>';
-      h+='<div class="card"><div><div style="font-size:13px;font-weight:700">📅 Daily Bonus (Day '+s.sk+')</div><div style="font-size:11px;color:#38bdf8">+'+(s.sk*1000).toLocaleString()+' $AERO</div></div><button class="bb '+(d?'':'dn')+'" onclick="gD()">'+(d?'Claim':'Done')+'</button></div>';
-      h+='<div class="card"><div><div style="font-size:13px;font-weight:700">▶️ Watch AeroScale Shorts</div><div style="font-size:11px;color:#38bdf8">+3,000 $AERO</div></div><button class="bb '+(s.q.yt?'dn':'')+'" onclick="gQ()">'+(s.q.yt?'Done':'Go')+'</button></div>';
-      h+='<div class="card"><div><div style="font-size:13px;font-weight:700">✈️ Make 100 Taps ('+Math.min(100,s.tp)+'/100)</div><div style="font-size:11px;color:#38bdf8">+1,500 $AERO</div></div><button class="bb '+(s.q.tp?'dn':'')+'" onclick="gT()">'+(s.q.tp?'Done':'Claim')+'</button></div>';
-      document.getElementById('qst').innerHTML=h;
-    }
-    function chk(){const i=document.getElementById('cin');if(!i)return;const v=i.value.trim().toUpperCase();if(v==='AERO2026'||v==='BLACKBIRD'){s.cd=true;s.sc+=25000;tst('🔥 +25,000 $AERO!');rQs();rn()}else tst('❌ Wrong code!')}
-    function gD(){if((Date.now()-s.dl)>86400000){s.sc+=s.sk*1000;s.dl=Date.now();s.sk++;tst('🎉 Daily claimed!');rQs();rn()}else tst('⏳ Tomorrow')}
-    function gQ(){if(!s.q.yt){s.q.yt=true;s.sc+=3000;tst('🎉 +3,000 $AERO!');rQs();rn();window.open('https://youtube.com','_blank')}}
-    function gT(){if(!s.q.tp&&s.tp>=100){s.q.tp=true;s.sc+=1500;tst('🎉 +1,500 $AERO!');rQs();rn()}else if(!s.q.tp)tst('❌ Tap '+(100-s.tp)+' more!')}
-    function go(t){document.querySelectorAll('.tab').forEach(e=>e.classList.remove('act'));document.querySelectorAll('.nb').forEach(e=>e.classList.remove('act'));document.getElementById('t-'+t).classList.add('act');document.getElementById('n-'+t).classList.add('act');if(t==='shop')rSh();if(t==='quests')rQs()}
-    function rn(){
-      document.getElementById('sc').innerText=Math.floor(s.sc).toLocaleString();document.getElementById('stp').innerText='+'+(s.pw*ml);document.getElementById('sph').innerText=s.ph.toLocaleString();document.getElementById('sdy').innerText='Day '+s.sk;
-      document.getElementById('tp').innerText='+'+(s.pw*ml)+' per tap';document.getElementById('ub').innerText='⬆️ Tap ('+s.cs+')';document.getElementById('ev').innerText=Math.floor(s.en)+'/'+s.me;document.getElementById('eb').style.width=(s.en/s.me*100)+'%';
-      let r='Lvl '+s.lv+': Prop Plane',i='🛩️';if(s.lv>=10){r='Lvl '+s.lv+': Stratosphere';i='🚀'}else if(s.lv>=6){r='Lvl '+s.lv+': Supersonic';i='✈️'}else if(s.lv>=3){r='Lvl '+s.lv+': Business Jet';i='🛫'}
-      document.getElementById('rn').innerText=r;document.getElementById('ji').innerText=i;
-      if(s.sh){document.getElementById('ib').innerText='📋 Copy Link (Claimed)';document.getElementById('ib').style.background='#1e293b'}
-      s.lt=Date.now();try{localStorage.setItem('aero_v18',JSON.stringify(s))}catch(e){}
-    }
-    function tap(e){if(s.en<s.pw)return;const cr=Math.random()<.1,g=s.pw*ml*(cr?5:1);s.sc+=g;s.en-=s.pw;s.tp++;const el=document.createElement('div');el.className='fn';el.innerText=cr?'🔥 +'+g+' CRIT!':'+'+g;if(cr){el.style.color='#f59e0b';el.style.fontSize='32px'}el.style.left=((e.clientX||150)-25)+'px';el.style.top=((e.clientY||250)-30)+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),700);rn()}
-    function up(){if(s.sc>=s.cs){s.sc-=s.cs;s.lv++;s.pw++;s.me+=200;s.cs=Math.floor(s.cs*1.8);rn()}else tst('❌ Need '+s.cs)}
-    function oB(){ml=3;document.getElementById('jet').classList.add('bst');document.getElementById('ab').innerText='🔥 x3 ON!';rn();setTimeout(()=>{ml=1;document.getElementById('jet').classList.remove('bst');document.getElementById('ab').innerText='📺 Turbo x3';rn()},30000)}
-    function trb(){if(ml===3)return;if(Ad)Ad.show().then(oB).catch(oB);else oB()}
-    function oS(){const p=new Array(1000,2500,5000,10000),w=p.at(Math.floor(Math.random()*p.length));s.sc+=w;s.en=s.me;s.ls=Date.now();tst('🎰 +'+w.toLocaleString()+' $AERO & Full Fuel!');rn()}
-    function spn(){const w=7200000-(Date.now()-(s.ls||0));if(w>0){tst('⏳ Next spin in '+Math.ceil(w/60000)+'m!');return}if(Ad)Ad.show().then(oS).catch(oS);else oS()}
-    function inv(){const l='https://t.me('Join AeroTap & get +250 $AERO! / Залетай в AeroTap: '+l);if(!s.sh){s.sc+=500;s.sh=true;tst('✅ +500 $AERO claimed!');rn()}else tst('📋 Link copied!')}
-    setInterval(()=>{if(s.en<s.me)s.en=Math.min(s.me,s.en+3);if(s.ph>0)s.sc+=s.ph/3600;const w=7200000-(Date.now()-(s.ls||0)),b=document.getElementById('sb');if(b){if(w>0){b.innerText='⏳ '+Math.ceil(w/60000)+'m';b.style.opacity='.6'}else{b.innerText='🎰 Spin (Ad)';b.style.opacity='1'}}rn()},1000);
-    rSh();rQs();rn();
-  </script>
+
+    <div class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('fly', this)">
+            <span class="nav-icon">✈️</span>
+            <span>Полет</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('hangar', this)">
+            <span class="nav-icon">🛠️</span>
+            <span>Ангар</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('airdrop', this)">
+            <span class="nav-icon">🪂</span>
+            <span>Airdrop</span>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
+:root {
+    --bg-color: #0b0f19;
+    --card-bg: #151c2c;
+    --accent: #00d2ff;
+    --accent-glow: rgba(0, 210, 255, 0.4);
+    --gold: #ffcc00;
+    --text-main: #ffffff;
+    --text-muted: #8a99ad;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    background-image: radial-gradient(circle at 50% 20%, #1a2942 0%, #0b0f19 70%);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(21, 28, 44, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pilot-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #0051ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.pilot-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.pilot-rank {
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profit-box {
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 12px;
+    text-align: right;
+}
+
+.profit-label {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.profit-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.tab-content {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+.balance-container {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.coin-title {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.balance {
+    font-size: 42px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+}
+
+.tap-zone {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+.radar-circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,210,255,0.15) 0%, rgba(11,15,25,0) 70%);
+    border: 2px solid rgba(0, 210, 255, 0.2);
+    box-shadow: 0 0 40px var(--accent-glow), inset 0 0 30px var(--accent-glow);
+    animation: pulse 3s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.04); opacity: 1; }
+}
+
+.plane-btn {
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #1b263b, #0d131f);
+    border: 3px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+.plane-btn:active {
+    transform: scale(0.93);
+}
+
+.plane-icon {
+    font-size: 85px;
+    filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.6));
+}
+
+.plane-model {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.floating-text {
+    position: absolute;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--gold);
+    pointer-events: none;
+    z-index: 10;
+    animation: floatUp 0.8s ease-out forwards;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+
+@keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-90px) scale(1.2); }
+}
+
+.fuel-container {
+    width: 100%;
+    max-width: 360px;
+    margin-bottom: 10px;
+}
+
+.fuel-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.fuel-bar-bg {
+    width: 100%;
+    height: 12px;
+    background: #1a2234;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.fuel-bar-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #00d2ff, #0072ff);
+    border-radius: 10px;
+    transition: width 0.2s ease;
+}
+
+.section-title {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.upgrades-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.upgrade-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.upgrade-info h4 {
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.upgrade-info p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.buy-btn {
+    background: linear-gradient(135deg, var(--accent), #0066ff);
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.buy-btn:disabled {
+    background: #2a354d;
+    color: #6c7a96;
+    cursor: not-allowed;
+}
+
+.airdrop-box {
+    text-align: center;
+    background: var(--card-bg);
+    padding: 30px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    margin: auto 0;
+}
+
+.airdrop-icon {
+    font-size: 64px;
+    margin-bottom: 15px;
+}
+
+.airdrop-desc {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+.wallet-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(90deg, #ffcc00, #ff9900);
+    color: #000;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.nav-bar {
+    display: flex;
+    background: #111726;
+    padding: 10px 15px 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    gap: 10px;
+}
+
+.nav-item {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-item.active {
+    background: rgba(0, 210, 255, 0.15);
+    color: var(--accent);
+}
+
+.nav-icon {
+    font-size: 20px;
+}
+const tg = window.Telegram.WebApp;
+tg.expand();
+tg.ready();
+
+// Имя пилота из Telegram
+if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+    const user = tg.initDataUnsafe.user;
+    document.getElementById('pilot-name').innerText = user.first_name || 'Пилот';
+    document.getElementById('avatar').innerText = (user.first_name || 'A').toUpperCase();
+}
+
+// Загрузка сохранения
+let state = JSON.parse(localStorage.getItem('aerotap_save')) || {
+    balance: 0,
+    fuel: 1000,
+    maxFuel: 1000,
+    tapPower: 1,
+    tapLevel: 1,
+    tapCost: 100,
+    fuelLevel: 1,
+    fuelCost: 150,
+    autoLevel: 0,
+    autoCost: 500,
+    profitPerHour: 0
+};
+
+// Ранги и флот
+const ranks = [
+    { min: 0, title: 'Кадет', icon: '🛩️', model: 'Cessna 172' },
+    { min: 2000, title: 'Второй пилот', icon: '🛫', model: 'Boeing 737' },
+    { min: 15000, title: 'Капитан', icon: '✈️', model: 'Airbus A380' },
+    { min: 50000, title: 'Ас Истребитель', icon: '🚀', model: 'F-22 Raptor' },
+    { min: 250000, title: 'Космонавт $AERO', icon: '🛸', model: 'Aero Starship' }
+];
+
+function updateUI() {
+    document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
+    document.getElementById('fuel-current').innerText = Math.floor(state.fuel);
+    document.getElementById('fuel-max').innerText = state.maxFuel;
+    document.getElementById('profit-per-hour').innerText = state.profitPerHour.toLocaleString();
+
+    const fuelPercent = (state.fuel / state.maxFuel) * 100;
+    document.getElementById('fuel-bar').style.width = fuelPercent + '%';
+
+    document.getElementById('lvl-tap').innerText = state.tapLevel;
+    document.getElementById('val-tap').innerText = state.tapPower;
+    document.getElementById('cost-tap').innerText = state.tapCost.toLocaleString();
+    document.getElementById('btn-buy-tap').disabled = state.balance < state.tapCost;
+
+    document.getElementById('lvl-fuel').innerText = state.fuelLevel;
+    document.getElementById('cost-fuel').innerText = state.fuelCost.toLocaleString();
+    document.getElementById('btn-buy-fuel').disabled = state.balance < state.fuelCost;
+
+    document.getElementById('lvl-auto').innerText = state.autoLevel;
+    document.getElementById('cost-auto').innerText = state.autoCost.toLocaleString();
+    document.getElementById('btn-buy-auto').disabled = state.balance < state.autoCost;
+
+    let currentRank = ranks;
+    for (let r of ranks) {
+        if (state.balance >= r.min) currentRank = r;
+    }
+    document.getElementById('pilot-rank').innerText = 'Ранг: ' + currentRank.title;
+    document.getElementById('plane-icon').innerText = currentRank.icon;
+    document.getElementById('plane-model').innerText = currentRank.model;
+
+    localStorage.setItem('aerotap_save', JSON.stringify(state));
+}
+
+// Тап по самолету
+const planeBtn = document.getElementById('plane-btn');
+
+planeBtn.addEventListener('pointerdown', (e) => {
+    if (state.fuel >= state.tapPower) {
+        state.balance += state.tapPower;
+        state.fuel -= state.tapPower;
+
+        if (tg.HapticFeedback) {
+            tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        createFloatingText(e.clientX, e.clientY, `+${state.tapPower}`);
+        updateUI();
+    } else {
+        if (tg.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred('error');
+        }
+    }
+});
+
+function createFloatingText(x, y, text) {
+    const el = document.createElement('div');
+    el.className = 'floating-text';
+    el.innerText = text;
+    el.style.left = (x - 20) + 'px';
+    el.style.top = (y - 30) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+}
+
+// Покупка апгрейдов
+function buyUpgrade(type) {
+    if (type === 'tap' && state.balance >= state.tapCost) {
+        state.balance -= state.tapCost;
+        state.tapLevel++;
+        state.tapPower += 1;
+        state.tapCost = Math.floor(state.tapCost * 1.8);
+    } else if (type === 'fuel' && state.balance >= state.fuelCost) {
+        state.balance -= state.fuelCost;
+        state.fuelLevel++;
+        state.maxFuel += 500;
+        state.fuel = state.maxFuel;
+        state.fuelCost = Math.floor(state.fuelCost * 1.8);
+    } else if (type === 'auto' && state.balance >= state.autoCost) {
+        state.balance -= state.autoCost;
+        state.autoLevel++;
+        state.profitPerHour += 360;
+        state.autoCost = Math.floor(state.autoCost * 2);
+    }
+
+    if (tg.HapticFeedback) {
+        tg.HapticFeedback.notificationOccurred('success');
+    }
+    updateUI();
+}
+
+// Переключение вкладок
+function switchTab(tabName, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    document.getElementById('tab-' + tabName).classList.add('active');
+    btn.classList.add('active');
+}
+
+// Заглушка кошелька
+function connectWallet() {
+    tg.showAlert('Модуль TON Connect будет активирован перед листингом токена $AERO!');
+}
+
+// Авто-фарм и реген топлива каждую секунду
+setInterval(() => {
+    if (state.fuel < state.maxFuel) {
+        state.fuel = Math.min(state.maxFuel, state.fuel + 3);
+    }
+    if (state.profitPerHour > 0) {
+        state.balance += (state.profitPerHour / 3600);
+    }
+    updateUI();
+}, 1000);
+
+updateUI();
