@@ -29,6 +29,7 @@ const defaultState = {
     fuelLevel: 1,
     fuelCost: 150,
     profitPerHour: 0,
+    isVip: false,
     lastDaily: '',
     lastCupcakeTime: 0,
     lastSpinTime: 0,
@@ -49,13 +50,10 @@ const defaultState = {
 function loadSavedState() {
     let raw = localStorage.getItem(SAVE_KEY);
     if (!raw) {
-        const oldKeys = ['aerotap_save_v8', 'aerotap_save_v7', 'aerotap_save_v6', 'aerotap_save_v5', 'aerotap_save_v4', 'aerotap_save_v3', 'aerotap_save'];
+        const oldKeys = new Array('aerotap_save_v8', 'aerotap_save_v7', 'aerotap_save_v6', 'aerotap_save_v5', 'aerotap_save_v4', 'aerotap_save_v3', 'aerotap_save');
         for (let i = 0; i < oldKeys.length; i++) {
-            const oldData = localStorage.getItem(oldKeys[i]);
-            if (oldData) {
-                raw = oldData;
-                break;
-            }
+            const oldData = localStorage.getItem(oldKeys.at(i));
+            if (oldData) { raw = oldData; break; }
         }
     }
     if (!raw) return JSON.parse(JSON.stringify(defaultState));
@@ -72,7 +70,7 @@ function loadSavedState() {
 
 let state = loadSavedState();
 
-const rivals = [
+const rivals = new Array(
     { name: 'Captain_TON', rank: 'Космонавт $AERO', score: 850000 },
     { name: 'SkyWalker_99', rank: 'Ас Истребитель', score: 420000 },
     { name: 'AeroWhale 🐋', rank: 'Ас Истребитель', score: 195000 },
@@ -83,22 +81,22 @@ const rivals = [
     { name: 'CloudRunner', rank: 'Кадет', score: 2900 },
     { name: 'WingMan', rank: 'Кадет', score: 950 },
     { name: 'NoviceFlyer', rank: 'Кадет', score: 250 }
-];
+);
 
-const cardMeta = [
+const cardMeta = new Array(
     { id: 'hub', icon: '🛫', name: 'Взлетная полоса', desc: 'Региональные рейсы' },
     { id: 'vip', icon: '🥂', name: 'Бизнес-терминал', desc: 'Обслуживание джетов' },
     { id: 'cargo', icon: '📦', name: 'Грузовой хаб $AERO', desc: 'Мировая логистика' },
     { id: 'space', icon: '🛰️', name: 'Орбитальный космопорт', desc: 'Рейсы на Луну и Марс' }
-];
+);
 
-const ranks = [
+const ranks = new Array(
     { min: 0, title: 'Кадет', icon: '🛩️', model: 'Cessna 172', league: '🥉 Бронзовая лига' },
     { min: 2500, title: 'Второй пилот', icon: '🛫', model: 'Boeing 737', league: '🥈 Серебряная лига' },
     { min: 15000, title: 'Капитан', icon: '✈️', model: 'Airbus A380', league: '🥇 Золотая лига' },
     { min: 75000, title: 'Ас Истребитель', icon: '🚀', model: 'F-22 Raptor', league: '💎 Платиновая лига' },
     { min: 300000, title: 'Космонавт $AERO', icon: '🛸', model: 'Aero Starship', league: '👑 Бриллиантовая лига' }
-];
+);
 
 let isTurbo = false;
 let turboCooldown = 0;
@@ -131,7 +129,8 @@ function checkOfflineEarnings() {
         const now = Date.now();
         const secondsPassed = Math.min(10800, Math.floor((now - state.lastExitTime) / 1000));
         if (secondsPassed > 60) {
-            const earned = Math.floor((state.profitPerHour / 3600) * secondsPassed);
+            const mult = state.isVip ? 2 : 1;
+            const earned = Math.floor((state.profitPerHour / 3600) * secondsPassed * mult);
             if (earned > 0) {
                 state.balance += earned;
                 saveState();
@@ -148,7 +147,7 @@ function renderCards() {
     if (!container) return;
     let html = '';
     for (let i = 0; i < cardMeta.length; i++) {
-        const meta = cardMeta[i];
+        const meta = cardMeta.at(i);
         const data = state.cards[meta.id];
         const disabled = state.balance < data.cost ? 'disabled' : '';
         html += '<div class="upgrade-card">' +
@@ -167,12 +166,13 @@ function renderLeaderboard(currentRankTitle) {
     const listEl = document.getElementById('leaderboard-list');
     if (!listEl) return;
 
-    const allPlayers = [];
+    const allPlayers = new Array();
     for (let i = 0; i < rivals.length; i++) {
+        const r = rivals.at(i);
         allPlayers.push({
-            name: rivals[i].name,
-            rank: rivals[i].rank,
-            score: rivals[i].score,
+            name: r.name,
+            rank: r.rank,
+            score: r.score,
             isMe: false
         });
     }
@@ -190,7 +190,7 @@ function renderLeaderboard(currentRankTitle) {
     let myPosition = 1;
 
     for (let i = 0; i < allPlayers.length; i++) {
-        const p = allPlayers[i];
+        const p = allPlayers.at(i);
         const pos = i + 1;
         if (p.isMe) myPosition = pos;
 
@@ -220,10 +220,11 @@ function renderLeaderboard(currentRankTitle) {
 
 function updateUI() {
     const now = Date.now();
+    const vipMult = state.isVip ? 2 : 1;
     document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
     document.getElementById('fuel-current').innerText = Math.floor(state.fuel);
     document.getElementById('fuel-max').innerText = state.maxFuel;
-    document.getElementById('profit-per-hour').innerText = state.profitPerHour.toLocaleString();
+    document.getElementById('profit-per-hour').innerText = (state.profitPerHour * vipMult).toLocaleString();
     document.getElementById('ref-count').innerText = state.refCount;
     document.getElementById('ref-earned').innerText = state.refEarned.toLocaleString() + ' $AERO';
 
@@ -231,7 +232,7 @@ function updateUI() {
     document.getElementById('fuel-bar').style.width = fuelPercent + '%';
 
     document.getElementById('lvl-tap').innerText = state.tapLevel;
-    document.getElementById('val-tap').innerText = state.tapPower;
+    document.getElementById('val-tap').innerText = state.tapPower * vipMult;
     document.getElementById('cost-tap').innerText = state.tapCost.toLocaleString();
     document.getElementById('btn-buy-tap').disabled = state.balance < state.tapCost;
 
@@ -274,11 +275,12 @@ function updateUI() {
         if (btnYt) { btnYt.innerText = 'Готово ✅'; btnYt.disabled = true; }
     }
 
-    let currentRank = ranks[0];
+    let currentRank = ranks.at(0);
     for (let i = 0; i < ranks.length; i++) {
-        if (state.balance >= ranks[i].min) { currentRank = ranks[i]; }
+        const r = ranks.at(i);
+        if (state.balance >= r.min) { currentRank = r; }
     }
-    document.getElementById('pilot-rank').innerText = 'Ранг: ' + currentRank.title;
+    document.getElementById('pilot-rank').innerText = (state.isVip ? '👑 VIP ' : 'Ранг: ') + currentRank.title;
     document.getElementById('league-badge').innerText = currentRank.league;
     document.getElementById('plane-icon').innerText = currentRank.icon;
     document.getElementById('plane-model').innerText = currentRank.model;
@@ -287,17 +289,316 @@ function updateUI() {
     renderLeaderboard(currentRank.title);
     saveState();
 }
+function handleTap(x, y) {
+    const turboMult = isTurbo ? 5 : 1;
+    const vipMult = state.isVip ? 2 : 1;
+    let gain = state.tapPower * turboMult * vipMult;
+
+    if (isTurbo || state.fuel >= state.tapPower) {
+        comboStreak++;
+        let label = '+' + gain;
+        if (comboStreak >= 50) {
+            gain = gain * 10;
+            label = '🔥 КРИТ +' + gain;
+            comboStreak = 0;
+        }
+
+        state.balance += gain;
+        state.totalTaps += 1;
+        if (!isTurbo) { state.fuel -= state.tapPower; }
+        if (tg && tg.HapticFeedback) {
+            tg.HapticFeedback.impactOccurred(isTurbo ? 'heavy' : 'medium');
+        }
+        createFloatingText(x, y, label);
+        updateUI();
+    } else if (tg && tg.HapticFeedback) {
+        tg.HapticFeedback.notificationOccurred('error');
+    }
+}
+
+const planeBtn = document.getElementById('plane-btn');
+planeBtn.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches.item(i);
+        handleTap(t.clientX, t.clientY);
+    }
+}, { passive: false });
+
+planeBtn.addEventListener('mousedown', function(e) {
+    handleTap(e.clientX, e.clientY);
+});
+
+function createFloatingText(x, y, text) {
+    const el = document.createElement('div');
+    el.className = 'floating-text';
+    el.innerText = text;
+    el.style.left = (x - 20) + 'px';
+    el.style.top = (y - 30) + 'px';
+    document.body.appendChild(el);
+    setTimeout(function() { el.remove(); }, 800);
+}
+
+function eatCupcake() {
+    const now = Date.now();
+    const left = (state.lastCupcakeTime + 10800000) - now;
+    if (left > 0) {
+        showMsg('🧁 Печь еще греется! Новый космо-кекс будет готов через ' + formatTimeLeft(left));
+        return;
+    }
+    state.lastCupcakeTime = now;
+    state.fuel = state.maxFuel;
+    const bonus = 1500 + Math.floor(Math.random() * 2500);
+    state.balance += bonus;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    showMsg('🧁 Вкуснятина! Топливо восстановлено на 100%, а внутри кекса найдено +' + bonus.toLocaleString() + ' $AERO!');
+    updateUI();
+}
+
+function openCaseModal() {
+    const now = Date.now();
+    const left = (state.lastSpinTime + 21600000) - now;
+    if (left > 0) {
+        showMsg('🎁 Следующий кейс будет доступен через ' + formatTimeLeft(left));
+        return;
+    }
+
+    state.lastSpinTime = now;
+    saveState();
+
+    const modal = document.getElementById('case-modal');
+    const track = document.getElementById('roulette-track');
+    const resultEl = document.getElementById('case-result');
+    const closeBtn = document.getElementById('case-close-btn');
+
+    modal.style.display = 'flex';
+    closeBtn.style.display = 'none';
+    resultEl.innerText = 'Раскручиваем барабан...';
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0px)';
+
+    const pool = new Array(1000, 1500, 2000, 3000, 5000, 7500, 10000, 15000, 25000);
+    const winIndex = 24;
+    let wonAmount = 3000;
+    let html = '';
+
+    for (let i = 0; i < 30; i++) {
+        const val = pool.at(Math.floor(Math.random() * pool.length));
+        if (i === winIndex) wonAmount = val;
+        const isJackpot = val >= 15000 ? 'jackpot' : '';
+        const icon = val >= 15000 ? '💎' : '🪙';
+        html += '<div class="roulette-item ' + isJackpot + '">' + icon + '<br>+' + val.toLocaleString() + '</div>';
+    }
+    track.innerHTML = html;
+
+    setTimeout(function() {
+        track.style.transition = 'transform 3.8s cubic-bezier(0.12, 0.85, 0.2, 1)';
+        const itemWidth = 92;
+        const offset = (winIndex * itemWidth) + 42;
+        track.style.transform = 'translateX(-' + offset + 'px)';
+    }, 50);
+
+    setTimeout(function() {
+        state.balance += wonAmount;
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        resultEl.innerText = '🎉 Твой выигрыш: +' + wonAmount.toLocaleString() + ' $AERO!';
+        closeBtn.style.display = 'block';
+        updateUI();
+    }, 4000);
+}
+
+function closeCaseModal() {
+    document.getElementById('case-modal').style.display = 'none';
+}
+
+function spawnDrone() {
+    const drone = document.getElementById('bonus-drone');
+    if (!drone) return;
+    drone.style.display = 'flex';
+    setTimeout(function() { drone.style.display = 'none'; }, 4000);
+}
+
+function catchDrone() {
+    document.getElementById('bonus-drone').style.display = 'none';
+    const reward = 400 + Math.floor(Math.random() * 450);
+    state.balance += reward;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    showMsg('🛸 Груз перехвачен! Награда: +' + reward.toLocaleString() + ' $AERO!');
+    updateUI();
+}
+
+setInterval(spawnDrone, 90000);
+
+function activateTurbo() {
+    if (isTurbo || turboCooldown > 0) return;
+    isTurbo = true;
+    document.body.classList.add('turbo-active');
+    const btn = document.getElementById('turbo-btn');
+    btn.disabled = true;
+
+    let timeLeft = 15;
+    document.getElementById('turbo-status').innerText = timeLeft + 'с';
+
+    const turboTimer = setInterval(function() {
+        timeLeft--;
+        if (timeLeft > 0) {
+            document.getElementById('turbo-status').innerText = timeLeft + 'с';
+        } else {
+            clearInterval(turboTimer);
+            isTurbo = false;
+            document.body.classList.remove('turbo-active');
+            startTurboCooldown();
+        }
+    }, 1000);
+}
+
+function startTurboCooldown() {
+    turboCooldown = 45;
+    const btn = document.getElementById('turbo-btn');
+    const cdTimer = setInterval(function() {
+        turboCooldown--;
+        if (turboCooldown > 0) {
+            document.getElementById('turbo-status').innerText = 'ЗАРЯДКА ' + turboCooldown + 'с';
+        } else {
+            clearInterval(cdTimer);
+            btn.disabled = false;
+            document.getElementById('turbo-status').innerText = 'ГОТОВ';
+        }
+    }, 1000);
+}
+
+function claimDaily() {
+    const today = new Date().toDateString();
+    if (state.lastDaily === today) {
+        showMsg('Ты уже забрал сегодняшний бонус пилота! Возвращайся завтра.');
+        return;
+    }
+    state.lastDaily = today;
+    state.balance += 5000;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    showMsg('🎁 Получен ежедневный бонус пилота: +5,000 $AERO!');
+    updateUI();
+}
+
+function openCipher() {
+    if (state.cipherClaimed) {
+        showMsg('Секретный код этого рейса уже активирован!');
+        return;
+    }
+    const code = prompt('Введи секретный код дня из канала @aerotap (подсказка: AERO):');
+    if (code && code.trim().toUpperCase() === 'AERO') {
+        state.cipherClaimed = true;
+        state.balance += 25000;
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        showMsg('🔓 Код принят! На твой счет зачислено +25,000 $AERO!');
+        updateUI();
+    } else if (code !== null) {
+        showMsg('❌ Неверный код! Ищи актуальный шифр в канале @aerotap.');
+    }
+}
+
+function inviteFriend() {
+    const now = Date.now();
+    const refLink = 'https://t.me' + BOT_USERNAME + '?start=' + userId;
+    const shareText = 'Залетай в AeroTap, качай самолеты и забирай бонус $AERO до листинга!';
+    const shareUrl = 'https://t.meshare/url?url=' + encodeURIComponent(refLink) + '&text=' + encodeURIComponent(shareText);
+
+    if (now - state.lastInviteTime >= 43200000) {
+        state.lastInviteTime = now;
+        state.refCount += 1;
+        state.refEarned += 10000;
+        state.balance += 10000;
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        updateUI();
+    }
+
+    if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(shareUrl);
+    } else {
+        window.open(shareUrl, '_blank');
+    }
+}
+
+function copyRefLink() {
+    const refLink = 'https://t.me' + BOT_USERNAME + '?start=' + userId;
+    const tempInput = document.createElement('textarea');
+    tempInput.value = refLink;
+    tempInput.style.position = 'fixed';
+    tempInput.style.left = '-9999px';
+    document.body.appendChild(tempInput);
+    tempInput.focus();
+    tempInput.select();
+    try {
+        document.execCommand('copy');
+        showMsg('📋 Ссылка скопирована:\n' + refLink);
+    } catch (err) {
+        showMsg('Твоя ссылка:\n' + refLink);
+    }
+    document.body.removeChild(tempInput);
+}
+
+function completeTask(taskId, reward, url) {
+    if (!state.tasks) state.tasks = {};
+    if (!state.tasks[taskId]) {
+        state.tasks[taskId] = true;
+        state.balance += reward;
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        updateUI();
+    }
+
+    setTimeout(function() {
+        if (tg && url.indexOf('https://t.me') === 0 && tg.openTelegramLink) {
+            tg.openTelegramLink(url);
+        } else if (tg && tg.openLink) {
+            tg.openLink(url);
+        } else {
+            window.open(url, '_blank');
+        }
+    }, 300);
+}
+
+function buyUpgrade(type) {
+    if (type === 'tap' && state.balance >= state.tapCost) {
+        state.balance -= state.tapCost;
+        state.tapLevel++;
+        state.tapPower += 2;
+        state.tapCost = Math.floor(state.tapCost * 1.85);
+    } else if (type === 'fuel' && state.balance >= state.fuelCost) {
+        state.balance -= state.fuelCost;
+        state.fuelLevel++;
+        state.maxFuel += 500;
+        state.fuel = state.maxFuel;
+        state.fuelCost = Math.floor(state.fuelCost * 1.85);
+    }
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    updateUI();
+}
+
+function buyCard(id) {
+    const card = state.cards[id];
+    if (state.balance >= card.cost) {
+        state.balance -= card.cost;
+        card.level++;
+        state.profitPerHour += card.profit;
+        card.cost = Math.floor(card.cost * 1.65);
+        card.profit = Math.floor(card.profit * 1.25);
+if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+updateUI();
+}
+}
+function switchTab(tabName, btn) {
 document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
 document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
 document.getElementById('tab-' + tabName).classList.add('active');
 btn.classList.add('active');
 }
 function connectWallet() {
-showMsg('Модуль TON Connect будет активирован перед листингом токена $AERO!');
+showMsg('💎 VIP-статус и привязка TON кошелька скоро откроются перед листингом $AERO!');
 }
 setInterval(function() {
+const vipMult = state.isVip ? 2 : 1;
 if (state.fuel < state.maxFuel) { state.fuel = Math.min(state.maxFuel, state.fuel + 4); }
-if (state.profitPerHour > 0) { state.balance += (state.profitPerHour / 3600); }
+if (state.profitPerHour > 0) { state.balance += ((state.profitPerHour * vipMult) / 3600); }
 updateUI();
 }, 1000);
 checkOfflineEarnings();
