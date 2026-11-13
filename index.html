@@ -3,219 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>$AERO — NextGen Web3 App</title>
+    <title>AERO // BLACKBOX</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
-    <div class="ambient-glow glow-1"></div>
-    <div class="ambient-glow glow-2"></div>
-
-    <!-- Шапка профиля -->
-    <header class="glass-header">
-        <div class="profile-chip" onclick="openNameModal()">
-            <div class="ava-circle" id="ava">A</div>
-            <div class="profile-meta">
-                <span class="nick-text" id="username">CryptoPilot</span>
-                <span class="nick-sub">Изменить ✎</span>
-            </div>
+    <!-- Верхняя панель телеметрии -->
+    <header class="cockpit-header">
+        <div class="pilot-badge" onclick="openNameModal()">
+            <span class="status-led"></span>
+            <span class="pilot-tag">PLT //</span>
+            <span id="username">CryptoPilot</span>
+            <span class="edit-mark">[✎]</span>
         </div>
 
-        <div class="header-right">
-            <button class="icon-circle-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
-            <div class="wallet-chip">
-                <span class="coin-dot">🪙</span>
-                <span id="balance">1 000</span>
+        <div class="telemetry-right">
+            <button class="hw-icon-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+            <div class="counter-box">
+                <span class="counter-label">$AERO</span>
+                <span class="counter-val" id="balance">1 000</span>
             </div>
         </div>
     </header>
 
-    <!-- Лента коэффициентов -->
-    <div class="ticker-bar" id="history-strip">
-        <span class="tick gold">x14.20</span>
-        <span class="tick pink">x1.15</span>
-        <span class="tick purple">x3.40</span>
-        <span class="tick gold">x28.90</span>
-        <span class="tick purple">x2.10</span>
+    <!-- Лента черного ящика -->
+    <div class="blackbox-log" id="history-strip">
+        <span class="log-chip hi">x14.20</span>
+        <span class="log-chip lo">x1.15</span>
+        <span class="log-chip md">x3.40</span>
+        <span class="log-chip hi">x28.90</span>
+        <span class="log-chip md">x2.10</span>
     </div>
 
-    <!-- ЭКРАН 1: ПОЛЕТ (CRASH С ГРАФИКОМ) -->
-    <main id="view-crash" class="screen active">
-        <div class="flight-stage" id="radar-screen">
+    <!-- ЭКРАН 1: РАДАР-ПОЛЕТ (Активен по умолчанию) -->
+    <main id="view-crash" class="screen active" style="display: flex;">
+        <div class="crt-monitor" id="radar-screen">
+            <div class="crt-corners"></div>
             <svg class="flight-svg" viewBox="0 0 300 160" preserveAspectRatio="none">
-                <defs>
-                    <linearGradient id="lineGrad" x1="0" y1="1" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#8b5cf6"/>
-                        <stop offset="100%" stop-color="#f59e0b"/>
-                    </linearGradient>
-                </defs>
-                <path id="flight-curve" d="M 10 150 Q 10 150 10 150" fill="none" stroke="url(#lineGrad)" stroke-width="4" stroke-linecap="round"/>
+                <path id="flight-curve" d="M 10 150 Q 10 150 10 150" fill="none" stroke="#ff5500" stroke-width="4" stroke-linecap="square"/>
             </svg>
 
-            <div class="hud-center">
-                <div class="hud-badge" id="flight-status">ОЖИДАНИЕ СТАРТА</div>
-                <div class="hud-mult" id="mult-text">x1.00</div>
-                <div class="hud-plane" id="rocket-ship">✈️</div>
+            <div class="crt-hud">
+                <div class="crt-status" id="flight-status">SYS // READY</div>
+                <div class="crt-mult" id="mult-text">x1.00</div>
+                <div class="crt-jet" id="rocket-ship">✈️</div>
             </div>
         </div>
 
-        <div class="glass-card control-deck">
-            <div class="chips-row">
-                <button class="chip-btn" onclick="setBet(100)">100</button>
-                <button class="chip-btn" onclick="setBet(500)">500</button>
-                <button class="chip-btn" onclick="halfBet()">½</button>
-                <button class="chip-btn" onclick="doubleBet()">2x</button>
-                <button class="chip-btn accent" onclick="maxBet()">MAX</button>
+        <div class="hw-panel">
+            <div class="key-row">
+                <button class="tactile-key" onclick="setBet(100)">100</button>
+                <button class="tactile-key" onclick="setBet(500)">500</button>
+                <button class="tactile-key" onclick="halfBet()">1/2</button>
+                <button class="tactile-key" onclick="doubleBet()">x2</button>
+                <button class="tactile-key key-orange" onclick="maxBet()">MAX</button>
             </div>
 
-            <div class="amount-field">
-                <span class="field-label">СТАВКА</span>
+            <div class="digital-input">
+                <span class="inp-tag">СТАВКА //</span>
                 <input type="number" id="bet-input" value="100" min="10">
-                <span class="field-unit">$AERO</span>
+                <span class="inp-cur">$AERO</span>
             </div>
 
-            <button class="primary-glow-btn" id="crash-btn" onclick="handleCrashAction()">
-                ВЗЛЕТЕТЬ В НЕБО
+            <button class="launch-switch" id="crash-btn" onclick="handleCrashAction()">
+                [ ЗАПУСК ДВИГАТЕЛЕЙ ]
             </button>
         </div>
     </main>
 
-    <!-- ЭКРАН 2: МИНЫ (РАДАР) -->
-    <main id="view-mines" class="screen">
-        <div class="mines-wrapper">
-            <div class="glass-stat-row">
-                <div>Коэффициент: <b id="mines-mult" class="text-gold">x1.00</b></div>
-                <div>К зачислению: <b id="mines-win" class="text-purple">0</b></div>
+    <!-- ЭКРАН 2: САПЕР / РАДАР МИН (Скрыт по умолчанию) -->
+    <main id="view-mines" class="screen" style="display: none;">
+        <div class="mines-deck">
+            <div class="telemetry-strip">
+                <span>МНОЖИТЕЛЬ: <b id="mines-mult" class="txt-orange">x1.00</b></span>
+                <span>ВЫИГРЫШ: <b id="mines-win" class="txt-mint">0</b></span>
             </div>
-            <div class="radar-matrix" id="mines-grid"></div>
+            <div class="tactical-grid" id="mines-grid"></div>
         </div>
 
-        <div class="glass-card control-deck">
-            <div class="chips-row">
-                <button class="chip-btn active-chip" id="m-btn-3" onclick="setMinesCount(3, this)">💣 3 мины</button>
-                <button class="chip-btn" id="m-btn-5" onclick="setMinesCount(5, this)">💣 5 мин</button>
-                <button class="chip-btn" id="m-btn-10" onclick="setMinesCount(10, this)">💣 10 мин</button>
+        <div class="hw-panel">
+            <div class="key-row">
+                <button class="tactile-key key-active" id="m-btn-3" onclick="setMinesCount(3, this)">💣 3 МИНЫ</button>
+                <button class="tactile-key" id="m-btn-5" onclick="setMinesCount(5, this)">💣 5 МИН</button>
+                <button class="tactile-key" id="m-btn-10" onclick="setMinesCount(10, this)">💣 10 МИН</button>
             </div>
 
-            <div class="amount-field">
-                <span class="field-label">СТАВКА</span>
+            <div class="digital-input">
+                <span class="inp-tag">СТАВКА //</span>
                 <input type="number" id="mines-bet" value="100" min="10">
-                <span class="field-unit">$AERO</span>
+                <span class="inp-cur">$AERO</span>
             </div>
 
-            <button class="primary-glow-btn" id="mines-action-btn" onclick="handleMinesAction()">
-                НАЧАТЬ ПОИСК 💎
+            <button class="launch-switch" id="mines-action-btn" onclick="handleMinesAction()">
+                [ СКАНИРОВАТЬ СЕКТОР ]
             </button>
         </div>
     </main>
 
-    <!-- ЭКРАН 3: МАЙНИНГ -->
-    <main id="view-mine" class="screen">
-        <div class="mine-top-info">
-            <span class="pill-tag">Пассивный доход: +<span id="passive-rate">0</span>/час</span>
-            <h2>Энергоблок $AERO</h2>
+    <!-- ЭКРАН 3: ТУРБИНА / ФАРМ (Скрыт по умолчанию) -->
+    <main id="view-mine" class="screen" style="display: none;">
+        <div class="turbine-header">
+            <span class="sys-chip">АВТО-ГЕНЕРАТОР: +<span id="passive-rate">0</span>/Ч</span>
+            <h2>РЕАКТОР ТОПЛИВА</h2>
         </div>
 
-        <div class="orb-container" id="tap-core">
-            <div class="orb-aura"></div>
-            <div class="orb-sphere">
-                <span class="orb-icon">🚀</span>
-                <span class="orb-gain">+<span id="tap-power">5</span></span>
-            </div>
+        <div class="turbine-btn" id="tap-core">
+            <div class="turbine-blades">🛸</div>
+            <div class="turbine-readout">ЖМИ // +<span id="tap-power">5</span></div>
         </div>
 
-        <div class="bottom-mine-dock">
-            <div class="fuel-row">
-                <span>⚡ Заряд турбин</span>
+        <div class="hw-panel">
+            <div class="fuel-telemetry">
+                <span>ЗАРЯД БАТАРЕИ</span>
                 <span><span id="energy">1000</span> / <span id="max-energy">1000</span></span>
             </div>
-            <div class="progress-rail"><div class="progress-fill" id="energy-bar"></div></div>
+            <div class="segmented-bar"><div class="segmented-fill" id="energy-bar"></div></div>
 
-            <div class="upgrade-pair">
-                <div class="glass-upgrade" onclick="buyBoost('tap')">
-                    <div class="up-icon">⚡</div>
-                    <div class="up-name">Мощность (Ур.<span id="lvl-tap">1</span>)</div>
-                    <div class="up-cost"><span id="cost-tap">250</span> 🪙</div>
-                </div>
-                <div class="glass-upgrade" onclick="buyBoost('node')">
-                    <div class="up-icon">🛰️</div>
-                    <div class="up-name">Спутник (Ур.<span id="lvl-node">0</span>)</div>
-                    <div class="up-cost"><span id="cost-node">500</span> 🪙</div>
-                </div>
+            <div class="modules-row">
+                <button class="module-btn" onclick="buyBoost('tap')">
+                    <span class="mod-lvl">⚡ КЛИК УР.<span id="lvl-tap">1</span></span>
+                    <span class="mod-cost"><span id="cost-tap">250</span> $AERO</span>
+                </button>
+                <button class="module-btn" onclick="buyBoost('node')">
+                    <span class="mod-lvl">🛰️ УЗЕЛ УР.<span id="lvl-node">0</span></span>
+                    <span class="mod-cost"><span id="cost-node">500</span> $AERO</span>
+                </button>
             </div>
         </div>
     </main>
 
-    <!-- ЭКРАН 4: ДРОП И ТОП -->
-    <main id="view-hype" class="screen">
-        <div class="promo-banner">
-            <h3>🪂 Сезон Airdrop $AERO</h3>
-            <p>Приглашай друзей в свой экипаж и забирай +5,000 монет за каждый вылет.</p>
-            <button class="gold-action-btn" onclick="inviteSquad()">Пригласить друзей (+5,000)</button>
+    <!-- ЭКРАН 4: БИЛЕТ НА ДРОП И ТОП (Скрыт по умолчанию) -->
+    <main id="view-hype" class="screen" style="display: none;">
+        <div class="boarding-pass">
+            <div class="bp-top">
+                <span>BOARDING PASS // $AERO</span>
+                <span>TON NETWORK</span>
+            </div>
+            <h3>ПРИГЛАСИ ЭКИПАЖ</h3>
+            <p>За каждого друга получай +5,000 $AERO на счет до листинга.</p>
+            <button class="launch-switch" onclick="inviteSquad()">[ ВЫСЛАТЬ ПРИГЛАШЕНИЕ +5,000 ]</button>
         </div>
 
-        <div class="quests-stack">
-            <div class="glass-quest" onclick="claimSocial('tg', 15000, 'https://t.me')">
-                <div class="q-left">
-                    <span class="q-ico">📢</span>
-                    <div>
-                        <b>Канал @aerotap</b>
-                        <small>+15,000 $AERO</small>
-                    </div>
+        <div class="missions-box">
+            <div class="mission-item" onclick="claimSocial('tg', 15000, 'https://t.me')">
+                <div>
+                    <b>📢 КАНАЛ @AEROTAP</b>
+                    <span>НАГРАДА: +15,000 $AERO</span>
                 </div>
-                <button class="q-btn" id="btn-tg">Забрать</button>
+                <button class="tactile-key key-orange" id="btn-tg" onclick="event.stopPropagation(); claimSocial('tg', 15000, 'https://t.me')">ЗАБРАТЬ</button>
             </div>
 
-            <div class="glass-quest" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
-                <div class="q-left">
-                    <span class="q-ico">📺</span>
-                    <div>
-                        <b>YouTube канал $AERO</b>
-                        <small>+15,000 $AERO</small>
-                    </div>
+            <div class="mission-item" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
+                <div>
+                    <b>📺 YOUTUBE КАНАЛ</b>
+                    <span>НАГРАДА: +15,000 $AERO</span>
                 </div>
-                <button class="q-btn" id="btn-yt">Забрать</button>
+                <button class="tactile-key key-orange" id="btn-yt" onclick="event.stopPropagation(); claimSocial('yt', 15000, 'https://youtube.com')">ЗАБРАТЬ</button>
             </div>
         </div>
 
-        <div class="glass-card leaderboard-box">
-            <h4>🏆 Лидеры сезона</h4>
+        <div class="hw-panel top-board">
+            <div class="board-title">РЕЙТИНГ ПИЛОТОВ // TOP</div>
             <div id="top-list"></div>
         </div>
     </main>
 
-    <!-- Окно смены ника -->
-    <div class="overlay-modal" id="name-modal">
-        <div class="glass-modal">
-            <h3>Новый позывной</h3>
-            <p>Это имя увидят все в таблице лидеров</p>
-            <input type="text" id="nick-input" maxlength="15" placeholder="Введи никнейм...">
-            <button class="primary-glow-btn" onclick="saveNick()">Сохранить</button>
-            <button class="text-cancel" onclick="closeNameModal()">Закрыть</button>
+    <!-- Модалка смены позывного (Скрыта по умолчанию) -->
+    <div class="hw-modal-bg" id="name-modal" style="display: none;">
+        <div class="hw-modal">
+            <h3>СМЕНА ПОЗЫВНОГО</h3>
+            <input type="text" id="nick-input" maxlength="15" placeholder="ВВЕДИ НИК...">
+            <button class="launch-switch" onclick="saveNick()">[ ПОДТВЕРДИТЬ ]</button>
+            <button class="tactile-key" style="width: 100%; margin-top: 8px;" onclick="closeNameModal()">ОТМЕНА</button>
         </div>
     </div>
 
-    <!-- Парящее нижнее меню -->
-    <nav class="floating-dock">
-        <button class="dock-tab active" onclick="switchView('crash', this)">
+    <!-- Нижняя панель механических клавиш -->
+    <nav class="hw-deck-nav">
+        <button class="deck-key active" onclick="switchView('crash', this)">
             <span>✈️</span>
-            <small>Полет</small>
+            <b>ПОЛЕТ</b>
         </button>
-        <button class="dock-tab" onclick="switchView('mines', this)">
-            <span>💎</span>
-            <small>Радар</small>
+        <button class="deck-key" onclick="switchView('mines', this)">
+            <span>💣</span>
+            <b>РАДАР</b>
         </button>
-        <button class="dock-tab" onclick="switchView('mine', this)">
+        <button class="deck-key" onclick="switchView('mine', this)">
             <span>⚡</span>
-            <small>Фарм</small>
+            <b>ФАРМ</b>
         </button>
-        <button class="dock-tab" onclick="switchView('hype', this)">
-            <span>🪂</span>
-            <small>Дроп</small>
+        <button class="deck-key" onclick="switchView('hype', this)">
+            <span>🎫</span>
+            <b>ДРОП</b>
         </button>
     </nav>
 
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>
