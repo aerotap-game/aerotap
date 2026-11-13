@@ -100,7 +100,7 @@ body.turbo-active {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: 15px 20px;
+    padding: 15px 18px;
     overflow-y: auto;
 }
 
@@ -155,8 +155,8 @@ body.turbo-active {
 
 .tap-zone {
     position: relative;
-    width: 240px;
-    height: 240px;
+    width: 245px;
+    height: 245px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -183,6 +183,30 @@ body.turbo-active .radar-circle {
 @keyframes pulse {
     0%, 100% { transform: scale(1); opacity: 0.8; }
     50% { transform: scale(1.05); opacity: 1; }
+}
+
+.bonus-drone {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffcc00, #ff6600);
+    border: 2px solid #fff;
+    font-size: 28px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 15;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(255, 204, 0, 0.9);
+    animation: droneHover 1.2s infinite ease-in-out;
+}
+
+@keyframes droneHover {
+    0%, 100% { transform: translateY(0) rotate(-10deg) scale(1); }
+    50% { transform: translateY(-10px) rotate(10deg) scale(1.12); }
 }
 
 .plane-btn {
@@ -228,7 +252,7 @@ body.turbo-active .plane-btn {
     font-weight: 800;
     color: var(--gold);
     pointer-events: none;
-    z-index: 10;
+    z-index: 20;
     animation: floatUp 0.8s ease-out forwards;
     text-shadow: 0 2px 10px rgba(0,0,0,0.8);
 }
@@ -307,11 +331,12 @@ body.turbo-active .floating-text {
     margin-bottom: 10px;
 }
 
-.upgrades-list {
+.upgrades-list, .tasks-list {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-top: 12px;
 }
 
 .upgrade-card {
@@ -322,6 +347,7 @@ body.turbo-active .floating-text {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    text-align: left;
 }
 
 .upgrade-info h4 {
@@ -352,80 +378,182 @@ body.turbo-active .floating-text {
     cursor: not-allowed;
 }
 
-.airdrop-box {
+/* Таблица лидеров */
+.league-header {
     text-align: center;
-    background: var(--card-bg);
-    padding: 25px 20px;
-    border-radius: 20px;
-    border: 1px solid rgba(0, 210, 255, 0.3);
-    margin: auto 0;
-}
-
-.airdrop-icon {
-    font-size: 56px;
+    width: 100%;
     margin-bottom: 10px;
 }
 
-.airdrop-desc {
-    color: var(--text-muted);
-    font-size: 13px;
-    margin-top: 10px;
-    line-height: 1.5;
+.league-badge {
+    display: inline-block;
+    background: rgba(255, 204, 0, 0.15);
+    border: 1px solid rgba(255, 204, 0, 0.4);
+    color: var(--gold);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
-.stats-summary {
-    margin-top: 15px;
-    padding: 12px;
-    background: rgba(0, 0, 0, 0.25);
-    border-radius: 12px;
-    font-size: 13px;
+.leaderboard-list {
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    padding-right: 2px;
 }
 
-.wallet-btn {
-    margin-top: 18px;
-    width: 100%;
-    padding: 14px;
+.leader-row {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 14px;
-    border: none;
-    background: linear-gradient(90deg, #ffcc00, #ff9900);
-    color: #000;
-    font-weight: 800;
-    font-size: 15px;
-    cursor: pointer;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.nav-bar {
+.leader-row.is-me {
+    background: rgba(0, 210, 255, 0.15);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.25);
+}
+
+.leader-left {
     display: flex;
-    background: #111726;
-    padding: 10px 15px 18px;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    align-items: center;
     gap: 10px;
 }
 
-.nav-item {
-    flex: 1;
-    background: transparent;
-    border: none;
+.leader-pos {
+    font-weight: 800;
+    font-size: 15px;
+    width: 26px;
+    text-align: center;
+}
+
+.leader-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.leader-tag {
+    font-size: 11px;
     color: var(--text-muted);
+}
+
+.leader-score {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--gold);
+}
+
+.my-rank-bar {
+    width: 100%;
+    margin-top: 10px;
+    background: #111726;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    padding: 10px 14px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.friends-header {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.ref-actions {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 8px;
-    border-radius: 12px;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.copy-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 210, 255, 0.4);
+    background: rgba(0, 210, 255, 0.1);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
     cursor: pointer;
 }
 
-.nav-item.active {
-    background: rgba(0, 210, 255, 0.15);
-    color: var(--accent);
+.airdrop-box {
+    text-align: center;
+    background: var(--card-bg);
+    padding: 20px 16px;
+border-radius: 20px;
+border: 1px solid rgba(0, 210, 255, 0.3);
+margin: auto 0;
 }
-
+.airdrop-icon {
+font-size: 48px;
+margin-bottom: 8px;
+}
+.airdrop-desc {
+color: var(--text-muted);
+font-size: 13px;
+margin-top: 8px;
+line-height: 1.4;
+}
+.stats-summary {
+padding: 14px;
+background: var(--card-bg);
+border: 1px solid rgba(255,255,255,0.08);
+border-radius: 16px;
+font-size: 14px;
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+.wallet-btn {
+margin-top: 14px;
+width: 100%;
+padding: 14px;
+border-radius: 14px;
+border: none;
+background: linear-gradient(90deg, #ffcc00, #ff9900);
+color: #000;
+font-weight: 800;
+font-size: 15px;
+cursor: pointer;
+}
+.nav-bar {
+display: flex;
+background: #111726;
+padding: 10px 6px 18px;
+border-top: 1px solid rgba(255,255,255,0.08);
+gap: 4px;
+}
+.nav-item {
+flex: 1;
+background: transparent;
+border: none;
+color: var(--text-muted);
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 4px;
+font-size: 10px;
+font-weight: 600;
+padding: 8px 2px;
+border-radius: 12px;
+cursor: pointer;
+}
+.nav-item.active {
+background: rgba(0, 210, 255, 0.15);
+color: var(--accent);
+}
 .nav-icon {
-    font-size: 20px;
+font-size: 19px;
 }
