@@ -346,7 +346,7 @@ if (state.balance < 500) return alert('Нужно 500 $AERO для вскрыт�
 state.balance -= 500;
 caseOpening = true;
 saveState();
-const prizes =;
+const prizes = new Array(350, 600, 1000, 2500, 5000, 25000);
 const display = document.getElementById('caseDisplay');
 let ticks = 0;
 const spin = setInterval(() => {
