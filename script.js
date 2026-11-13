@@ -4,7 +4,6 @@ if (tg) {
     tg.ready();
 }
 
-// Звуковой синтезатор кабины пилота
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     try {
@@ -44,7 +43,6 @@ function playSound(type) {
     } catch (e) {}
 }
 
-// Состояние игрока и автосохранение
 const defaultState = {
     username: tg?.initDataUnsafe?.user?.first_name || 'Пилот #01',
     balance: 500,
@@ -99,26 +97,27 @@ function updateUI() {
     checkRefCooldown();
 }
 
-// Главный кликер (штурвал)
-document.getElementById('mainTapBtn').addEventListener('pointerdown', (e) => {
-    if (state.energy < state.tapPower) return;
-    state.balance += state.tapPower;
-    state.energy -= state.tapPower;
-    playSound('tap');
-    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+const tapBtn = document.getElementById('mainTapBtn');
+if (tapBtn) {
+    tapBtn.addEventListener('pointerdown', (e) => {
+        if (state.energy < state.tapPower) return;
+        state.balance += state.tapPower;
+        state.energy -= state.tapPower;
+        playSound('tap');
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
-    const el = document.createElement('div');
-    el.className = 'floating-text';
-    el.innerText = '+' + state.tapPower;
-    el.style.left = (e.clientX - 16) + 'px';
-    el.style.top = (e.clientY - 26) + 'px';
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 750);
+        const el = document.createElement('div');
+        el.className = 'floating-text';
+        el.innerText = '+' + state.tapPower;
+        el.style.left = (e.clientX - 16) + 'px';
+        el.style.top = (e.clientY - 26) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 750);
 
-    saveState();
-});
+        saveState();
+    });
+}
 
-// Восстановление топлива и автопилот
 setInterval(() => {
     if (state.energy < state.maxEnergy) {
         state.energy = Math.min(state.maxEnergy, state.energy + 3);
@@ -129,7 +128,6 @@ setInterval(() => {
     saveState();
 }, 1000);
 
-// Навигация
 function switchTab(tabId, btnEl) {
     document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
@@ -170,20 +168,19 @@ function claimDailySupply() {
     alert('Груз получен: +1 500 $AERO!');
 }
 
-// --- ИГРА 1: РАКЕТКА (CRASH) ---
 let crashRunning = false;
 let crashMult = 1.00;
 let crashTarget = 1.00;
 let crashCurrentBet = 0;
 let crashTimer = null;
 
-const radioQuotes = [
+const radioQuotes = new Array(
     "Брат, это база! Держим курс на стратосферу!",
     "Венгалби на связи, забираем иксы!",
     "Форсаж на максимум, не тормози!",
     "Асхаб говорит: вовремя забрать — искусство!",
     "Чисто братский подгон на бортовом счете!"
-];
+);
 
 function handleCrashAction() {
     const btn = document.getElementById('crashActionBtn');
@@ -244,15 +241,15 @@ function handleCrashAction() {
     }
 }
 
-// --- ИГРА 2: МИННОЕ ПОЛЕ (ПВО) ---
 let minesActive = false;
-let minesBoard = [];
+let minesBoard = new Array();
 let minesBetVal = 0;
 let minesCurrentMult = 1.00;
 let safeOpened = 0;
 
 function renderEmptyMines() {
     const grid = document.getElementById('minesGrid');
+    if (!grid) return;
     grid.innerHTML = '';
     for (let i = 0; i < 25; i++) {
         const cell = document.createElement('div');
@@ -272,163 +269,191 @@ function startOrCashoutMines() {
         if (bet < 10 || bet > state.balance) return alert('Не хватает $AERO!');
 
         state.balance -= bet;
-minesBetVal = bet;
-minesActive = true;
-minesCurrentMult = 1.00;
-safeOpened = 0;
-minesBoard = Array(25).fill('gem');
-let placed = 0;
-while (placed < bombs) {
-let idx = Math.floor(Math.random() * 25);
-if (minesBoard[idx] !== 'bomb') {
-minesBoard[idx] = 'bomb';
-placed++;
+        minesBetVal = bet;
+        minesActive = true;
+        minesCurrentMult = 1.00;
+        safeOpened = 0;
+
+function startOrCashoutMines() {
+    const btn = document.getElementById('minesBtn');
+    if (!minesActive) {
+        const bet = Number(document.getElementById('minesBet').value);
+        const bombs = Number(document.getElementById('minesCount').value);
+        if (bet < 10 || bet > state.balance) return alert('Не хватает $AERO!');
+
+        state.balance -= bet;
+        minesBetVal = bet;
+        minesActive = true;
+        minesCurrentMult = 1.00;
+        safeOpened = 0;
+
+        minesBoard = Array(25).fill('gem');
+        let placed = 0;
+        while (placed < bombs) {
+            let idx = Math.floor(Math.random() * 25);
+            if (minesBoard.at(idx) !== 'bomb') {
+                minesBoard.splice(idx, 1, 'bomb');
+                placed++;
+            }
+        }
+        renderEmptyMines();
+        document.getElementById('minesMultBadge').innerText = '1.00x';
+        btn.className = 'action-btn btn-gold';
+        btn.innerText = 'ЗАБРАТЬ ' + bet + ' ✈️';
+        saveState();
+    } else {
+        state.balance += Math.floor(minesBetVal * minesCurrentMult);
+        minesActive = false;
+        playSound('win');
+        btn.className = 'action-btn btn-cyan';
+        btn.innerText = 'НАЧАТЬ ВЫЛЕТ';
+        saveState();
+    }
 }
-}
-renderEmptyMines();
-document.getElementById('minesMultBadge').innerText = '1.00x';
-btn.className = 'action-btn btn-gold';
-btn.innerText = 'ЗАБРАТЬ ' + bet + ' ✈️';
-saveState();
-} else {
-state.balance += Math.floor(minesBetVal * minesCurrentMult);
-minesActive = false;
-playSound('win');
-btn.className = 'action-btn btn-cyan';
-btn.innerText = 'НАЧАТЬ ВЫЛЕТ';
-saveState();
-}
-}
+
 function clickMineCell(idx, cellEl) {
-if (!minesActive || cellEl.classList.contains('safe')) return;
-const bombs = Number(document.getElementById('minesCount').value);
-if (minesBoard[idx] === 'bomb') {
-minesActive = false;
-playSound('boom');
-cellEl.classList.add('boom');
-cellEl.innerText = '💥';
-document.getElementById('minesBtn').className = 'action-btn btn-cyan';
-document.getElementById('minesBtn').innerText = 'НАЧАТЬ ВЫЛЕТ';
-} else {
-safeOpened++;
-playSound('tap');
-cellEl.classList.add('safe');
-cellEl.innerText = '💎';
-minesCurrentMult = +(1 + safeOpened * (bombs * 0.08)).toFixed(2);
-document.getElementById('minesMultBadge').innerText = ${minesCurrentMult}x;
-document.getElementById('minesBtn').innerText = ЗАБРАТЬ ${Math.floor(minesBetVal * minesCurrentMult)} ✈️;
+    if (!minesActive || cellEl.classList.contains('safe')) return;
+    const bombs = Number(document.getElementById('minesCount').value);
+
+    if (minesBoard.at(idx) === 'bomb') {
+        minesActive = false;
+        playSound('boom');
+        cellEl.classList.add('boom');
+        cellEl.innerText = '💥';
+        document.getElementById('minesBtn').className = 'action-btn btn-cyan';
+        document.getElementById('minesBtn').innerText = 'НАЧАТЬ ВЫЛЕТ';
+    } else {
+        safeOpened++;
+        playSound('tap');
+        cellEl.classList.add('safe');
+        cellEl.innerText = '💎';
+        minesCurrentMult = +(1 + safeOpened * (bombs * 0.08)).toFixed(2);
+        document.getElementById('minesMultBadge').innerText = `${minesCurrentMult}x`;
+        document.getElementById('minesBtn').innerText = `ЗАБРАТЬ ${Math.floor(minesBetVal * minesCurrentMult)} ✈️`;
+    }
 }
-}
-// --- ИГРА 3: ВОЗДУШНЫЙ ПЕРЕХВАТ ---
+
 function playPlane(mult, chance) {
-const bet = Number(document.getElementById('planeBet').value);
-const resEl = document.getElementById('planeResult');
-if (bet < 10 || bet > state.balance) return alert('Недостаточно $AERO!');
-state.balance -= bet;
-if (Math.random() < chance) {
-const win = Math.floor(bet * mult);
-state.balance += win;
-playSound('win');
-resEl.style.color = 'var(--accent)';
-resEl.innerText = Цель поражена! Награда: +${win} $AERO;
-} else {
-playSound('boom');
-resEl.style.color = 'var(--danger)';
-resEl.innerText = Сильная турбулентность! Ставка сгорела.;
+    const bet = Number(document.getElementById('planeBet').value);
+    const resEl = document.getElementById('planeResult');
+    if (bet < 10 || bet > state.balance) return alert('Недостаточно $AERO!');
+
+    state.balance -= bet;
+    if (Math.random() < chance) {
+        const win = Math.floor(bet * mult);
+        state.balance += win;
+        playSound('win');
+        resEl.style.color = 'var(--accent)';
+        resEl.innerText = `Цель поражена! Награда: +${win} $AERO`;
+    } else {
+        playSound('boom');
+        resEl.style.color = 'var(--danger)';
+        resEl.innerText = `Сильная турбулентность! Ставка сгорела.`;
+    }
+    saveState();
 }
-saveState();
-}
-// --- ИГРА 4: ГРУЗОВОЙ КОНТЕЙНЕР ---
+
 let caseOpening = false;
 function openCase() {
-if (caseOpening) return;
-if (state.balance < 500) return alert('Нужно 500 $AERO для вскрытия контейнера!');
-state.balance -= 500;
-caseOpening = true;
-saveState();
-const prizes = new Array(350, 600, 1000, 2500, 5000, 25000);
-const display = document.getElementById('caseDisplay');
-let ticks = 0;
-const spin = setInterval(() => {
-const rand = prizes[Math.floor(Math.random() * prizes.length)];
-display.innerText = ${rand.toLocaleString('ru-RU')} ✈️;
-playSound('tap');
-ticks++;
-if (ticks > 18) {
-clearInterval(spin);
-const r = Math.random();
-let finalPrize = 350;
-if (r > 0.96) finalPrize = 25000;
-else if (r > 0.85) finalPrize = 5000;
-else if (r > 0.65) finalPrize = 2500;
-else if (r > 0.40) finalPrize = 1000;
-else if (r > 0.20) finalPrize = 600;
-state.balance += finalPrize;
-playSound('win');
-display.innerText = ПОЛУЧЕНО: +${finalPrize.toLocaleString('ru-RU')} ✈️;
-caseOpening = false;
-saveState();
+    if (caseOpening) return;
+    if (state.balance < 500) return alert('Нужно 500 $AERO для вскрытия контейнера!');
+
+    state.balance -= 500;
+    caseOpening = true;
+    saveState();
+
+    const prizes = new Array(350, 600, 1000, 2500, 5000, 25000);
+    const display = document.getElementById('caseDisplay');
+    let ticks = 0;
+
+    const spin = setInterval(() => {
+        const rand = prizes.at(Math.floor(Math.random() * prizes.length));
+        display.innerText = `${rand.toLocaleString('ru-RU')} ✈️`;
+        playSound('tap');
+        ticks++;
+
+        if (ticks > 18) {
+            clearInterval(spin);
+            const r = Math.random();
+            let finalPrize = 350;
+            if (r > 0.96) finalPrize = 25000;
+            else if (r > 0.85) finalPrize = 5000;
+            else if (r > 0.65) finalPrize = 2500;
+            else if (r > 0.40) finalPrize = 1000;
+            else if (r > 0.20) finalPrize = 600;
+
+            state.balance += finalPrize;
+            playSound('win');
+            display.innerText = `ПОЛУЧЕНО: +${finalPrize.toLocaleString('ru-RU')} ✈️`;
+            caseOpening = false;
+            saveState();
+        }
+    }, 90);
 }
-}, 90);
-}
-// --- АНГАР (ПРОКАЧКА) ---
+
 function buyUpgrade(type) {
-if (type === 'tap') {
-const cost = state.lvlTap * 150;
-if (state.balance < cost) return alert('Не хватает $AERO!');
-state.balance -= cost;
-state.lvlTap++;
-state.tapPower++;
-} else if (type === 'energy') {
-const cost = state.lvlEnergy * 200;
-if (state.balance < cost) return alert('Не хватает $AERO!');
-state.balance -= cost;
-state.lvlEnergy++;
-state.maxEnergy += 500;
-state.energy = state.maxEnergy;
-} else if (type === 'auto') {
-const cost = (state.lvlAuto + 1) * 300;
-if (state.balance < cost) return alert('Не хватает $AERO!');
-state.balance -= cost;
-state.lvlAuto++;
-state.passivePerHour += 350;
+    if (type === 'tap') {
+        const cost = state.lvlTap * 150;
+        if (state.balance < cost) return alert('Не хватает $AERO!');
+        state.balance -= cost;
+        state.lvlTap++;
+        state.tapPower++;
+    } else if (type === 'energy') {
+        const cost = state.lvlEnergy * 200;
+        if (state.balance < cost) return alert('Не хватает $AERO!');
+        state.balance -= cost;
+        state.lvlEnergy++;
+        state.maxEnergy += 500;
+        state.energy = state.maxEnergy;
+    } else if (type === 'auto') {
+        const cost = (state.lvlAuto + 1) * 300;
+        if (state.balance < cost) return alert('Не хватает $AERO!');
+        state.balance -= cost;
+        state.lvlAuto++;
+        state.passivePerHour += 350;
+    }
+    playSound('win');
+    saveState();
 }
-playSound('win');
-saveState();
-}
-// --- ЭСКАДРИЛЬЯ И СОЦСЕТИ ---
+
 function copyRefLink() {
-const link = https://t.me{Math.floor(Math.random() * 90000 + 10000)};
-navigator.clipboard?.writeText(link);
-alert('Ссылка пилота скопирована:\n' + link);
+    const link = `https://t.me{Math.floor(Math.random() * 90000 + 10000)}`;
+    navigator.clipboard?.writeText(link);
+    alert('Ссылка пилота скопирована:\n' + link);
 }
+
 function checkRefCooldown() {
-const twelveHours = 12 * 60 * 60 * 1000;
-const diff = Date.now() - state.lastRefClaim;
-const btn = document.getElementById('claimRefBtn');
-const txt = document.getElementById('refCooldownText');
-if (diff < twelveHours) {
-btn.disabled = true;
-const leftHrs = Math.ceil((twelveHours - diff) / 3600000);
-txt.innerText = Следующий бонус эскадрильи через ~${leftHrs} ч.;
-} else {
-btn.disabled = false;
-txt.innerText = 'Награда готова к получению!';
+    const twelveHours = 12 * 60 * 60 * 1000;
+    const diff = Date.now() - state.lastRefClaim;
+    const btn = document.getElementById('claimRefBtn');
+    const txt = document.getElementById('refCooldownText');
+    if (!btn || !txt) return;
+
+    if (diff < twelveHours) {
+        btn.disabled = true;
+        const leftHrs = Math.ceil((twelveHours - diff) / 3600000);
+        txt.innerText = `Следующий бонус эскадрильи через ~${leftHrs} ч.`;
+    } else {
+        btn.disabled = false;
+        txt.innerText = 'Награда готова к получению!';
+    }
 }
-}
+
 function claimRefBonus() {
-if (Date.now() - state.lastRefClaim < 12 * 3600000) return;
-state.balance += 2500;
-state.lastRefClaim = Date.now();
-playSound('win');
-saveState();
+    if (Date.now() - state.lastRefClaim < 12 * 3600000) return;
+    state.balance += 2500;
+    state.lastRefClaim = Date.now();
+    playSound('win');
+    saveState();
 }
+
 function claimSocialBonus() {
-if (state.socialClaimed) return alert('Ты уже забрал награду за подписку!');
-state.balance += 1000;
-state.socialClaimed = true;
-playSound('win');
-saveState();
-alert('Начислено +1 000 $AERO!');
+    if (state.socialClaimed) return alert('Ты уже забрал награду за подписку!');
+    state.balance += 1000;
+    state.socialClaimed = true;
+    playSound('win');
+    saveState();
+    alert('Начислено +1 000 $AERO!');
 }
+
 updateUI();
