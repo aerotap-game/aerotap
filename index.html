@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AeroTap — $AERO Empire</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=13">
+    <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 
     <div class="header">
-        <div class="pilot-info" onclick="changePilotName()" style="cursor: pointer;" title="Нажми, чтобы сменить имя">
+        <div class="pilot-info" onclick="openNameModal()" style="cursor: pointer;">
             <div class="avatar" id="avatar">✈️</div>
             <div>
                 <div class="pilot-name"><span id="pilot-name">Пилот #001</span> <span style="font-size: 11px; opacity: 0.7;">✏️</span></div>
@@ -23,12 +23,11 @@
         </div>
     </div>
 
-    <!-- Вкладка 1: ПОЛЕТ -->
     <div id="tab-fly" class="tab-content active">
         <div class="top-actions">
             <button class="action-pill" onclick="claimDaily()">🎁 Бонус дня</button>
             <button class="action-pill" id="cupcake-btn" onclick="eatCupcake()">🧁 Кекс</button>
-            <button class="action-pill" onclick="openCipher()">🔐 Код</button>
+            <button class="action-pill" onclick="openCipherModal()">🔐 Код</button>
         </div>
 
         <div class="balance-container">
@@ -65,7 +64,6 @@
         </div>
     </div>
 
-    <!-- Вкладка 2: ИМПЕРИЯ -->
     <div id="tab-hangar" class="tab-content">
         <h3 class="section-title">⚡ Тюнинг борта</h3>
         <div class="upgrades-list">
@@ -93,8 +91,6 @@
         <h3 class="section-title" style="margin-top: 18px;">🌍 Авиа-империя (Пассивный доход)</h3>
         <div class="upgrades-list" id="cards-container"></div>
     </div>
-
-    <!-- Вкладка 3: ТОП ПИЛОТОВ -->
     <div id="tab-top" class="tab-content">
         <div class="league-header">
             <div class="league-badge" id="league-badge">🥉 Бронзовая лига</div>
@@ -110,7 +106,6 @@
         </div>
     </div>
 
-    <!-- Вкладка 4: ДРУЗЬЯ -->
     <div id="tab-friends" class="tab-content">
         <div class="friends-header">
             <div style="font-size: 48px;">👨‍✈️</div>
@@ -129,7 +124,6 @@
         </div>
     </div>
 
-    <!-- Вкладка 5: AIRDROP И КЕЙСЫ -->
     <div id="tab-airdrop" class="tab-content">
         <div class="airdrop-box" style="width: 100%;">
             <div class="airdrop-icon">🪂</div>
@@ -168,19 +162,36 @@
         </div>
     </div>
 
-    <!-- Модальное окно анимации прокрутки кейса -->
     <div class="case-modal" id="case-modal">
         <div class="case-window">
             <h3>🎁 Открытие Авиа-кейса</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Штурвал определяет твою награду...</p>
-            
             <div class="roulette-viewport">
                 <div class="roulette-pointer">▼</div>
                 <div class="roulette-track" id="roulette-track"></div>
             </div>
-
             <div class="case-result" id="case-result">Крутим барабан...</div>
             <button class="wallet-btn" id="case-close-btn" style="display: none; margin-top: 12px;" onclick="closeCaseModal()">Забрать награду</button>
+        </div>
+    </div>
+
+    <div class="case-modal" id="name-modal">
+        <div class="case-window">
+            <h3>👨‍✈️ Позывной пилота</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Введи имя, которое увидят все в Топе:</p>
+            <input type="text" id="name-input" maxlength="16" placeholder="Твой никнейм..." style="width: 100%; margin-top: 14px; padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: #0b0f19; color: #fff; font-size: 15px; outline: none; text-align: center;">
+            <button class="wallet-btn" style="margin-top: 12px;" onclick="saveNewName()">Сохранить имя</button>
+            <button class="copy-btn" style="margin-top: 8px;" onclick="closeNameModal()">Отмена</button>
+        </div>
+    </div>
+
+    <div class="case-modal" id="cipher-modal">
+        <div class="case-window">
+            <h3>🔐 Секретный код рейса</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Ищи код дня в канале @aerotap (подсказка: AERO)</p>
+            <input type="text" id="cipher-input" maxlength="12" placeholder="Введи код..." style="width: 100%; margin-top: 14px; padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: #0b0f19; color: #fff; font-size: 15px; outline: none; text-align: center; text-transform: uppercase;">
+            <button class="wallet-btn" style="margin-top: 12px;" onclick="submitCipher()">Активировать (+25,000)</button>
+            <button class="copy-btn" style="margin-top: 8px;" onclick="closeCipherModal()">Закрыть</button>
         </div>
     </div>
 
@@ -207,6 +218,6 @@
         </button>
     </div>
 
-    <script src="script.js?v=13"></script>
+    <script src="script.js?v=14"></script>
 </body>
 </html>
