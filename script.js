@@ -16,7 +16,7 @@ if (tg) {
 
 const BOT_USERNAME = 'aerotap_bot';
 
-let state = JSON.parse(localStorage.getItem('aerotap_save_v5')) || {
+let state = JSON.parse(localStorage.getItem('aerotap_save_v6')) || {
     balance: 0,
     totalTaps: 0,
     fuel: 1000,
@@ -32,7 +32,7 @@ let state = JSON.parse(localStorage.getItem('aerotap_save_v5')) || {
     lastExitTime: Date.now(),
     refCount: 0,
     refEarned: 0,
-    tasks: { tg: false, x: false },
+    tasks: { tg: false, yt: false },
     cards: {
         hub: { level: 0, cost: 300, profit: 450 },
         vip: { level: 0, cost: 1200, profit: 1800 },
@@ -73,7 +73,11 @@ let isTurbo = false;
 let turboCooldown = 0;
 
 function showMsg(text) {
-    if (tg) { tg.showAlert(text); } else { alert(text); }
+    if (tg && tg.showAlert) {
+        try { tg.showAlert(text); } catch (e) { alert(text); }
+    } else {
+        alert(text);
+    }
 }
 function checkOfflineEarnings() {
     if (state.profitPerHour > 0 && state.lastExitTime) {
@@ -84,7 +88,7 @@ function checkOfflineEarnings() {
             if (earned > 0) {
                 state.balance += earned;
                 setTimeout(function() {
-                    showMsg(`✈️ Автопилот работал, пока тебя не было! Получено: +${earned.toLocaleString()} $AERO`);
+                    showMsg('✈️ Автопилот работал, пока тебя не было! Получено: +' + earned.toLocaleString() + ' $AERO');
                 }, 600);
             }
         }
@@ -93,32 +97,37 @@ function checkOfflineEarnings() {
 
 function renderCards() {
     const container = document.getElementById('cards-container');
-    container.innerHTML = '';
+    if (!container) return;
+    let html = '';
     for (let i = 0; i < cardMeta.length; i++) {
         const meta = cardMeta[i];
         const data = state.cards[meta.id];
         const disabled = state.balance < data.cost ? 'disabled' : '';
-        container.innerHTML += `
-            <div class="upgrade-card">
-                <div class="upgrade-info">
-                    <h4>${meta.icon} ${meta.name} (Ур. ${data.level})</h4>
-                    <p>+${data.profit.toLocaleString()}/час • ${meta.desc}</p>
-                </div>
-                <button class="buy-btn" ${disabled} onclick="buyCard('${meta.id}')">
-                    ${data.cost.toLocaleString()} 🪙
-                </button>
-            </div>
-        `;
+        html += '<div class="upgrade-card">' +
+            '<div class="upgrade-info">' +
+            '<h4>' + meta.icon + ' ' + meta.name + ' (Ур. ' + data.level + ')</h4>' +
+            '<p>+' + data.profit.toLocaleString() + '/час • ' + meta.desc + '</p>' +
+            '</div>' +
+            '<button class="buy-btn" ' + disabled + ' onclick="buyCard(\'' + meta.id + '\')">' +
+            data.cost.toLocaleString() + ' 🪙</button>' +
+            '</div>';
     }
+    container.innerHTML = html;
 }
 
 function renderLeaderboard(currentRankTitle) {
     const listEl = document.getElementById('leaderboard-list');
     if (!listEl) return;
 
-    const allPlayers = rivals.map(function(r) {
-        return { name: r.name, rank: r.rank, score: r.score, isMe: false };
-    });
+    const allPlayers = [];
+    for (let i = 0; i < rivals.length; i++) {
+        allPlayers.push({
+            name: rivals[i].name,
+            rank: rivals[i].rank,
+            score: rivals[i].score,
+            isMe: false
+        });
+    }
 
     allPlayers.push({
         name: myPilotName + ' (Вы)',
@@ -142,18 +151,16 @@ function renderLeaderboard(currentRankTitle) {
         else if (pos === 2) medal = '🥈';
         else if (pos === 3) medal = '🥉';
 
-        html += `
-            <div class="leader-row ${p.isMe ? 'is-me' : ''}">
-                <div class="leader-left">
-                    <div class="leader-pos">${medal}</div>
-                    <div>
-                        <div class="leader-name">${p.name}</div>
-                        <div class="leader-tag">${p.rank}</div>
-                    </div>
-                </div>
-                <div class="leader-score">${p.score.toLocaleString()} 🪙</div>
-            </div>
-        `;
+        html += '<div class="leader-row ' + (p.isMe ? 'is-me' : '') + '">' +
+            '<div class="leader-left">' +
+            '<div class="leader-pos">' + medal + '</div>' +
+            '<div>' +
+            '<div class="leader-name">' + p.name + '</div>' +
+            '<div class="leader-tag">' + p.rank + '</div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="leader-score">' + p.score.toLocaleString() + ' 🪙</div>' +
+            '</div>';
     }
 
     listEl.innerHTML = html;
@@ -180,15 +187,13 @@ function updateUI() {
     document.getElementById('cost-fuel').innerText = state.fuelCost.toLocaleString();
     document.getElementById('btn-buy-fuel').disabled = state.balance < state.fuelCost;
 
-    if (state.tasks.tg) {
+    if (state.tasks && state.tasks.tg) {
         const btnTg = document.getElementById('task-tg');
-        btnTg.innerText = 'Готово ✅';
-        btnTg.disabled = true;
+        if (btnTg) { btnTg.innerText = 'Готово ✅'; btnTg.disabled = true; }
     }
-    if (state.tasks.x) {
-        const btnX = document.getElementById('task-x');
-        btnX.innerText = 'Готово ✅';
-        btnX.disabled = true;
+    if (state.tasks && state.tasks.yt) {
+        const btnYt = document.getElementById('task-yt');
+        if (btnYt) { btnYt.innerText = 'Готово ✅'; btnYt.disabled = true; }
     }
 
     let currentRank = ranks[0];
@@ -203,7 +208,7 @@ function updateUI() {
     state.lastExitTime = Date.now();
     renderCards();
     renderLeaderboard(currentRank.title);
-    localStorage.setItem('aerotap_save_v5', JSON.stringify(state));
+    localStorage.setItem('aerotap_save_v6', JSON.stringify(state));
 }
 function handleTap(x, y) {
     const multiplier = isTurbo ? 5 : 1;
@@ -247,6 +252,7 @@ function createFloatingText(x, y, text) {
 
 function spawnDrone() {
     const drone = document.getElementById('bonus-drone');
+    if (!drone) return;
     drone.style.display = 'flex';
     setTimeout(function() { drone.style.display = 'none'; }, 4500);
 }
@@ -256,7 +262,7 @@ function catchDrone() {
     const reward = (state.tapLevel * 1500) + Math.floor(Math.random() * 2000);
     state.balance += reward;
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-    showMsg(`🛸 Перехвачен груз снабжения! Награда: +${reward.toLocaleString()} $AERO!`);
+    showMsg('🛸 Перехвачен груз снабжения! Награда: +' + reward.toLocaleString() + ' $AERO!');
     updateUI();
 }
 
@@ -318,7 +324,7 @@ function openCipher() {
         showMsg('Секретный код этого рейса уже активирован!');
         return;
     }
-    const code = prompt('Введи секретный код дня из канала $AERO (подсказка: AERO):');
+    const code = prompt('Введи секретный код дня из канала @aerotap (подсказка: AERO):');
     if (code && code.trim().toUpperCase() === 'AERO') {
         state.cipherClaimed = true;
         state.balance += 25000;
@@ -326,34 +332,68 @@ function openCipher() {
         showMsg('🔓 Код принят! На твой счет зачислено +25,000 $AERO!');
         updateUI();
     } else if (code !== null) {
-        showMsg('❌ Неверный код! Ищи актуальный шифр в официальном канале проекта.');
+        showMsg('❌ Неверный код! Ищи актуальный шифр в канале @aerotap.');
     }
 }
 
+// Железобетонная отправка приглашения в Telegram
 function inviteFriend() {
-    const refLink = `https://t.me{BOT_USERNAME}?start=${userId}`;
-    const shareText = encodeURIComponent('🚀 Залетай в AeroTap, качай самолеты и забирай +10,000 $AERO бонусом до листинга!');
-    const fullUrl = `https://t.me{encodeURIComponent(refLink)}&text=${shareText}`;
+    const refLink = 'https://t.me' + BOT_USERNAME + '?start=' + userId;
+    const shareText = '🚀 Залетай в AeroTap, качай самолеты и забирай +10,000 $AERO бонусом до листинга!';
+    const shareUrl = 'https://t.meshare/url?url=' + encodeURIComponent(refLink) + '&text=' + encodeURIComponent(shareText);
+
     state.refCount += 1;
     state.refEarned += 10000;
     state.balance += 10000;
     updateUI();
-    if (tg) { tg.openTelegramLink(fullUrl); } else { window.open(fullUrl, '_blank'); }
+
+    if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(shareUrl);
+    } else {
+        window.location.href = shareUrl;
+    }
 }
 
+// Надежное копирование ссылки внутри WebView на iOS/Android
 function copyRefLink() {
-    const refLink = `https://t.me{BOT_USERNAME}?start=${userId}`;
-    navigator.clipboard.writeText(refLink);
-    showMsg('📋 Реферальная ссылка скопирована! Отправь её друзьям.');
+    const refLink = 'https://t.me' + BOT_USERNAME + '?start=' + userId;
+    const tempInput = document.createElement('textarea');
+    tempInput.value = refLink;
+    tempInput.style.position = 'fixed';
+    tempInput.style.left = '-9999px';
+    document.body.appendChild(tempInput);
+    tempInput.focus();
+    tempInput.select();
+    try {
+        document.execCommand('copy');
+        showMsg('📋 Ссылка скопирована в буфер обмена:\n' + refLink);
+    } catch (err) {
+        showMsg('Твоя ссылка для друзей:\n' + refLink);
+    }
+    document.body.removeChild(tempInput);
 }
 
+// Надежное открытие ссылок заданий (Telegram и YouTube)
 function completeTask(taskId, reward, url) {
-    if (state.tasks[taskId]) return;
-    state.tasks[taskId] = true;
-    state.balance += reward;
-    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-    updateUI();
-    if (tg && url.includes('t.me')) { tg.openTelegramLink(url); } else { window.open(url, '_blank'); }
+    if (!state.tasks) state.tasks = {};
+    if (!state.tasks[taskId]) {
+        state.tasks[taskId] = true;
+        state.balance += reward;
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        updateUI();
+    }
+
+    if (tg) {
+        if (url.indexOf('https://t.me') === 0 && tg.openTelegramLink) {
+            tg.openTelegramLink(url);
+        } else if (tg.openLink) {
+            tg.openLink(url);
+        } else {
+            window.location.href = url;
+        }
+    } else {
+        window.open(url, '_blank');
+    }
 }
 
 function buyUpgrade(type) {
