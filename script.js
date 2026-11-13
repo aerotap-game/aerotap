@@ -33,7 +33,7 @@ var data = JSON.parse(localStorage.getItem(DB_KEY)) || {
 };
 
 function save() {
-    localStorage.setItem(DB_KEY, JSON.stringify(data));
+    try { localStorage.setItem(DB_KEY, JSON.stringify(data)); } catch (e) {}
 }
 
 function alertBox(msg) {
@@ -63,7 +63,7 @@ function initAudio() {
 function toggleSound() {
     soundEnabled = !soundEnabled;
     document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
-    if (soundEnabled) playTone(520, 0.08, 'square');
+    if (soundEnabled) playTone(520, 0.08, 'sine');
 }
 
 function playTone(freq, duration, type, slideTo) {
@@ -73,10 +73,10 @@ function playTone(freq, duration, type, slideTo) {
         if (!audioCtx) return;
         var osc = audioCtx.createOscillator();
         var gain = audioCtx.createGain();
-        osc.type = type || 'square';
+        osc.type = type || 'sine';
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
         if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, audioCtx.currentTime + duration);
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -113,7 +113,7 @@ function saveNick() {
     }
 }
 
-// ПОЛЕТ (CRASH)
+// ПОЛЕТ НА ИКСЫ
 var isFlying = false;
 var currentMult = 1.00;
 var crashPoint = 1.00;
@@ -146,11 +146,11 @@ function updateCurve(progress) {
     var curve = document.getElementById('flight-curve');
     if (!curve) return;
     var p = Math.min(1, progress);
-    var endX = 10 + (p * 275);
-    var endY = 150 - (Math.pow(p, 1.4) * 135);
-    var ctrlX = 10 + (p * 160);
-    var ctrlY = 150;
-    curve.setAttribute('d', 'M 10 150 Q ' + ctrlX + ' ' + ctrlY + ' ' + endX + ' ' + endY);
+    var endX = 12 + (p * 275);
+    var endY = 148 - (Math.pow(p, 1.4) * 132);
+    var ctrlX = 12 + (p * 160);
+    var ctrlY = 148;
+    curve.setAttribute('d', 'M 12 148 Q ' + ctrlX + ' ' + ctrlY + ' ' + endX + ' ' + endY);
 }
 
 function handleCrashAction() {
@@ -162,7 +162,7 @@ function handleCrashAction() {
     if (!isFlying) {
         var bet = Math.floor(Number(document.getElementById('bet-input').value));
         if (bet < 10 || bet > data.balance) {
-            alertBox('Недостаточно $AERO! Нафарми во вкладке ФАРМ.');
+            alertBox('Недостаточно $AERO! Нафарми во вкладке Фарм.');
             return;
         }
         data.balance -= bet;
@@ -177,7 +177,7 @@ function handleCrashAction() {
 
         radar.classList.add('flying');
         multEl.style.color = '#ffffff';
-        statusEl.innerText = 'ALTITUDE // CLIMBING';
+        statusEl.innerText = 'В ПОЛЕТЕ...';
         btn.classList.add('cashout');
 
         flightLoop = setInterval(function() {
@@ -186,17 +186,17 @@ function handleCrashAction() {
             updateCurve(flightProgress);
             multEl.innerText = 'x' + currentMult.toFixed(2);
             var winNow = Math.floor(currentBet * currentMult);
-            btn.innerText = '[ ЗАБРАТЬ ' + winNow.toLocaleString() + ' ]';
+            btn.innerText = '💰 ЗАБРАТЬ ' + winNow.toLocaleString();
             playTone(220 + (currentMult * 40), 0.05, 'sine');
 
             if (currentMult >= crashPoint) {
                 clearInterval(flightLoop);
                 isFlying = false;
                 radar.classList.remove('flying');
-                multEl.style.color = '#ff5500';
-                statusEl.innerText = 'LOST SIGNAL // x' + crashPoint.toFixed(2);
+                multEl.style.color = '#ff2a85';
+                statusEl.innerText = '💥 УЛЕТЕЛ НА x' + crashPoint.toFixed(2);
                 btn.classList.remove('cashout');
-                btn.innerText = '[ ЗАПУСК ДВИГАТЕЛЕЙ ]';
+                btn.innerText = '🚀 ПОГНАЛИ';
                 addHistory(crashPoint);
                 playBoomSound();
                 if (tg && tg.HapticFeedback) {
@@ -210,10 +210,10 @@ function handleCrashAction() {
         radar.classList.remove('flying');
         var totalWin = Math.floor(currentBet * currentMult);
         data.balance += totalWin;
-        multEl.style.color = '#00e599';
-        statusEl.innerText = 'SECURED // +' + totalWin.toLocaleString();
+        multEl.style.color = '#ccff00';
+        statusEl.innerText = '✅ ЗАБРАНО: +' + totalWin.toLocaleString();
         btn.classList.remove('cashout');
-        btn.innerText = '[ ЗАПУСК ДВИГАТЕЛЕЙ ]';
+        btn.innerText = '🚀 ПОГНАЛИ';
         addHistory(currentMult);
         playWinSound();
         if (tg && tg.HapticFeedback) {
@@ -226,15 +226,15 @@ function handleCrashAction() {
 
 function addHistory(val) {
     var strip = document.getElementById('history-strip');
-    var cls = val < 1.5 ? 'lo' : (val < 5 ? 'md' : 'hi');
+    var cls = val < 1.5 ? 'low' : (val < 5 ? 'mid' : 'mega');
     var span = document.createElement('span');
-    span.className = 'log-chip ' + cls;
+    span.className = 'feed-pill ' + cls;
     span.innerText = 'x' + val.toFixed(2);
     strip.insertBefore(span, strip.firstChild);
     if (strip.children.length > 8) strip.removeChild(strip.lastChild);
 }
 
-// РАДАР МИН
+// МИНЫ
 var minesCount = 3;
 var minesActive = false;
 var minesBetAmount = 0;
@@ -245,8 +245,8 @@ var openedSafeCells = 0;
 function setMinesCount(count, btn) {
     if (minesActive) return;
     minesCount = count;
-    document.querySelectorAll('#view-mines .tactile-key').forEach(function(b) { b.classList.remove('key-active'); });
-    if (btn) btn.classList.add('key-active');
+    document.querySelectorAll('#view-mines .preset-btn').forEach(function(b) { b.classList.remove('active-preset'); });
+    if (btn) btn.classList.add('active-preset');
     playTone(440, 0.04);
 }
 
@@ -257,7 +257,7 @@ function buildMinesGrid() {
     for (var i = 0; i < 25; i++) {
         var cell = document.createElement('div');
         cell.className = 'mine-cell';
-        cell.innerText = '·';
+        cell.innerText = '✦';
         cell.setAttribute('data-idx', i);
         cell.onclick = function() {
             clickMineCell(Number(this.getAttribute('data-idx')), this);
@@ -290,7 +290,7 @@ function handleMinesAction() {
         document.getElementById('mines-mult').innerText = 'x1.00';
         document.getElementById('mines-win').innerText = bet.toLocaleString();
         btn.classList.add('cashout');
-        btn.innerText = '[ ЗАБРАТЬ ' + bet.toLocaleString() + ' ]';
+        btn.innerText = '💰 ЗАБРАТЬ ' + bet.toLocaleString();
         playTone(500, 0.08);
         save();
         render();
@@ -300,7 +300,7 @@ function handleMinesAction() {
         data.balance += winTotal;
         minesActive = false;
         btn.classList.remove('cashout');
-        btn.innerText = '[ СКАНИРОВАТЬ СЕКТОР ]';
+        btn.innerText = '💎 ИГРАТЬ';
         revealAllMines();
         playWinSound();
 if (tg && tg.HapticFeedback) {
@@ -319,7 +319,7 @@ minesActive = false;
 revealAllMines();
 var btn = document.getElementById('mines-action-btn');
 btn.classList.remove('cashout');
-btn.innerText = '[ СКАНИРОВАТЬ СЕКТОР ]';
+btn.innerText = '💎 ИГРАТЬ';
 playBoomSound();
 if (tg && tg.HapticFeedback) {
 try { tg.HapticFeedback.notificationOccurred('error'); } catch (e) {}
@@ -333,7 +333,7 @@ minesMultiplier = Number((minesMultiplier * (1 + stepBonus)).toFixed(2));
 var currentWin = Math.floor(minesBetAmount * minesMultiplier);
 document.getElementById('mines-mult').innerText = 'x' + minesMultiplier.toFixed(2);
 document.getElementById('mines-win').innerText = currentWin.toLocaleString();
-document.getElementById('mines-action-btn').innerText = '[ ЗАБРАТЬ ' + currentWin.toLocaleString() + ' ]';
+document.getElementById('mines-action-btn').innerText = '💰 ЗАБРАТЬ ' + currentWin.toLocaleString();
 playTone(480 + (openedSafeCells * 45), 0.08, 'sine');
 if (tg && tg.HapticFeedback) {
 try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
@@ -349,13 +349,13 @@ c.innerText = '💣';
 }
 });
 }
-// ФАРМ
+// ТАПАЛКА
 var core = document.getElementById('tap-core');
 core.addEventListener('pointerdown', function(e) {
 if (data.energy >= data.tapPower) {
 data.balance += data.tapPower;
 data.energy -= data.tapPower;
-playTone(300 + Math.random() * 80, 0.04, 'square');
+playTone(320 + Math.random() * 80, 0.04, 'triangle');
 if (tg && tg.HapticFeedback) {
 try { tg.HapticFeedback.impactOccurred('medium'); } catch (e) {}
 }
@@ -389,7 +389,7 @@ render();
 }
 function inviteSquad() {
 var link = 't.me' + BOT_NAME + '?start=' + userId;
-var text = '🔥 Залетай в AERO // BLACKBOX! Ставь на иксы и забирай дроп $AERO до листинга!';
+var text = '🔥 Залетай в $AERO! Ставь на иксы, открывай мины и забирай дроп до листинга!';
 var url = 't.me' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
 data.balance += 5000;
 save();
@@ -413,13 +413,12 @@ tg.openTelegramLink(url);
 window.open(url, '_blank');
 }
 }
-// Прямое переключение экранов без наложения
 function switchView(name, btn) {
 document.querySelectorAll('.screen').forEach(function(v) {
 v.classList.remove('active');
 v.style.display = 'none';
 });
-document.querySelectorAll('.deck-key').forEach(function(b) {
+document.querySelectorAll('.nav-pill').forEach(function(b) {
 b.classList.remove('active');
 });
 var target = document.getElementById('view-' + name);
@@ -428,10 +427,11 @@ target.classList.add('active');
 target.style.display = 'flex';
 }
 if (btn) btn.classList.add('active');
-playTone(380, 0.04);
+playTone(400, 0.04);
 }
 function render() {
 document.getElementById('username').innerText = getNick();
+document.getElementById('ava').innerText = getNick().charAt(0).toUpperCase();
 document.getElementById('balance').innerText = Math.floor(data.balance).toLocaleString();
 document.getElementById('passive-rate').innerText = data.passive.toLocaleString();
 document.getElementById('tap-power').innerText = data.tapPower;
@@ -442,13 +442,13 @@ document.getElementById('lvl-tap').innerText = data.tapLvl;
 document.getElementById('cost-tap').innerText = data.tapCost.toLocaleString();
 document.getElementById('lvl-node').innerText = data.nodeLvl;
 document.getElementById('cost-node').innerText = data.nodeCost.toLocaleString();
-if (data.tasks.tg) document.getElementById('btn-tg').innerText = 'OK ✅';
-if (data.tasks.yt) document.getElementById('btn-yt').innerText = 'OK ✅';
+if (data.tasks.tg) document.getElementById('btn-tg').innerText = 'Готово ✅';
+if (data.tasks.yt) document.getElementById('btn-yt').innerText = 'Готово ✅';
 var leaders = Array.of(
 { n: 'Whale_TON 🐋', s: 420000 },
-{ n: 'BlackBox_01', s: 185000 },
-{ n: getNick() + ' (ВЫ)', s: Math.floor(data.balance) },
-{ n: 'Aero_Jet', s: 45000 }
+{ n: 'AeroKing_99', s: 185000 },
+{ n: getNick() + ' (Вы)', s: Math.floor(data.balance) },
+{ n: 'FlyToMoon', s: 45000 }
 );
 leaders.sort(function(a, b) { return b.s - a.s; });
 var topHtml = '';
