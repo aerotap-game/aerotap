@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AeroTap — $AERO Empire</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -93,7 +93,7 @@
         <div class="upgrades-list" id="cards-container"></div>
     </div>
 
-    <!-- Вкладка 3: ТОП ПИЛОТОВ (Таблица лидеров) -->
+    <!-- Вкладка 3: ТОП ПИЛОТОВ -->
     <div id="tab-top" class="tab-content">
         <div class="league-header">
             <div class="league-badge" id="league-badge">🥉 Бронзовая лига</div>
@@ -101,9 +101,7 @@
             <p class="airdrop-desc">Обгоняй соперников и забирай главный пул наград при листинге!</p>
         </div>
 
-        <div class="leaderboard-list" id="leaderboard-list">
-            <!-- Список лидеров генерируется через JS -->
-        </div>
+        <div class="leaderboard-list" id="leaderboard-list"></div>
 
         <div class="my-rank-bar">
             <span>Твоя позиция в мире:</span>
@@ -130,29 +128,29 @@
         </div>
     </div>
 
-    <!-- Вкладка 5: AIRDROP -->
+    <!-- Вкладка 5: AIRDROP И ЗАДАНИЯ -->
     <div id="tab-airdrop" class="tab-content">
         <div class="airdrop-box" style="width: 100%;">
             <div class="airdrop-icon">🪂</div>
             <h2>Листинг токена $AERO</h2>
             <p class="airdrop-desc">
-                Выполняй задания, качай прибыль в час и поднимайся в Топ-10 пилотов для максимального дропа.
+                Подписывайся на наши соцсети, качай прибыль в час и поднимайся в Топ пилотов.
             </p>
             
             <div class="tasks-list">
                 <div class="upgrade-card">
                     <div class="upgrade-info">
-                        <h4>📢 Канал $AERO Community</h4>
+                        <h4>📢 Канал @aerotap</h4>
                         <p>Награда: +15,000 $AERO</p>
                     </div>
                     <button class="buy-btn" id="task-tg" onclick="completeTask('tg', 15000, 'https://t.me')">Забрать</button>
                 </div>
                 <div class="upgrade-card">
                     <div class="upgrade-info">
-                        <h4>🐦 Подписка на X (Twitter)</h4>
+                        <h4>📺 Наш YouTube канал</h4>
                         <p>Награда: +15,000 $AERO</p>
                     </div>
-                    <button class="buy-btn" id="task-x" onclick="completeTask('x', 15000, 'https://x.com')">Забрать</button>
+                    <button class="buy-btn" id="task-yt" onclick="completeTask('yt', 15000, 'https://www.youtube.com/channel/UCbmPiToX_wAFhO58WQr8FTg/posts?pvf=CAE%253D')">Забрать</button>
                 </div>
             </div>
 
@@ -183,6 +181,6 @@
         </button>
     </div>
 
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>
