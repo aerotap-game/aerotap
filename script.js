@@ -14,12 +14,11 @@ if (tg) {
     }
 }
 
-// Укажи юзернейм своего игрового бота без @
 const BOT_USERNAME = 'aerotap_bot';
-// Юзернейм твоего Telegram канала без @
 const CHANNEL_USERNAME = 'aerotap';
+const SAVE_KEY = 'aerotap_player_data';
 
-let state = JSON.parse(localStorage.getItem('aerotap_save_v8')) || {
+const defaultState = {
     balance: 0,
     totalTaps: 0,
     fuel: 1000,
@@ -46,6 +45,32 @@ let state = JSON.parse(localStorage.getItem('aerotap_save_v8')) || {
         space: { level: 0, cost: 25000, profit: 40000 }
     }
 };
+
+function loadSavedState() {
+    let raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) {
+        const oldKeys = ['aerotap_save_v8', 'aerotap_save_v7', 'aerotap_save_v6', 'aerotap_save_v5', 'aerotap_save_v4', 'aerotap_save_v3', 'aerotap_save'];
+        for (let i = 0; i < oldKeys.length; i++) {
+            const oldData = localStorage.getItem(oldKeys[i]);
+            if (oldData) {
+                raw = oldData;
+                break;
+            }
+        }
+    }
+    if (!raw) return JSON.parse(JSON.stringify(defaultState));
+    try {
+        const parsed = JSON.parse(raw);
+        const merged = Object.assign({}, defaultState, parsed);
+        merged.tasks = Object.assign({}, defaultState.tasks, parsed.tasks || {});
+        merged.cards = Object.assign({}, defaultState.cards, parsed.cards || {});
+        return merged;
+    } catch (e) {
+        return JSON.parse(JSON.stringify(defaultState));
+    }
+}
+
+let state = loadSavedState();
 
 const rivals = [
     { name: 'Captain_TON', rank: 'Космонавт $AERO', score: 850000 },
@@ -81,7 +106,7 @@ let comboStreak = 0;
 
 function saveState() {
     state.lastExitTime = Date.now();
-    localStorage.setItem('aerotap_save_v8', JSON.stringify(state));
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
 }
 
 function showMsg(text) {
@@ -187,7 +212,10 @@ function renderLeaderboard(currentRankTitle) {
     }
 
     listEl.innerHTML = html;
-    document.getElementById('my-world-rank').innerText = '#' + myPosition + ' из ' + allPlayers.length;
+    const worldRankEl = document.getElementById('my-world-rank');
+    if (worldRankEl) {
+        worldRankEl.innerText = '#' + myPosition + ' из ' + allPlayers.length;
+    }
 }
 
 function updateUI() {
@@ -246,7 +274,7 @@ function updateUI() {
         if (btnYt) { btnYt.innerText = 'Готово ✅'; btnYt.disabled = true; }
     }
 
-    let currentRank = ranks;
+    let currentRank = ranks[0];
     for (let i = 0; i < ranks.length; i++) {
         if (state.balance >= ranks[i].min) { currentRank = ranks[i]; }
     }
@@ -307,7 +335,6 @@ function createFloatingText(x, y, text) {
     setTimeout(function() { el.remove(); }, 800);
 }
 
-// Космический кекс (полный бак + бонус раз в 3 часа)
 function eatCupcake() {
     const now = Date.now();
     const left = (state.lastCupcakeTime + 10800000) - now;
@@ -324,7 +351,6 @@ function eatCupcake() {
     updateUI();
 }
 
-// Анимированное открытие Авиа-кейса (раз в 6 часов)
 function openCaseModal() {
     const now = Date.now();
     const left = (state.lastSpinTime + 21600000) - now;
@@ -363,7 +389,7 @@ function openCaseModal() {
 
     setTimeout(function() {
         track.style.transition = 'transform 3.8s cubic-bezier(0.12, 0.85, 0.2, 1)';
-        const itemWidth = 92; // 84px ширина + 8px отступ
+        const itemWidth = 92;
         const offset = (winIndex * itemWidth) + 42;
         track.style.transform = 'translateX(-' + offset + 'px)';
     }, 50);
@@ -381,7 +407,6 @@ function closeCaseModal() {
     document.getElementById('case-modal').style.display = 'none';
 }
 
-// Редкий перехват дрона (раз в 90 секунд, урезанная награда 400-850 монет)
 function spawnDrone() {
     const drone = document.getElementById('bonus-drone');
     if (!drone) return;
@@ -468,7 +493,6 @@ function openCipher() {
     }
 }
 
-// Нативное приглашение друга внутри приложения Telegram
 function inviteFriend() {
     const now = Date.now();
     const refLink = 'https://t.me' + BOT_USERNAME + '?start=' + userId;
@@ -505,7 +529,6 @@ function copyRefLink() {
     document.body.removeChild(tempInput);
 }
 
-// Гарантированное начисление награды и нативный переход в @aerotap или YouTube
 function completeTask(taskId, reward, url) {
     if (!state.tasks) state.tasks = {};
     
@@ -550,12 +573,13 @@ function buyCard(id) {
         state.balance -= card.cost;
         card.level++;
         state.profitPerHour += card.profit;
-card.cost = Math.floor(card.cost * 1.65);
-card.profit = Math.floor(card.profit * 1.25);
-if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-updateUI();
+        card.cost = Math.floor(card.cost * 1.65);
+        card.profit = Math.floor(card.profit * 1.25);
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        updateUI();
+    }
 }
-}
+
 function switchTab(tabName, btn) {
 document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
 document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
