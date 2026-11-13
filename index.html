@@ -3,141 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>$AERO — Cyber Arcade & Mine</title>
+    <title>$AERO — Cyber Arcade</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
-    <div class="ambient-light light-1"></div>
-    <div class="ambient-light light-2"></div>
+    <div class="glow-spot spot-1"></div>
+    <div class="glow-spot spot-2"></div>
 
-    <header class="top-nav">
-        <div class="profile-pill" onclick="openNameModal()">
-            <div class="ava-box" id="ava">A</div>
-            <div class="p-info">
-                <span class="p-name" id="username">CryptoPilot</span>
-                <span class="p-sub">изменить ✎</span>
+    <header class="top-bar">
+        <div class="pilot-pill" onclick="openNameModal()">
+            <div class="pilot-ava" id="ava">A</div>
+            <div class="pilot-meta">
+                <span class="pilot-nick" id="username">CryptoPilot</span>
+                <span class="pilot-edit">сменить ник ✎</span>
             </div>
         </div>
 
-        <div class="right-group">
-            <button class="sfx-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
-            <div class="coin-pill">
-                <span class="coin-tag">$AERO</span>
-                <span class="coin-val" id="balance">1 000</span>
+        <div class="top-actions">
+            <button class="mute-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+            <div class="wallet-pill">
+                <span class="ticker-tag">$AERO</span>
+                <span class="wallet-sum" id="balance">1 000</span>
             </div>
         </div>
     </header>
 
+    <!-- ЭКРАН 1: РАКЕТА (CRASH) -->
     <main id="view-crash" class="screen active" style="display: flex;">
-        <div class="ticker-strip" id="history-strip">
-            <span class="t-badge win">x14.20 🔥</span>
-            <span class="t-badge loss">x1.15</span>
-            <span class="t-badge mid">x3.40</span>
-            <span class="t-badge win">x28.90 🚀</span>
+        <div class="ticker-row" id="history-strip">
+            <span class="x-tag hi">x14.20 🔥</span>
+            <span class="x-tag lo">x1.15</span>
+            <span class="x-tag md">x3.40</span>
+            <span class="x-tag hi">x28.90 🚀</span>
         </div>
 
-        <div class="flight-viewport" id="radar-screen">
-            <svg class="trail-svg" viewBox="0 0 300 160" preserveAspectRatio="none">
+        <div class="flight-box" id="radar-screen">
+            <svg class="curve-svg" viewBox="0 0 300 160" preserveAspectRatio="none">
                 <defs>
-                    <linearGradient id="cyberGrad" x1="0" y1="1" x2="1" y2="0">
+                    <linearGradient id="sunsetGrad" x1="0" y1="1" x2="1" y2="0">
                         <stop offset="0%" stop-color="#00f2fe"/>
-                        <stop offset="100%" stop-color="#ff007f"/>
+                        <stop offset="100%" stop-color="#ff3366"/>
                     </linearGradient>
                 </defs>
-                <path id="flight-curve" d="M 12 148 Q 12 148 12 148" fill="none" stroke="url(#cyberGrad)" stroke-width="5" stroke-linecap="round"/>
+                <path id="flight-curve" d="M 12 148 Q 12 148 12 148" fill="none" stroke="url(#sunsetGrad)" stroke-width="5" stroke-linecap="round"/>
             </svg>
 
-            <div class="center-hud">
-                <div class="status-chip" id="flight-status">ГОТОВ К ПОЛЕТУ</div>
-                <div class="mult-hero" id="mult-text">x1.00</div>
-                <div class="rocket-emoji" id="rocket-ship">🚀</div>
+            <div class="flight-hud">
+                <div class="flight-badge" id="flight-status">ГОТОВ К СТАРТУ</div>
+                <div class="flight-mult" id="mult-text">x1.00</div>
+                <div class="flight-ship" id="rocket-ship">🚀</div>
             </div>
         </div>
 
-        <div class="glass-deck">
-            <div class="quick-row">
-                <button class="q-chip" onclick="setBet('bet-input', 100)">100</button>
-                <button class="q-chip" onclick="setBet('bet-input', 500)">500</button>
-                <button class="q-chip" onclick="halfBet('bet-input')">½</button>
-                <button class="q-chip" onclick="doubleBet('bet-input')">2x</button>
-                <button class="q-chip hot" onclick="maxBet('bet-input')">MAX</button>
+        <div class="deck-card">
+            <div class="chips-grid">
+                <button class="chip" onclick="setBet('bet-input', 100)">100</button>
+                <button class="chip" onclick="setBet('bet-input', 500)">500</button>
+                <button class="chip" onclick="halfBet('bet-input')">½</button>
+                <button class="chip" onclick="doubleBet('bet-input')">2x</button>
+                <button class="chip max-chip" onclick="maxBet('bet-input')">MAX</button>
             </div>
 
-            <div class="input-wrapper">
+            <div class="bet-field">
                 <span>СТАВКА</span>
                 <input type="number" id="bet-input" value="100" min="10">
-                <span class="unit">$AERO</span>
+                <span class="cur">$AERO</span>
             </div>
 
-            <button class="cyber-btn" id="crash-btn" onclick="handleCrashAction()">
+            <button class="action-btn" id="crash-btn" onclick="handleCrashAction()">
                 🚀 ВЗЛЕТЕТЬ
             </button>
         </div>
     </main>
+    <!-- ЭКРАН 2: АРКАДА (8 ИГР) -->
     <main id="view-arcade" class="screen" style="display: none;">
         <div id="arcade-lobby">
-            <div class="lobby-title">
+            <div class="lobby-head">
                 <h2>🎮 Игровая Арена</h2>
-                <p>8 режимов для умножения твоих $AERO</p>
+                <p>Выбирай режим и умножай банк $AERO</p>
             </div>
 
-            <div class="games-grid">
-                <div class="game-tile wide-tile" onclick="openMiniGame('jet')">
-                    <div class="g-icon">✈️</div>
+            <div class="arcade-grid">
+                <div class="arc-card wide-card" onclick="openMiniGame('jet')">
+                    <div class="arc-ico">✈️</div>
                     <div>
                         <b>Перехватчик (Риск-полет)</b>
-                        <span>Жми «Лететь», собирай бонусы до x50 или увернись от взрыва</span>
+                        <span>Жми «Лететь», собирай бонусы до x50 или увернись от ПВО</span>
                     </div>
                 </div>
-                <div class="game-tile" onclick="openMiniGame('mines')">
-                    <div class="g-icon">💣</div>
+                <div class="arc-card" onclick="openMiniGame('mines')">
+                    <div class="arc-ico">💣</div>
                     <b>Мины</b>
                     <span>до x50</span>
                 </div>
-                <div class="game-tile" onclick="openMiniGame('coin')">
-                    <div class="g-icon">🪙</div>
+                <div class="arc-card" onclick="openMiniGame('coin')">
+                    <div class="arc-ico">🪙</div>
                     <b>Монетка</b>
                     <span>x1.95</span>
                 </div>
-                <div class="game-tile" onclick="openMiniGame('dice')">
-                    <div class="g-icon">🎲</div>
+                <div class="arc-card" onclick="openMiniGame('dice')">
+                    <div class="arc-ico">🎲</div>
                     <b>Кости</b>
-                    <span>до x9.5</span>
+                    <span>x1.95</span>
                 </div>
-                <div class="game-tile" onclick="openMiniGame('wheel')">
-                    <div class="g-icon">🎡</div>
+                <div class="arc-card" onclick="openMiniGame('wheel')">
+                    <div class="arc-ico">🎡</div>
                     <b>Колесо</b>
                     <span>до x15</span>
                 </div>
-                <div class="game-tile" onclick="openMiniGame('hilo')">
-                    <div class="g-icon">↕️</div>
+                <div class="arc-card" onclick="openMiniGame('hilo')">
+                    <div class="arc-ico">↕️</div>
                     <b>Выше/Ниже</b>
-                    <span>до x12</span>
+                    <span>x1.90</span>
                 </div>
-                <div class="game-tile" onclick="openMiniGame('slots')">
-                    <div class="g-icon">🎰</div>
+                <div class="arc-card" onclick="openMiniGame('slots')">
+                    <div class="arc-ico">🎰</div>
                     <b>Слот 777</b>
                     <span>до x15</span>
                 </div>
-                <div class="game-tile wide-tile" onclick="openMiniGame('boxes')">
-                    <div class="g-icon">🎁</div>
+                <div class="arc-card wide-card" onclick="openMiniGame('boxes')">
+                    <div class="arc-ico">🎁</div>
                     <div>
-                        <b>Сейфы Удачи (3 сундука)</b>
+                        <b>Сейфы Удачи (1 из 3)</b>
                         <span>Угадай сейф с золотом и забери x2.8</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="mg-jet" class="mini-game-box" style="display: none;">
-            <div class="mg-header">
-                <button class="back-btn" onclick="backToLobby()">← Назад</button>
+        <div id="mg-jet" class="mg-screen" style="display: none;">
+            <div class="mg-top">
+                <button class="back-pill" onclick="backToLobby()">← Назад</button>
                 <span>✈️ Перехватчик (<b id="jet-mult">x1.00</b>)</span>
             </div>
-            <div class="jet-sky">
-                <div class="jet-steps" id="jet-steps">
+            <div class="jet-arena">
+                <div class="jet-bar" id="jet-steps">
                     <span class="j-step">x1.3</span>
                     <span class="j-step">x1.8</span>
                     <span class="j-step">x2.6</span>
@@ -146,200 +148,199 @@
                     <span class="j-step">x15</span>
                     <span class="j-step">x50</span>
                 </div>
-                <div class="jet-sprite" id="jet-sprite">✈️</div>
-                <div class="stage-res" id="jet-res">Сделай ставку и жми «Лететь дальше»!</div>
+                <div class="jet-icon" id="jet-sprite">✈️</div>
+                <div class="mg-hint" id="jet-res">Сделай ставку и жми «Лететь дальше»!</div>
             </div>
-            <div class="glass-deck">
-                <div class="input-wrapper">
+            <div class="deck-card">
+                <div class="bet-field">
                     <span>СТАВКА</span>
                     <input type="number" id="jet-bet" value="100" min="10">
-                    <span class="unit">$AERO</span>
+                    <span class="cur">$AERO</span>
                 </div>
-                <div class="quick-row">
-                    <button class="cyber-btn" id="jet-fly-btn" onclick="stepJetGame()">✈️ ЛЕТЕТЬ ДАЛЬШЕ</button>
-                    <button class="cyber-btn cashout" id="jet-cash-btn" style="display: none;" onclick="cashoutJetGame()">💰 ЗАБРАТЬ</button>
+                <div class="chips-grid">
+                    <button class="action-btn" id="jet-fly-btn" onclick="stepJetGame()">✈️ ЛЕТЕТЬ ДАЛЬШЕ</button>
+                    <button class="action-btn gold-btn" id="jet-cash-btn" style="display: none;" onclick="cashoutJetGame()">💰 ЗАБРАТЬ</button>
                 </div>
             </div>
         </div>
 
-        <div id="mg-mines" class="mini-game-box" style="display: none;">
-            <div class="mg-header">
-                <button class="back-btn" onclick="backToLobby()">← Назад</button>
+        <div id="mg-mines" class="mg-screen" style="display: none;">
+            <div class="mg-top">
+                <button class="back-pill" onclick="backToLobby()">← Назад</button>
                 <span>💣 Мины (<b id="mines-mult">x1.00</b>)</span>
             </div>
-            <div class="mines-board" id="mines-grid"></div>
-            <div class="glass-deck">
-                <div class="quick-row">
-                    <button class="q-chip active-chip" id="m-btn-3" onclick="setMinesCount(3, this)">3 мины</button>
-                    <button class="q-chip" id="m-btn-5" onclick="setMinesCount(5, this)">5 мин</button>
-                    <button class="q-chip" id="m-btn-10" onclick="setMinesCount(10, this)">10 мин</button>
+            <div class="mines-matrix" id="mines-grid"></div>
+            <div class="deck-card">
+                <div class="chips-grid">
+                    <button class="chip active-chip" id="m-btn-3" onclick="setMinesCount(3, this)">3 мины</button>
+                    <button class="chip" id="m-btn-5" onclick="setMinesCount(5, this)">5 мин</button>
+                    <button class="chip" id="m-btn-10" onclick="setMinesCount(10, this)">10 мин</button>
                 </div>
-                <div class="input-wrapper">
+                <div class="bet-field">
                     <span>СТАВКА</span>
                     <input type="number" id="mines-bet" value="100" min="10">
-                    <span class="unit">$AERO</span>
+                    <span class="cur">$AERO</span>
                 </div>
-                <button class="cyber-btn" id="mines-action-btn" onclick="handleMinesAction()">💎 ИГРАТЬ</button>
+                <button class="action-btn" id="mines-action-btn" onclick="handleMinesAction()">💎 ИГРАТЬ</button>
             </div>
         </div>
-
-        <div id="mg-coin" class="mini-game-box" style="display: none;">
-            <div class="mg-header">
-                <button class="back-btn" onclick="backToLobby()">← Назад</button>
-                <span>🪙 Орел / Решка (x1.95)</span>
+        <div id="mg-coin" class="mg-screen" style="display: none;">
+            <div class="mg-top">
+                <button class="back-pill" onclick="backToLobby()">← Назад</button>
+                <span>🪙 Монетка (x1.95)</span>
             </div>
-            <div class="stage-center">
-                <div class="coin-disc" id="coin-visual">🪙</div>
-                <div class="stage-res" id="coin-res">Выбери сторону монеты</div>
+            <div class="mg-stage">
+                <div class="big-emoji" id="coin-visual">🪙</div>
+                <div class="mg-hint" id="coin-res">Выбери сторону монеты</div>
             </div>
-            <div class="glass-deck">
-                <div class="input-wrapper">
+            <div class="deck-card">
+                <div class="bet-field">
                     <span>СТАВКА</span>
                     <input type="number" id="coin-bet" value="100" min="10">
-                    <span class="unit">$AERO</span>
+                    <span class="cur">$AERO</span>
                 </div>
-                <div class="quick-row">
-                    <button class="cyber-btn" onclick="playCoin('eagle')">🦅 ОРЕЛ</button>
-                    <button class="cyber-btn alt" onclick="playCoin('tails')">👑 РЕШКА</button>
+                <div class="chips-grid">
+                    <button class="action-btn" onclick="playCoin('eagle')">🦅 ОРЕЛ</button>
+                    <button class="action-btn pink-btn" onclick="playCoin('tails')">👑 РЕШКА</button>
                 </div>
             </div>
         </div>
-        <div id="mg-dice" class="mini-game-box" style="display: none;">
-            <div class="mg-header">
-                <button class="back-btn" onclick="backToLobby()">← Назад</button>
+
+        <div id="mg-dice" class="mg-screen" style="display: none;">
+            <div class="mg-top">
+                <button class="back-pill" onclick="backToLobby()">← Назад</button>
                 <span>🎲 Кибер-Кости</span>
             </div>
-            <div class="stage-center">
-                <div class="dice-num" id="dice-roll">50</div>
-                <div class="stage-res" id="dice-res">Выбери условие броска (1–100)</div>
+            <div class="mg-stage">
+                <div class="big-num" id="dice-roll">50</div>
+                <div class="mg-hint" id="dice-res">Выбери условие броска (1–100)</div>
             </div>
-            <div class="glass-deck">
-                <div class="input-wrapper">
+            <div class="deck-card">
+                <div class="bet-field">
                     <span>СТАВКА</span>
                     <input type="number" id="dice-bet" value="100" min="10">
-                    <span class="unit">$AERO</span>
+                    <span class="cur">$AERO</span>
                 </div>
-                <div class="quick-row">
-                    <button class="cyber-btn" onclick="playDice('low')">Меньше 50 (x1.95)</button>
-                    <button class="cyber-btn alt" onclick="playDice('high')">Больше 50 (x1.95)</button>
+                <div class="chips-grid">
+                    <button class="action-btn" onclick="playDice('low')">Меньше 50 (x1.95)</button>
+                    <button class="action-btn pink-btn" onclick="playDice('high')">Больше 50 (x1.95)</button>
                 </div>
             </div>
         </div>
 
-        <div id="mg-wheel" class="mini-game-box" style="display: none;">
-            <div class="mg-header">
-                <button class="back-btn" onclick="backToLobby()">← Назад</button>
+        <div id="mg-wheel" class="mg-screen" style="display: none;">
+            <div class="mg-top">
+                <button class="back-pill" onclick="backToLobby()">← Назад</button>
                 <span>🎡 Колесо Удачи</span>
             </div>
-            <div class="stage-center">
-                <div class="wheel-disc" id="wheel-visual">🎡</div>
-                <div class="stage-res" id="wheel-res">Сектора: x0, x0.5, x1.5, x3, x5, x15</div>
+            <div class="mg-stage">
+                <div class="big-emoji" id="wheel-visual">🎡</div>
+                <div class="mg-hint" id="wheel-res">Сектора: x0, x0.5, x1.5, x3, x5, x15</div>
             </div>
-            <div class="glass-deck">
-                <div class="input-wrapper">
+            <div class="deck-card">
+                <div class="bet-field">
                     <span>СТАВКА</span>
                     <input type="number" id="wheel-bet" value="100" min="10">
-                    <span class="unit">$AERO</span>
+                    <span class="cur">$AERO</span>
                 </div>
-                <button class="cyber-btn" id="wheel-btn" onclick="playWheel()">🎡 КРУТИТЬ КОЛЕСО</button>
+                <button class="action-btn" onclick="playWheel()">🎡 КРУТИТЬ КОЛЕСО</button>
             </div>
         </div>
 
-        <div id="mg-hilo" class="mini-game-box" style="display: none;">
-            <div class="mg-header">
-                <button class="back-btn" onclick="backToLobby()">← Назад</button>
+        <div id="mg-hilo" class="mg-screen" style="display: none;">
+            <div class="mg-top">
+                <button class="back-pill" onclick="backToLobby()">← Назад</button>
                 <span>↕️ Выше или Ниже (x1.9)</span>
             </div>
-            <div class="stage-center">
-                <div class="dice-num" id="hilo-card">7</div>
-                <div class="stage-res" id="hilo-res">Текущее число от 1 до 13. Что дальше?</div>
+            <div class="mg-stage">
+                <div class="big-num" id="hilo-card">7</div>
+                <div class="mg-hint" id="hilo-res">Число от 1 до 13. Что выпадет дальше?</div>
             </div>
-            <div class="glass-deck">
-                <div class="input-wrapper">
+            <div class="deck-card">
+                <div class="bet-field">
                     <span>СТАВКА</span>
                     <input type="number" id="hilo-bet" value="100" min="10">
-                    <span class="unit">$AERO</span>
+                    <span class="cur">$AERO</span>
                 </div>
-                <div class="quick-row">
-                    <button class="cyber-btn" onclick="playHiLo('hi')">⬆️ ВЫШЕ</button>
-                    <button class="cyber-btn alt" onclick="playHiLo('lo')">⬇️ НИЖЕ</button>
+                <div class="chips-grid">
+                    <button class="action-btn" onclick="playHiLo('hi')">⬆️ ВЫШЕ</button>
+                    <button class="action-btn pink-btn" onclick="playHiLo('lo')">⬇️ НИЖЕ</button>
                 </div>
             </div>
         </div>
-
-        <div id="mg-slots" class="mini-game-box" style="display: none;">
-            <div class="mg-header">
-                <button class="back-btn" onclick="backToLobby()">← Назад</button>
+        <div id="mg-slots" class="mg-screen" style="display: none;">
+            <div class="mg-top">
+                <button class="back-pill" onclick="backToLobby()">← Назад</button>
                 <span>🎰 Слот-машина $AERO</span>
             </div>
-            <div class="stage-center">
-                <div class="slots-reels">
-                    <div class="reel" id="reel-1">💎</div>
-                    <div class="reel" id="reel-2">🚀</div>
-                    <div class="reel" id="reel-3">💎</div>
+            <div class="mg-stage">
+                <div class="reels-row">
+                    <div class="slot-cell" id="reel-1">💎</div>
+                    <div class="slot-cell" id="reel-2">🚀</div>
+                    <div class="slot-cell" id="reel-3">💎</div>
                 </div>
-                <div class="stage-res" id="slots-res">2 одинаковых = x2 | 3 одинаковых = x15</div>
+                <div class="mg-hint" id="slots-res">2 одинаковых = x2 | 3 одинаковых = x15</div>
             </div>
-            <div class="glass-deck">
-                <div class="input-wrapper">
+            <div class="deck-card">
+                <div class="bet-field">
                     <span>СТАВКА</span>
                     <input type="number" id="slots-bet" value="100" min="10">
-                    <span class="unit">$AERO</span>
+                    <span class="cur">$AERO</span>
                 </div>
-                <button class="cyber-btn" id="slots-btn" onclick="playSlots()">🎰 КРУТИТЬ БАРАБАН</button>
+                <button class="action-btn" onclick="playSlots()">🎰 КРУТИТЬ БАРАБАН</button>
             </div>
         </div>
 
-        <div id="mg-boxes" class="mini-game-box" style="display: none;">
-            <div class="mg-header">
-                <button class="back-btn" onclick="backToLobby()">← Назад</button>
+        <div id="mg-boxes" class="mg-screen" style="display: none;">
+            <div class="mg-top">
+                <button class="back-pill" onclick="backToLobby()">← Назад</button>
                 <span>🎁 Сейфы (1 из 3 — приз x2.8)</span>
             </div>
-            <div class="stage-center">
-                <div class="boxes-row">
-                    <button class="safe-box" onclick="playBoxes(0, this)">🔒</button>
-                    <button class="safe-box" onclick="playBoxes(1, this)">🔒</button>
-                    <button class="safe-box" onclick="playBoxes(2, this)">🔒</button>
+            <div class="mg-stage">
+                <div class="safes-row">
+                    <button class="safe-btn" onclick="playBoxes(0)">🔒</button>
+                    <button class="safe-btn" onclick="playBoxes(1)">🔒</button>
+                    <button class="safe-btn" onclick="playBoxes(2)">🔒</button>
                 </div>
-                <div class="stage-res" id="boxes-res">Выбери любой закрытый сейф!</div>
+                <div class="mg-hint" id="boxes-res">Выбери любой закрытый сейф!</div>
             </div>
-            <div class="glass-deck">
-                <div class="input-wrapper">
+            <div class="deck-card">
+                <div class="bet-field">
                     <span>СТАВКА</span>
                     <input type="number" id="boxes-bet" value="100" min="10">
-                    <span class="unit">$AERO</span>
+                    <span class="cur">$AERO</span>
                 </div>
             </div>
         </div>
     </main>
 
     <main id="view-mine" class="screen" style="display: none;">
-        <div class="mine-head">
-            <span class="rate-pill">⚡ Авто-фарм: +<span id="passive-rate">0</span>/ч</span>
+        <div class="mine-title">
+            <span class="auto-badge">⚡ Пассив: +<span id="passive-rate">0</span>/ч</span>
             <h2>Реактор $AERO</h2>
         </div>
 
-        <div class="reactor-wrap" id="tap-core">
-            <div class="reactor-halo"></div>
-            <div class="reactor-orb">
-                <span class="r-emoji">🛸</span>
-                <span class="r-val">+<span id="tap-power">5</span> за тап</span>
+        <div class="orb-zone" id="tap-core">
+            <div class="orb-ring"></div>
+            <div class="orb-core">
+                <span class="orb-ufo">🛸</span>
+                <span class="orb-plus">+<span id="tap-power">5</span> за тап</span>
             </div>
         </div>
 
-        <div class="glass-deck">
-            <div class="energy-row">
+        <div class="deck-card">
+            <div class="nrg-head">
                 <span>🔋 Энергия</span>
                 <span><span id="energy">1000</span> / <span id="max-energy">1000</span></span>
             </div>
-            <div class="bar-bg"><div class="bar-fill" id="energy-bar"></div></div>
+            <div class="nrg-rail"><div class="nrg-fill" id="energy-bar"></div></div>
 
-            <div class="upgrades-pair">
-                <button class="up-tile" onclick="buyBoost('tap')">
+            <div class="boost-pair">
+                <button class="boost-box" onclick="buyBoost('tap')">
                     <span>⚡ Сила тапа (Ур.<span id="lvl-tap">1</span>)</span>
                     <b><span id="cost-tap">250</span> $AERO</b>
                 </button>
-                <button class="up-tile" onclick="buyBoost('node')">
+                <button class="boost-box" onclick="buyBoost('node')">
                     <span>🛰️ Спутник (Ур.<span id="lvl-node">0</span>)</span>
                     <b><span id="cost-node">500</span> $AERO</b>
                 </button>
@@ -348,72 +349,72 @@
     </main>
 
     <main id="view-hype" class="screen" style="display: none;">
-        <div class="airdrop-card">
-            <div class="ad-tag">AIRDROP SEASON 1</div>
+        <div class="squad-card">
+            <div class="season-tag">AIRDROP SEASON 1</div>
             <h3>Пригласи экипаж</h3>
             <p>Забирай <b>+5,000 $AERO</b> каждые 12 часов за приглашение друзей!</p>
-            <button class="gold-btn" id="invite-btn" onclick="inviteSquad()">🔥 Пригласить друга (+5,000)</button>
+            <button class="invite-cta" id="invite-btn" onclick="inviteSquad()">🔥 Пригласить друга (+5,000)</button>
         </div>
 
-        <div class="tasks-stack">
-            <div class="task-card" onclick="claimSocial('tg', 15000, 'https://t.me')">
-                <div class="t-left">
+        <div class="socials-stack">
+            <div class="soc-item" onclick="claimSocial('tg', 15000, 'https://t.me')">
+                <div class="soc-left">
                     <span>📢</span>
                     <div>
                         <b>Канал @aerotap</b>
                         <small>+15,000 $AERO</small>
                     </div>
                 </div>
-                <button class="t-btn" id="btn-tg">Перейти</button>
+                <button class="soc-btn" id="btn-tg">Перейти</button>
             </div>
 
-            <div class="task-card" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
-                <div class="t-left">
+            <div class="soc-item" onclick="claimSocial('yt', 15000, 'https://youtube.com')">
+                <div class="soc-left">
                     <span>📺</span>
                     <div>
                         <b>YouTube канал $AERO</b>
                         <small>+15,000 $AERO</small>
                     </div>
                 </div>
-                <button class="t-btn" id="btn-yt">Перейти</button>
+                <button class="soc-btn" id="btn-yt">Перейти</button>
             </div>
         </div>
 
-        <div class="glass-deck top-box">
-            <div class="top-lbl">🏆 Топ пилотов</div>
+        <div class="deck-card">
+            <div class="top-title">🏆 Топ пилотов</div>
             <div id="top-list"></div>
         </div>
     </main>
 
     <div class="modal-bg" id="name-modal" style="display: none;">
-        <div class="modal-card">
+        <div class="modal-box">
             <h3>Позывной пилота</h3>
             <p>Отображается в рейтинге всех игроков</p>
             <input type="text" id="nick-input" maxlength="15" placeholder="Введи ник...">
-            <button class="cyber-btn" onclick="saveNick()">Сохранить</button>
-            <button class="close-btn" onclick="closeNameModal()">Отмена</button>
+            <button class="action-btn" onclick="saveNick()">Сохранить</button>
+            <button class="cancel-link" onclick="closeNameModal()">Отмена</button>
         </div>
     </div>
 
-    <nav class="dock-nav">
-        <button class="dock-btn active" onclick="switchView('crash', this)">
+    <nav class="bottom-dock">
+        <button class="dock-tab active" onclick="switchView('crash', this)">
             <span>🚀</span>
             <small>Ракета</small>
         </button>
-        <button class="dock-btn" onclick="switchView('arcade', this)">
+        <button class="dock-tab" onclick="switchView('arcade', this)">
             <span>🎮</span>
             <small>Игры (8)</small>
         </button>
-        <button class="dock-btn" onclick="switchView('mine', this)">
+        <button class="dock-tab" onclick="switchView('mine', this)">
             <span>⚡</span>
             <small>Майнинг</small>
         </button>
-        <button class="dock-btn" onclick="switchView('hype', this)">
+        <button class="dock-tab" onclick="switchView('hype', this)">
             <span>🪂</span>
             <small>Дроп</small>
         </button>
     </nav>
 
-    <script src="script.js?v=8"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
