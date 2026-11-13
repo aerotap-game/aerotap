@@ -3,60 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>AeroTap — $AERO</title>
+  <title>AeroTap — $AERO Arcade</title>
   <script src="https://telegram.org"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="toast" class="toast"></div>
+
   <header class="hdr">
-    <div><b id="userName">Пилот</b><small id="userRank">Кадет</small></div>
-    <div class="prof"><small>Майнинг/ч</small><b>+<span id="profitPerHour">0</span> $AERO</b></div>
+    <div class="pilot" onclick="changeName()">
+      <b id="userName">Пилот ✏️</b>
+      <small id="userRank">Кадет</small>
+    </div>
+    <div class="hdr-r">
+      <button class="snd-btn" id="sndBtn" onclick="toggleSound()">🔊</button>
+      <div class="prof"><small>Майнинг/ч</small><b>+<span id="pph">0</span></b></div>
+    </div>
   </header>
 
   <main class="cnt">
+    <!-- 1. Полет -->
     <section id="tab-flight" class="pane active">
-      <div class="bal"><small>БАЛАНС ДО ЛИСТИНГА</small><h1>✈️ <span id="balanceDisplay">0</span></h1></div>
-      <div class="tap" id="tapZone"><span>🛩️</span></div>
+      <div class="bal"><small>БАЛАНС $AERO</small><h1>✈️ <span id="bal">0</span></h1></div>
+      <div class="tap" id="tapZone"><span>🚀</span></div>
       <div class="box">
-        <div class="row"><span>⚡ Топливо</span><span><b id="energyVal">500</b>/<span id="maxEnergyVal">500</span></span></div>
-        <div class="bar"><div class="fill" id="energyFill"></div></div>
+        <div class="row"><span>⚡ Топливо</span><span><b id="en">500</b>/<span id="maxEn">500</span></span></div>
+        <div class="bar"><div class="fill" id="enFill"></div></div>
       </div>
     </section>
 
+    <!-- 2. Аркада (Ракетка и Сектора) -->
     <section id="tab-arcade" class="pane">
-      <h3>🚀 Набор высоты</h3>
+      <h3>🚀 Ракетка ($AERO)</h3>
       <div class="box center">
-        <div class="sky" id="crashScreen"><div id="crashPlane">✈️</div><b id="crashMult">1.00x</b><small id="crashStatus">Готов к взлету</small></div>
+        <div class="sky" id="skyBox">
+          <div id="rocket">🚀</div>
+          <b id="mult">1.00x</b>
+          <small id="status">Жми старт для взлета</small>
+        </div>
         <div class="row gap">
-          <input type="number" id="crashBet" value="50" min="10" step="10">
-          <button class="btn gold" id="btnCrash" onclick="toggleCrash()">Взлет (50)</button>
+          <input type="number" id="bet" value="50" min="10" step="10">
+          <button class="btn gold" id="btnRocket" onclick="toggleRocket()">Взлет (50)</button>
         </div>
       </div>
 
-      <h3>☁️ Разведка в облаках</h3>
+      <h3>💎 Аркадные сектора</h3>
       <div class="box center">
-        <div class="grid" id="minesGrid"></div>
+        <div class="grid" id="grid"></div>
         <div class="row gap">
-          <button class="btn" id="btnMinesStart" onclick="startMines()">Старт (50)</button>
-          <button class="btn gold" id="btnMinesTake" onclick="takeMines()" disabled>Забрать: 0</button>
+          <button class="btn" onclick="startGrid()">Старт (50)</button>
+          <button class="btn gold" id="btnTake" onclick="takeGrid()" disabled>Забрать: 0</button>
         </div>
       </div>
     </section>
 
+    <!-- 3. Ангар -->
     <section id="tab-hangar" class="pane">
-      <h3>🛠️ Улучшения</h3>
-      <div class="card"><div><b>Турбина (Ур.<span id="lvlTap">1</span>)</b><small>+1 к клику</small></div><button class="btn" id="btnTap" onclick="buy('tap')">100</button></div>
-      <div class="card"><div><b>Топливный бак (Ур.<span id="lvlEnergy">1</span>)</b><small>+250 топлива</small></div><button class="btn" id="btnEnergy" onclick="buy('energy')">150</button></div>
-      <div class="card"><div><b>Дрон (Ур.<span id="lvlDrone">0</span>)</b><small>+120 $AERO/ч</small></div><button class="btn" id="btnDrone" onclick="buy('drone')">250</button></div>
-      <div class="card"><div><b>Лайнер (Ур.<span id="lvlLiner">0</span>)</b><small>+600 $AERO/ч</small></div><button class="btn" id="btnLiner" onclick="buy('liner')">1000</button></div>
+      <h3>🛠️ Прокачка</h3>
+      <div class="card"><div><b>Двигатель (Ур.<span id="lTap">1</span>)</b><small>+1 к клику</small></div><button class="btn" id="bTap" onclick="buy('tap')">100</button></div>
+      <div class="card"><div><b>Бак (Ур.<span id="lEn">1</span>)</b><small>+250 топлива</small></div><button class="btn" id="bEn" onclick="buy('en')">150</button></div>
+      <div class="card"><div><b>Дрон (Ур.<span id="lDrn">0</span>)</b><small>+150 $AERO/ч</small></div><button class="btn" id="bDrn" onclick="buy('drn')">250</button></div>
+      <div class="card"><div><b>Шаттл (Ур.<span id="lSht">0</span>)</b><small>+700 $AERO/ч</small></div><button class="btn" id="bSht" onclick="buy('sht')">1000</button></div>
     </section>
 
+    <!-- 4. Миссии -->
     <section id="tab-missions" class="pane">
-      <h3>🎯 Задания</h3>
-      <div class="card"><div><b>Пригласить друга</b><small>+500 $AERO (КД 12ч)</small></div><button class="btn gold" onclick="invite()">Звать</button></div>
-      <div class="card"><div><b>Ежедневный бонус</b><small>+300 $AERO раз в 24ч</small></div><button class="btn" onclick="daily()">Забрать</button></div>
-      <div class="card"><div><b>Канал $AERO</b><small>+500 $AERO за подписку</small></div><button class="btn" id="btnTg" onclick="social('https://t.me')">Перейти</button></div>
+      <h3>🎯 Бонусы</h3>
+      <div class="card"><div><b>Позвать друга</b><small>+500 $AERO (раз в 12ч)</small></div><button class="btn gold" onclick="invite()">Звать</button></div>
+      <div class="card"><div><b>Ежедневный вход</b><small>+300 $AERO раз в 24ч</small></div><button class="btn" onclick="daily()">Забрать</button></div>
+      <div class="card"><div><b>Канал $AERO</b><small>+500 $AERO за подписку</small></div><button class="btn" id="bTg" onclick="social('https://t.me')">Перейти</button></div>
     </section>
   </main>
 
