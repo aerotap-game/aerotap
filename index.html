@@ -149,46 +149,123 @@ rSh();rQs();rn();
     <button class="nb" id="n-quests" onclick="go('quests')">🎯<br>Tasks</button>
     <button class="nb" id="n-friends" onclick="go('friends')">👥<br>Friends</button>
   </div>
-  <script>
-    let s={sc:0,pw:1,lv:1,cs:100,en:1000,me:1000,ph:0,sh:false,lt:Date.now(),dl:0,sk:1,tp:0,ls:0,cd:false,q:{},c:new Array({n:'Auto-Clicker Bot',i:'🤖',c:500,p:1000,l:0},{n:'Private Hangar',i:'🏢',c:2000,p:4500,l:0},{n:'Global Airline',i:'🌍',c:10000,p:25000,l:0},{n:'Orbital Spaceport',i:'🛰️',c:50000,p:150000,l:0})};
-    let ml=1,uid='pilot',Ad=null;
-    function tst(m){const t=document.getElementById('tst');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
-    try{
-      if(window.Adsgram)Ad=window.Adsgram.init({blockId:"59556"});
-      const sv=JSON.parse(localStorage.getItem('atap_v16'));
-      if(sv){s={...s,...sv};const sec=Math.min(10800,Math.floor((Date.now()-s.lt)/1000));if(s.ph>0&&sec>10){const e=Math.floor((s.ph/3600)*sec);s.sc+=e;setTimeout(()=>tst('🤖 Auto-Clicker: +'+e+' $ATAP!'),500)}}
-      if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();const u=window.Telegram.WebApp.initDataUnsafe?.user;if(u){document.getElementById('un').innerText='@'+(u.username||u.first_name);uid=u.id}}
-    }catch(e){}
-    function cc(c){return Math.floor(c.c*Math.pow(1.6,c.l))}
-    function rSh(){document.getElementById('cds').innerHTML=s.c.map((c,i)=>`<div class="card"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:24px;background:#1e293b;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center">${c.i}</div><div><div style="font-size:13px;font-weight:700">${c.n}</div><div style="font-size:11px;color:#38bdf8">+${c.p.toLocaleString()}/hr • Lvl ${c.l}</div></div></div><button class="bb" onclick="bC(${i})">${cc(c).toLocaleString()}</button></div>`).join('')}
-    function bC(i){const c=s.c.at(i),cs=cc(c);if(s.sc>=cs){s.sc-=cs;c.l++;s.ph+=c.p;tst('✅ Upgraded!');rSh();rn()}else tst('❌ Need '+cs)}
-    function rQs(){
-      const d=(Date.now()-s.dl)>86400000;
-      const cb=s.cd?`<div class="card"><div style="font-size:13px;font-weight:700;color:#94a3b8">🔐 Secret Code Claimed (+25,000)</div><button class="bb dn">Done</button></div>`:`<div class="card" style="flex-direction:column;align-items:stretch;gap:8px"><div style="font-size:13px;font-weight:700">🔐 Secret YouTube Code (+25,000 $ATAP)</div><div style="display:flex;gap:8px"><input id="cin" type="text" placeholder="Enter code..." style="flex:1;background:#1e293b;border:1px solid #334155;color:#fff;padding:8px 10px;border-radius:10px;font-size:13px;outline:none"/><button class="bb" onclick="chk()">Claim</button></div></div>`;
-      document.getElementById('qst').innerHTML=cb+`<div class="card"><div><div style="font-size:13px;font-weight:700">📅 Daily Bonus (Day ${s.sk})</div><div style="font-size:11px;color:#38bdf8">+${(s.sk*1000).toLocaleString()} $ATAP</div></div><button class="bb ${d?'':'dn'}" onclick="gD()">${d?'Claim':'Done'}</button></div><div class="card"><div><div style="font-size:13px;font-weight:700">▶️ Watch AeroScale Shorts</div><div style="font-size:11px;color:#38bdf8">+3,000 $ATAP</div></div><button class="bb ${s.q.yt?'dn':''}" onclick="gQ('yt',3000,'https://youtube.com')">${s.q.yt?'Done':'Go'}</button></div><div class="card"><div><div style="font-size:13px;font-weight:700">✈️ Make 100 Taps (${Math.min(100,s.tp)}/100)</div><div style="font-size:11px;color:#38bdf8">+1,500 $ATAP</div></div><button class="bb ${s.q.tp?'dn':''}" onclick="gT()">${s.q.tp?'Done':'Claim'}</button></div>`;
+   <script>
+    let s = { sc: 0, pw: 1, lv: 1, cs: 100, en: 1000, me: 1000, ph: 0, sh: false, lt: Date.now(), dl: 0, sk: 1, tp: 0, ls: 0, cd: false, q: {},
+      c: new Array(
+        { n: 'Auto-Clicker Bot', i: '🤖', c: 500, p: 1000, l: 0 },
+        { n: 'Private Hangar', i: '🏢', c: 2000, p: 4500, l: 0 },
+        { n: 'Global Airline', i: '🌍', c: 10000, p: 25000, l: 0 },
+        { n: 'Orbital Spaceport', i: '🛰️', c: 50000, p: 150000, l: 0 }
+      )
+    };
+    let ml = 1, uid = 'pilot', Ad = null;
+
+    function tst(m) {
+      const t = document.getElementById('tst');
+      t.innerText = m; t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2200);
     }
-    function chk(){const i=document.getElementById('cin');if(!i)return;const v=i.value.trim().toUpperCase();if(v==='AERO2026'||v==='BLACKBIRD'){s.cd=true;s.sc+=25000;tst('🔥 +25,000 $ATAP!');rQs();rn()}else tst('❌ Wrong code!')}
-    function gD(){if((Date.now()-s.dl)>86400000){s.sc+=s.sk*1000;s.dl=Date.now();s.sk++;tst('🎉 Daily claimed!');rQs();rn()}else tst('⏳ Tomorrow')}
-    function gQ(id,rw,u){if(!s.q.hasOwnProperty(id)){s.q[id]=true;s.sc+=rw;tst('🎉 +'+rw+' $ATAP!');rQs();rn();window.open(u,'_blank')}}
-    function gT(){if(!s.q.tp&&s.tp>=100){s.q.tp=true;s.sc+=1500;tst('🎉 +1,500 $ATAP!');rQs();rn()}else if(!s.q.tp)tst('❌ Tap '+(100-s.tp)+' more!')}
-    function go(t){document.querySelectorAll('.tab').forEach(e=>e.classList.remove('act'));document.querySelectorAll('.nb').forEach(e=>e.classList.remove('act'));document.getElementById('t-'+t).classList.add('act');document.getElementById('n-'+t).classList.add('act');if(t==='shop')rSh();if(t==='quests')rQs()}
-    function rn(){
-      document.getElementById('sc').innerText=Math.floor(s.sc).toLocaleString();document.getElementById('stp').innerText='+'+(s.pw*ml);document.getElementById('sph').innerText=s.ph.toLocaleString();document.getElementById('sdy').innerText='Day '+s.sk;
-      document.getElementById('tp').innerText='+'+(s.pw*ml)+' per tap';document.getElementById('ub').innerText='⬆️ Tap ('+s.cs+')';document.getElementById('ev').innerText=Math.floor(s.en)+'/'+s.me;document.getElementById('eb').style.width=(s.en/s.me*100)+'%';
-      let r='Lvl '+s.lv+': Prop Plane',i='🛩️';if(s.lv>=10){r='Lvl '+s.lv+': Stratosphere';i='🚀'}else if(s.lv>=6){r='Lvl '+s.lv+': Supersonic';i='✈️'}else if(s.lv>=3){r='Lvl '+s.lv+': Business Jet';i='🛫'}
-      document.getElementById('rn').innerText=r;document.getElementById('ji').innerText=i;
-      if(s.sh){document.getElementById('ib').innerText='📋 Copy Link (Claimed)';document.getElementById('ib').style.background='#1e293b'}
-      s.lt=Date.now();try{localStorage.setItem('atap_v16',JSON.stringify(s))}catch(e){}
+
+    try {
+      if (window.Adsgram) Ad = window.Adsgram.init({ blockId: "59556" });
+      const sv = JSON.parse(localStorage.getItem('aero_v17'));
+      if (sv) {
+        s = { ...s, ...sv };
+        const sec = Math.min(10800, Math.floor((Date.now() - s.lt) / 1000));
+        if (s.ph > 0 && sec > 10) {
+          const e = Math.floor((s.ph / 3600) * sec);
+          s.sc += e;
+          setTimeout(() => tst('🤖 Auto-Clicker: +' + e + ' $AERO!'), 500);
+        }
+      }
+      if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand();
+        const u = window.Telegram.WebApp.initDataUnsafe?.user;
+        if (u) { document.getElementById('un').innerText = '@' + (u.username || u.first_name); uid = u.id; }
+      }
+    } catch (e) {}
+
+    function cc(c) { return Math.floor(c.c * Math.pow(1.6, c.l)); }
+
+    function rSh() {
+      let h = '';
+      s.c.forEach((c, i) => {
+        h += '<div class="card"><div style="display:flex;align-items:center;gap:10px">';
+        h += '<div style="font-size:24px;background:#1e293b;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center">' + c.i + '</div>';
+        h += '<div><div style="font-size:13px;font-weight:700">' + c.n + '</div>';
+        h += '<div style="font-size:11px;color:#38bdf8">+' + c.p.toLocaleString() + '/hr • Lvl ' + c.l + '</div></div></div>';
+        h += '<button class="bb" onclick="bC(' + i + ')">' + cc(c).toLocaleString() + '</button></div>';
+      });
+      document.getElementById('cds').innerHTML = h;
     }
-    function tap(e){if(s.en<s.pw)return;const cr=Math.random()<.1,g=s.pw*ml*(cr?5:1);s.sc+=g;s.en-=s.pw;s.tp++;const el=document.createElement('div');el.className='fn';el.innerText=cr?'🔥 +'+g+' CRIT!':'+'+g;if(cr){el.style.color='#f59e0b';el.style.fontSize='32px'}el.style.left=((e.clientX||150)-25)+'px';el.style.top=((e.clientY||250)-30)+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),700);rn()}
-    function up(){if(s.sc>=s.cs){s.sc-=s.cs;s.lv++;s.pw++;s.me+=200;s.cs=Math.floor(s.cs*1.8);rn()}else tst('❌ Need '+s.cs)}
-    function oB(){ml=3;document.getElementById('jet').classList.add('bst');document.getElementById('ab').innerText='🔥 x3 ON!';rn();setTimeout(()=>{ml=1;document.getElementById('jet').classList.remove('bst');document.getElementById('ab').innerText='📺 Turbo x3';rn()},30000)}
-    function trb(){if(ml===3)return;if(Ad)Ad.show().then(oB).catch(oB);else oB()}
-    function oS(){const p=new Array(1000,2500,5000,10000),w=p.at(Math.floor(Math.random()*p.length));s.sc+=w;s.en=s.me;s.ls=Date.now();tst('🎰 +'+w.toLocaleString()+' $ATAP & Full Fuel!');rn()}
-    function spn(){const w=7200000-(Date.now()-(s.ls||0));if(w>0){tst('⏳ Next spin in '+Math.ceil(w/60000)+'m!');return}if(Ad)Ad.show().then(oS).catch(oS);else oS()}
-   function inv(){const l='https://t.me('Join AeroTap & get +250 $ATAP! / Залетай в AeroTap: '+l);if(!s.sh){s.sc+=500;s.sh=true;tst('+500 $ATAP claimed!');rn()}else tst('Link copied!')}
-    setInterval(()=>{if(s.en<s.me)s.en=Math.min(s.me,s.en+3);if(s.ph>0)s.sc+=s.ph/3600;const w=7200000-(Date.now()-(s.ls||0)),b=document.getElementById('sb');if(b){if(w>0){b.innerText='⏳ '+Math.ceil(w/60000)+'m';b.style.opacity='.6'}else{b.innerText='🎰 Spin (Ad)';b.style.opacity='1'}}rn()},1000);
-    rSh();rQs();rn();
+
+    function bC(i) {
+      const c = s.c.at(i), cs = cc(c);
+      if (s.sc >= cs) { s.sc -= cs; c.l++; s.ph += c.p; tst('✅ Upgraded!'); rSh(); rn(); }
+      else tst('❌ Need ' + cs);
+    }
+    function rQs() {
+      const d = (Date.now() - s.dl) > 86400000;
+      let h = '';
+      if (s.cd) {
+        h += '<div class="card"><div style="font-size:13px;font-weight:700;color:#94a3b8">🔐 Secret Code Claimed (+25,000)</div><button class="bb dn">Done</button></div>';
+      } else {
+        h += '<div class="card" style="flex-direction:column;align-items:stretch;gap:8px">';
+        h += '<div style="font-size:13px;font-weight:700">🔐 Secret YouTube Code (+25,000 $AERO)</div>';
+        h += '<div style="display:flex;gap:8px"><input id="cin" type="text" placeholder="Enter code..." style="flex:1;background:#1e293b;border:1px solid #334155;color:#fff;padding:8px 10px;border-radius:10px;font-size:13px;outline:none"/>';
+        h += '<button class="bb" onclick="chk()">Claim</button></div></div>';
+      }
+      h += '<div class="card"><div><div style="font-size:13px;font-weight:700">📅 Daily Bonus (Day ' + s.sk + ')</div>';
+      h += '<div style="font-size:11px;color:#38bdf8">+' + (s.sk * 1000).toLocaleString() + ' $AERO</div></div>';
+      h += '<button class="bb ' + (d ? '' : 'dn') + '" onclick="gD()">' + (d ? 'Claim' : 'Done') + '</button></div>';
+      h += '<div class="card"><div><div style="font-size:13px;font-weight:700">▶️ Watch AeroScale Shorts</div>';
+      h += '<div style="font-size:11px;color:#38bdf8">+3,000 $AERO</div></div>';
+      h += '<button class="bb ' + (s.q.yt ? 'dn' : '') + '" onclick="gQ()">' + (s.q.yt ? 'Done' : 'Go') + '</button></div>';
+      h += '<div class="card"><div><div style="font-size:13px;font-weight:700">✈️ Make 100 Taps (' + Math.min(100, s.tp) + '/100)</div>';
+      h += '<div style="font-size:11px;color:#38bdf8">+1,500 $AERO</div></div>';
+      h += '<button class="bb ' + (s.q.tp ? 'dn' : '') + '" onclick="gT()">' + (s.q.tp ? 'Done' : 'Claim') + '</button></div>';
+      document.getElementById('qst').innerHTML = h;
+    }
+
+    function chk() {
+      const i = document.getElementById('cin'); if (!i) return;
+      const v = i.value.trim().toUpperCase();
+      if (v === 'AERO2026' || v === 'BLACKBIRD') { s.cd = true; s.sc += 25000; tst('🔥 +25,000 $AERO!'); rQs(); rn(); }
+      else tst('❌ Wrong code!');
+    }
+    function gD() { if ((Date.now() - s.dl) > 86400000) { s.sc += s.sk * 1000; s.dl = Date.now(); s.sk++; tst('🎉 Daily claimed!'); rQs(); rn(); } else tst('⏳ Tomorrow'); }
+    function gQ() { if (!s.q.yt) { s.q.yt = true; s.sc += 3000; tst('🎉 +3,000 $AERO!'); rQs(); rn(); window.open('https://youtube.com', '_blank'); } }
+    function gT() { if (!s.q.tp && s.tp >= 100) { s.q.tp = true; s.sc += 1500; tst('🎉 +1,500 $AERO!'); rQs(); rn(); } else if (!s.q.tp) tst('❌ Tap ' + (100 - s.tp) + ' more!'); }
+    function go(t) { document.querySelectorAll('.tab').forEach(e => e.classList.remove('act')); document.querySelectorAll('.nb').forEach(e => e.classList.remove('act')); document.getElementById('t-' + t).classList.add('act'); document.getElementById('n-' + t).classList.add('act'); if (t === 'shop') rSh(); if (t === 'quests') rQs(); }
+
+    function rn() {
+      document.getElementById('sc').innerText = Math.floor(s.sc).toLocaleString(); document.getElementById('stp').innerText = '+' + (s.pw * ml); document.getElementById('sph').innerText = s.ph.toLocaleString(); document.getElementById('sdy').innerText = 'Day ' + s.sk;
+      document.getElementById('tp').innerText = '+' + (s.pw * ml) + ' per tap'; document.getElementById('ub').innerText = '⬆️ Tap (' + s.cs + ')'; document.getElementById('ev').innerText = Math.floor(s.en) + '/' + s.me; document.getElementById('eb').style.width = (s.en / s.me * 100) + '%';
+      let r = 'Lvl ' + s.lv + ': Prop Plane', i = '🛩️';
+      if (s.lv >= 10) { r = 'Lvl ' + s.lv + ': Stratosphere'; i = '🚀'; } else if (s.lv >= 6) { r = 'Lvl ' + s.lv + ': Supersonic'; i = '✈️'; } else if (s.lv >= 3) { r = 'Lvl ' + s.lv + ': Business Jet'; i = '🛫'; }
+      document.getElementById('rn').innerText = r; document.getElementById('ji').innerText = i;
+      if (s.sh) { document.getElementById('ib').innerText = '📋 Copy Link (Claimed)'; document.getElementById('ib').style.background = '#1e293b'; }
+      s.lt = Date.now(); try { localStorage.setItem('aero_v17', JSON.stringify(s)); } catch (e) {}
+    }
+
+    function tap(e) { if (s.en < s.pw) return; const cr = Math.random() < 0.1, g = s.pw * ml * (cr ? 5 : 1); s.sc += g; s.en -= s.pw; s.tp++; const el = document.createElement('div'); el.className = 'fn'; el.innerText = cr ? '🔥 +' + g + ' CRIT!' : '+' + g; if (cr) { el.style.color = '#f59e0b'; el.style.fontSize = '32px'; } el.style.left = ((e.clientX || 150) - 25) + 'px'; el.style.top = ((e.clientY || 250) - 30) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 700); rn(); }
+    function up() { if (s.sc >= s.cs) { s.sc -= s.cs; s.lv++; s.pw++; s.me += 200; s.cs = Math.floor(s.cs * 1.8); rn(); } else tst('❌ Need ' + s.cs); }
+    function oB() { ml = 3; document.getElementById('jet').classList.add('bst'); document.getElementById('ab').innerText = '🔥 x3 ON!'; rn(); setTimeout(() => { ml = 1; document.getElementById('jet').classList.remove('bst'); document.getElementById('ab').innerText = '📺 Turbo x3'; rn(); }, 30000); }
+    function trb() { if (ml === 3) return; if (Ad) Ad.show().then(oB).catch(oB); else oB(); }
+    function oS() { const p = new Array(1000, 2500, 5000, 10000), w = p.at(Math.floor(Math.random() * p.length)); s.sc += w; s.en = s.me; s.ls = Date.now(); tst('🎰 +' + w.toLocaleString() + ' $AERO & Full Fuel!'); rn(); }
+    function spn() { const w = 7200000 - (Date.now() - (s.ls || 0)); if (w > 0) { tst('⏳ Next spin in ' + Math.ceil(w / 60000) + 'm!'); return; } if (Ad) Ad.show().then(oS).catch(oS); else oS(); }
+    function inv() { const l = 'https://t.me_' + uid; if (navigator.clipboard) navigator.clipboard.writeText('Join AeroTap & get +250 $AERO! / Залетай в AeroTap: ' + l); if (!s.sh) { s.sc += 500; s.sh = true; tst('✅ +500 $AERO claimed!'); rn(); } else tst('📋 Link copied!'); }
+
+    setInterval(() => {
+      if (s.en < s.me) s.en = Math.min(s.me, s.en + 3);
+      if (s.ph > 0) s.sc += s.ph / 3600;
+      const w = 7200000 - (Date.now() - (s.ls || 0)), b = document.getElementById('sb');
+      if (b) { if (w > 0) { b.innerText = '⏳ ' + Math.ceil(w / 60000) + 'm'; b.style.opacity = '.6'; } else { b.innerText = '🎰 Spin (Ad)'; b.style.opacity = '1'; } }
+      rn();
+    }, 1000);
+
+    rSh(); rQs(); rn();
   </script>
 </body>
 </html>
+
