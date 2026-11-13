@@ -14,9 +14,12 @@ if (tg) {
     }
 }
 
+// Укажи юзернейм своего игрового бота без @
 const BOT_USERNAME = 'aerotap_bot';
+// Юзернейм твоего Telegram канала без @
+const CHANNEL_USERNAME = 'aerotap';
 
-let state = JSON.parse(localStorage.getItem('aerotap_save_v7')) || {
+let state = JSON.parse(localStorage.getItem('aerotap_save_v8')) || {
     balance: 0,
     totalTaps: 0,
     fuel: 1000,
@@ -78,7 +81,7 @@ let comboStreak = 0;
 
 function saveState() {
     state.lastExitTime = Date.now();
-    localStorage.setItem('aerotap_save_v7', JSON.stringify(state));
+    localStorage.setItem('aerotap_save_v8', JSON.stringify(state));
 }
 
 function showMsg(text) {
@@ -208,7 +211,6 @@ function updateUI() {
     document.getElementById('cost-fuel').innerText = state.fuelCost.toLocaleString();
     document.getElementById('btn-buy-fuel').disabled = state.balance < state.fuelCost;
 
-    // Таймер на кнопку Пригласить друга (12 часов = 43200000 мс)
     const inviteBtn = document.getElementById('invite-btn');
     const inviteLeft = (state.lastInviteTime + 43200000) - now;
     if (inviteLeft > 0) {
@@ -217,7 +219,6 @@ function updateUI() {
         inviteBtn.innerText = '🚀 Пригласить друга (+10,000)';
     }
 
-    // Таймер на Космо-кекс (3 часа = 10800000 мс)
     const cupcakeBtn = document.getElementById('cupcake-btn');
     const cupcakeLeft = (state.lastCupcakeTime + 10800000) - now;
     if (cupcakeLeft > 0) {
@@ -226,14 +227,13 @@ function updateUI() {
         cupcakeBtn.innerText = '🧁 Кекс';
     }
 
-    // Таймер на Штурвал Удачи (6 часов = 21600000 мс)
     const spinBtn = document.getElementById('spin-btn');
     const spinLeft = (state.lastSpinTime + 21600000) - now;
     if (spinLeft > 0) {
         spinBtn.innerText = formatTimeLeft(spinLeft);
         spinBtn.disabled = true;
     } else {
-        spinBtn.innerText = 'Крутить';
+        spinBtn.innerText = 'Открыть';
         spinBtn.disabled = false;
     }
 
@@ -246,7 +246,7 @@ function updateUI() {
         if (btnYt) { btnYt.innerText = 'Готово ✅'; btnYt.disabled = true; }
     }
 
-    let currentRank = ranks[0];
+    let currentRank = ranks;
     for (let i = 0; i < ranks.length; i++) {
         if (state.balance >= ranks[i].min) { currentRank = ranks[i]; }
     }
@@ -307,7 +307,7 @@ function createFloatingText(x, y, text) {
     setTimeout(function() { el.remove(); }, 800);
 }
 
-// Космический кекс (полный бак + сладкий бонус раз в 3 часа)
+// Космический кекс (полный бак + бонус раз в 3 часа)
 function eatCupcake() {
     const now = Date.now();
     const left = (state.lastCupcakeTime + 10800000) - now;
@@ -317,47 +317,88 @@ function eatCupcake() {
     }
     state.lastCupcakeTime = now;
     state.fuel = state.maxFuel;
-    const bonus = 2000 + Math.floor(Math.random() * 8000);
+    const bonus = 1500 + Math.floor(Math.random() * 2500);
     state.balance += bonus;
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-    showMsg('🧁 Вкуснятина! Авиатопливо восстановлено на 100%, а внутри кекса найдено +' + bonus.toLocaleString() + ' $AERO!');
+    showMsg('🧁 Вкуснятина! Топливо восстановлено на 100%, а внутри кекса найдено +' + bonus.toLocaleString() + ' $AERO!');
     updateUI();
 }
 
-// Штурвал Удачи (рулетка раз в 6 часов)
-function spinWheel() {
+// Анимированное открытие Авиа-кейса (раз в 6 часов)
+function openCaseModal() {
     const now = Date.now();
     const left = (state.lastSpinTime + 21600000) - now;
     if (left > 0) {
-        showMsg('🎰 Следующий запуск штурвала доступен через ' + formatTimeLeft(left));
+        showMsg('🎁 Следующий кейс будет доступен через ' + formatTimeLeft(left));
         return;
     }
+
     state.lastSpinTime = now;
-    const prizes =;
-    const win = prizes[Math.floor(Math.random() * prizes.length)];
-    state.balance += win;
-    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-    showMsg('🎰 Штурвал остановился на секторе ДЖЕКПОТ! Твой выигрыш: +' + win.toLocaleString() + ' $AERO!');
-    updateUI();
+    saveState();
+
+    const modal = document.getElementById('case-modal');
+    const track = document.getElementById('roulette-track');
+    const resultEl = document.getElementById('case-result');
+    const closeBtn = document.getElementById('case-close-btn');
+
+    modal.style.display = 'flex';
+    closeBtn.style.display = 'none';
+    resultEl.innerText = 'Раскручиваем барабан...';
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0px)';
+
+    const pool =;
+    const winIndex = 24;
+    let wonAmount = 2500;
+    let html = '';
+
+    for (let i = 0; i < 30; i++) {
+        const val = pool[Math.floor(Math.random() * pool.length)];
+        if (i === winIndex) wonAmount = val;
+        const isJackpot = val >= 15000 ? 'jackpot' : '';
+        const icon = val >= 15000 ? '💎' : '🪙';
+        html += '<div class="roulette-item ' + isJackpot + '">' + icon + '<br>+' + val.toLocaleString() + '</div>';
+    }
+    track.innerHTML = html;
+
+    setTimeout(function() {
+        track.style.transition = 'transform 3.8s cubic-bezier(0.12, 0.85, 0.2, 1)';
+        const itemWidth = 92; // 84px ширина + 8px отступ
+        const offset = (winIndex * itemWidth) + 42;
+        track.style.transform = 'translateX(-' + offset + 'px)';
+    }, 50);
+
+    setTimeout(function() {
+        state.balance += wonAmount;
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        resultEl.innerText = '🎉 Твой выигрыш: +' + wonAmount.toLocaleString() + ' $AERO!';
+        closeBtn.style.display = 'block';
+        updateUI();
+    }, 4000);
 }
 
+function closeCaseModal() {
+    document.getElementById('case-modal').style.display = 'none';
+}
+
+// Редкий перехват дрона (раз в 90 секунд, урезанная награда 400-850 монет)
 function spawnDrone() {
     const drone = document.getElementById('bonus-drone');
     if (!drone) return;
     drone.style.display = 'flex';
-    setTimeout(function() { drone.style.display = 'none'; }, 4500);
+    setTimeout(function() { drone.style.display = 'none'; }, 4000);
 }
 
 function catchDrone() {
     document.getElementById('bonus-drone').style.display = 'none';
-    const reward = (state.tapLevel * 1500) + Math.floor(Math.random() * 2000);
+    const reward = 400 + Math.floor(Math.random() * 450);
     state.balance += reward;
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-    showMsg('🛸 Перехвачен груз снабжения! Награда: +' + reward.toLocaleString() + ' $AERO!');
+    showMsg('🛸 Груз перехвачен! Награда: +' + reward.toLocaleString() + ' $AERO!');
     updateUI();
 }
 
-setInterval(spawnDrone, 32000);
+setInterval(spawnDrone, 90000);
 
 function activateTurbo() {
     if (isTurbo || turboCooldown > 0) return;
@@ -427,12 +468,12 @@ function openCipher() {
     }
 }
 
-// Правильное приглашение раз в 12 часов без битой ссылки
+// Нативное приглашение друга внутри приложения Telegram
 function inviteFriend() {
     const now = Date.now();
     const refLink = 'https://t.me' + BOT_USERNAME + '?start=' + userId;
     const shareText = 'Залетай в AeroTap, качай самолеты и забирай бонус $AERO до листинга!';
-    const shareUrl = 'https://t.meshare/url?url=' + encodeURIComponent(refLink) + '&text=' + encodeURIComponent(shareText);
+    const nativeShare = 'tg://msg_url?url=' + encodeURIComponent(refLink) + '&text=' + encodeURIComponent(shareText);
 
     if (now - state.lastInviteTime >= 43200000) {
         state.lastInviteTime = now;
@@ -443,11 +484,7 @@ function inviteFriend() {
         updateUI();
     }
 
-    if (tg && tg.openTelegramLink) {
-        tg.openTelegramLink(shareUrl);
-    } else {
-        window.open(shareUrl, '_blank');
-    }
+    window.location.href = nativeShare;
 }
 
 function copyRefLink() {
@@ -461,14 +498,14 @@ function copyRefLink() {
     tempInput.select();
     try {
         document.execCommand('copy');
-        showMsg('📋 Ссылка скопирована в буфер обмена:\n' + refLink);
+        showMsg('📋 Ссылка скопирована:\n' + refLink);
     } catch (err) {
-        showMsg('Твоя ссылка для друзей:\n' + refLink);
+        showMsg('Твоя ссылка:\n' + refLink);
     }
     document.body.removeChild(tempInput);
 }
 
-// Гарантированное начисление награды за YouTube и @aerotap
+// Гарантированное начисление награды и нативный переход в @aerotap или YouTube
 function completeTask(taskId, reward, url) {
     if (!state.tasks) state.tasks = {};
     
@@ -480,18 +517,14 @@ function completeTask(taskId, reward, url) {
     }
 
     setTimeout(function() {
-        if (tg) {
-            if (url.indexOf('https://t.me') === 0 && tg.openTelegramLink) {
-                tg.openTelegramLink(url);
-            } else if (tg.openLink) {
-                tg.openLink(url);
-            } else {
-                window.open(url, '_blank');
-            }
+        if (taskId === 'tg') {
+            window.location.href = 'tg://resolve?domain=' + CHANNEL_USERNAME;
+        } else if (tg && tg.openLink) {
+            tg.openLink(url);
         } else {
             window.open(url, '_blank');
         }
-    }, 250);
+    }, 300);
 }
 
 function buyUpgrade(type) {
@@ -517,29 +550,25 @@ function buyCard(id) {
         state.balance -= card.cost;
         card.level++;
         state.profitPerHour += card.profit;
-        card.cost = Math.floor(card.cost * 1.65);
-        card.profit = Math.floor(card.profit * 1.25);
-        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        updateUI();
-    }
+card.cost = Math.floor(card.cost * 1.65);
+card.profit = Math.floor(card.profit * 1.25);
+if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+updateUI();
 }
-
+}
 function switchTab(tabName, btn) {
-    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
-    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-    document.getElementById('tab-' + tabName).classList.add('active');
-    btn.classList.add('active');
+document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+document.getElementById('tab-' + tabName).classList.add('active');
+btn.classList.add('active');
 }
-
 function connectWallet() {
-    showMsg('Модуль TON Connect будет активирован перед листингом токена $AERO!');
+showMsg('Модуль TON Connect будет активирован перед листингом токена $AERO!');
 }
-
 setInterval(function() {
-    if (state.fuel < state.maxFuel) { state.fuel = Math.min(state.maxFuel, state.fuel + 4); }
-    if (state.profitPerHour > 0) { state.balance += (state.profitPerHour / 3600); }
-    updateUI();
+if (state.fuel < state.maxFuel) { state.fuel = Math.min(state.maxFuel, state.fuel + 4); }
+if (state.profitPerHour > 0) { state.balance += (state.profitPerHour / 3600); }
+updateUI();
 }, 1000);
-
 checkOfflineEarnings();
 updateUI();
