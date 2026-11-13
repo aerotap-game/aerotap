@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>AeroTap</title>
+  <script src="https://telegram.org"></script>
   <style>
     * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
     body { margin: 0; background: #0b0f17; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -27,6 +28,7 @@
     .btn:active { opacity: 0.7; }
     .btn-ad { background: linear-gradient(135deg, #d97706, #f59e0b); border: none; color: #000; }
     .btn-full { grid-column: span 2; background: #0284c7; border: none; }
+    .btn-done { background: #1e293b !important; color: #94a3b8 !important; border: 1px solid #334155 !important; }
     .float-num { position: absolute; font-size: 28px; font-weight: 800; color: #38bdf8; pointer-events: none; animation: up 0.7s ease-out forwards; }
     @keyframes up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-80px); } }
   </style>
@@ -60,15 +62,21 @@
   <div class="controls">
     <button class="btn" id="upgrade-btn" onclick="buyUpgrade()">⬆️ Upgrade (100)</button>
     <button class="btn btn-ad" id="ad-btn" onclick="activateTurbo()">📺 Turbo x3 (Ad)</button>
-    <button class="btn btn-full" id="invite-btn" onclick="inviteFriend()">👥 Invite Friend (+500 $AERO)</button>
+    <button class="btn btn-full" id="invite-btn" onclick="inviteFriend()">👥 Share & Claim +500 $AERO</button>
   </div>
 
   <script>
-    let score = 0, power = 1, level = 1, cost = 100, energy = 1000, maxEnergy = 1000, mult = 1;
+    let score = 0, power = 1, level = 1, cost = 100, energy = 1000, maxEnergy = 1000, mult = 1, shared = false;
 
     try {
-      const saved = JSON.parse(localStorage.getItem('aerotap_v3'));
-      if (saved) { score = saved.score; power = saved.power; level = saved.level; cost = saved.cost; energy = saved.energy; maxEnergy = saved.maxEnergy; }
+      const saved = JSON.parse(localStorage.getItem('aerotap_v4'));
+      if (saved) { score = saved.score; power = saved.power; level = saved.level; cost = saved.cost; energy = saved.energy; maxEnergy = saved.maxEnergy; shared = saved.shared || false; }
+      if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        const u = window.Telegram.WebApp.initDataUnsafe?.user;
+        if (u) document.getElementById('user-name').innerText = '@' + (u.username || u.first_name);
+      }
     } catch (e) {}
 
     function render() {
@@ -83,7 +91,12 @@
       else if (level >= 3) { rName = 'Level ' + level + ': Business Jet'; rIcon = '🛫'; }
       document.getElementById('rank-name').innerText = rName;
       document.getElementById('jet-icon').innerText = rIcon;
-      try { localStorage.setItem('aerotap_v3', JSON.stringify({ score, power, level, cost, energy, maxEnergy })); } catch (e) {}
+      if (shared) {
+        const invBtn = document.getElementById('invite-btn');
+        invBtn.innerText = '📋 Copy Invite Link (+500 Claimed)';
+        invBtn.classList.add('btn-done');
+      }
+      try { localStorage.setItem('aerotap_v4', JSON.stringify({ score, power, level, cost, energy, maxEnergy, shared })); } catch (e) {}
     }
 
     function tapPlane(e) {
@@ -131,9 +144,25 @@
     }
 
     function inviteFriend() {
-      score += 500;
-      render();
-      window.open('https://t.me!', '_blank');
+      const botLink = 'https://t.me';
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(botLink);
+      }
+      if (!shared) {
+        score += 500;
+        shared = true;
+        render();
+      } else {
+        const invBtn = document.getElementById('invite-btn');
+        invBtn.innerText = '✅ Link Copied to Clipboard!';
+        setTimeout(render, 1200);
+      }
+      const shareUrl = 'https://t.me' + encodeURIComponent(botLink) + '&text=' + encodeURIComponent('Join AeroTap and mine $AERO!');
+      try {
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+          window.Telegram.WebApp.openTelegramLink(shareUrl);
+        }
+      } catch (e) {}
     }
 
     setInterval(() => {
