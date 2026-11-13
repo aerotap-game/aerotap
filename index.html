@@ -3,81 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>AeroTap — $AERO Arcade</title>
+  <title>AeroTap — $AERO Pre-Launch</title>
   <script src="https://telegram.org"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="toast" class="toast"></div>
 
+  <!-- Модальное окно открытия кейса -->
+  <div id="caseModal" class="modal">
+    <div class="modal-box">
+      <h3 id="caseTitle">Открытие контейнера</h3>
+      <div class="crate-stage" id="crateStage">📦</div>
+      <div class="prize-text" id="prizeText">Вскрываем замок...</div>
+      <button class="btn gold" id="btnCloseModal" onclick="closeModal()" style="display:none;width:100%;">Забрать награду</button>
+    </div>
+  </div>
+
+  <!-- Шапка -->
   <header class="hdr">
     <div class="pilot" onclick="changeName()">
-      <b id="userName">Пилот ✏️</b>
-      <small id="userRank">Кадет</small>
+      <div class="pilot-top"><b id="userName">Пилот</b> <span>✏️</span></div>
+      <small id="userRank">Ранг: Кадет</small>
     </div>
     <div class="hdr-r">
-      <button class="snd-btn" id="sndBtn" onclick="toggleSound()">🔊</button>
+      <div class="gems-pill">💎 <b id="gems">0</b></div>
+      <button class="icon-btn" id="sndBtn" onclick="toggleSound()">🔊</button>
       <div class="prof"><small>Майнинг/ч</small><b>+<span id="pph">0</span></b></div>
     </div>
   </header>
 
   <main class="cnt">
-    <!-- 1. Полет -->
+    <!-- 1. ПОЛЕТ (Кликер + Комбо) -->
     <section id="tab-flight" class="pane active">
-      <div class="bal"><small>БАЛАНС $AERO</small><h1>✈️ <span id="bal">0</span></h1></div>
-      <div class="tap" id="tapZone"><span>🚀</span></div>
+      <div class="bal-card">
+        <small>БАЛАНС ТОКЕНОВ ДО ЛИСТИНГА</small>
+        <h1>✈️ <span id="bal">0</span> <span class="ticker">$AERO</span></h1>
+        <div class="combo-badge" id="comboBadge">Комбо x1</div>
+      </div>
+
+      <div class="tap-wrap">
+        <div class="tap-ring"></div>
+        <div class="tap" id="tapZone"><span>🛩️</span></div>
+      </div>
+
       <div class="box">
-        <div class="row"><span>⚡ Топливо</span><span><b id="en">500</b>/<span id="maxEn">500</span></span></div>
+        <div class="row"><span>⚡ Топливо реактора</span><span><b id="en">500</b> / <span id="maxEn">500</span></span></div>
         <div class="bar"><div class="fill" id="enFill"></div></div>
       </div>
     </section>
 
-    <!-- 2. Аркада (Ракетка и Сектора) -->
+    <!-- 2. АРКАДА (Ракетка, Шахта, Кристаллы) -->
     <section id="tab-arcade" class="pane">
-      <h3>🚀 Ракетка ($AERO)</h3>
-      <div class="box center">
+      <!-- Режим 1: Ракетка -->
+      <div class="box">
+        <div class="row"><h3>🚀 Ракетка</h3><span class="tag gold">X-ПОЛЕТ</span></div>
         <div class="sky" id="skyBox">
           <div id="rocket">🚀</div>
           <b id="mult">1.00x</b>
-          <small id="status">Жми старт для взлета</small>
+          <small id="status">Успей забрать до ухода с радара</small>
         </div>
         <div class="row gap">
-          <input type="number" id="bet" value="50" min="10" step="10">
+          <input type="number" id="betRocket" value="50" min="10" step="10">
           <button class="btn gold" id="btnRocket" onclick="toggleRocket()">Взлет (50)</button>
         </div>
       </div>
 
-      <h3>💎 Аркадные сектора</h3>
-      <div class="box center">
-        <div class="grid" id="grid"></div>
+      <!-- Режим 2: Шахта 5x5 -->
+      <div class="box">
+        <div class="row"><h3>⛏️ Кристальная шахта</h3><span class="tag">5x5</span></div>
+        <div class="mine-grid" id="mineGrid"></div>
         <div class="row gap">
-          <button class="btn" onclick="startGrid()">Старт (50)</button>
-          <button class="btn gold" id="btnTake" onclick="takeGrid()" disabled>Забрать: 0</button>
+          <button class="btn" id="btnMineStart" onclick="startMine()">Копать (50)</button>
+          <button class="btn gold" id="btnMineTake" onclick="takeMine()" disabled>Забрать: 0</button>
         </div>
+      </div>
+
+      <!-- Режим 3: Кристальный спин -->
+      <div class="box">
+        <div class="row"><h3>💎 Кристальный реактор</h3><span class="tag">СЛОТ</span></div>
+        <div class="reels">
+          <div class="reel" id="r1">💎</div>
+          <div class="reel" id="r2">✈️</div>
+          <div class="reel" id="r3">⚡</div>
+        </div>
+        <button class="btn gold" id="btnSpin" onclick="spinReels()" style="width:100%;max-width:none;">Крутить за 100 $AERO</button>
       </div>
     </section>
 
-    <!-- 3. Ангар -->
-    <section id="tab-hangar" class="pane">
-      <h3>🛠️ Прокачка</h3>
-      <div class="card"><div><b>Двигатель (Ур.<span id="lTap">1</span>)</b><small>+1 к клику</small></div><button class="btn" id="bTap" onclick="buy('tap')">100</button></div>
-      <div class="card"><div><b>Бак (Ур.<span id="lEn">1</span>)</b><small>+250 топлива</small></div><button class="btn" id="bEn" onclick="buy('en')">150</button></div>
-      <div class="card"><div><b>Дрон (Ур.<span id="lDrn">0</span>)</b><small>+150 $AERO/ч</small></div><button class="btn" id="bDrn" onclick="buy('drn')">250</button></div>
-      <div class="card"><div><b>Шаттл (Ур.<span id="lSht">0</span>)</b><small>+700 $AERO/ч</small></div><button class="btn" id="bSht" onclick="buy('sht')">1000</button></div>
+    <!-- 3. КЕЙСЫ И КОНТЕЙНЕРЫ -->
+    <section id="tab-cases" class="pane">
+      <h3>🎁 Контейнеры и Кейсы</h3>
+      <div class="card">
+        <div><b>📦 Ящик Кадета</b><small>Награда: от 100 до 1,000 $AERO</small></div>
+        <button class="btn" onclick="openCase('cadet')">250 $AERO</button>
+      </div>
+      <div class="card">
+        <div><b>🛰️ Спутниковый сейф</b><small>Награда: 500–5,000 $AERO или +5 💎</small></div>
+        <button class="btn gold" onclick="openCase('cyber')">1,000 $AERO</button>
+      </div>
+      <div class="card">
+        <div><b>💎 Кристальный контейнер</b><small>Супер-дроп: 5,000–25,000 $AERO</small></div>
+        <button class="btn purple" onclick="openCase('gem')">10 💎</button>
+      </div>
     </section>
 
-    <!-- 4. Миссии -->
+    <!-- 4. АНГАР -->
+    <section id="tab-hangar" class="pane">
+      <h3>🛠️ Улучшения и Флот</h3>
+      <div class="card"><div><b>Турбина (Ур.<span id="lTap">1</span>)</b><small>+1 $AERO за каждый тап</small></div><button class="btn" id="bTap" onclick="buy('tap')">100</button></div>
+      <div class="card"><div><b>Топливный бак (Ур.<span id="lEn">1</span>)</b><small>+250 к объему топлива</small></div><button class="btn" id="bEn" onclick="buy('en')">150</button></div>
+      <div class="card"><div><b>Дрон-майнер (Ур.<span id="lDrn">0</span>)</b><small>+150 $AERO в час в фоне</small></div><button class="btn" id="bDrn" onclick="buy('drn')">250</button></div>
+      <div class="card"><div><b>Космолайнер (Ур.<span id="lSht">0</span>)</b><small>+750 $AERO в час в фоне</small></div><button class="btn" id="bSht" onclick="buy('sht')">1000</button></div>
+    </section>
+
+    <!-- 5. МИССИИ И ДРУЗЬЯ -->
     <section id="tab-missions" class="pane">
-      <h3>🎯 Бонусы</h3>
-      <div class="card"><div><b>Позвать друга</b><small>+500 $AERO (раз в 12ч)</small></div><button class="btn gold" onclick="invite()">Звать</button></div>
-      <div class="card"><div><b>Ежедневный вход</b><small>+300 $AERO раз в 24ч</small></div><button class="btn" onclick="daily()">Забрать</button></div>
-      <div class="card"><div><b>Канал $AERO</b><small>+500 $AERO за подписку</small></div><button class="btn" id="bTg" onclick="social('https://t.me')">Перейти</button></div>
+      <h3>🎯 Эскадрилья и Бонусы</h3>
+      <div class="card">
+        <div><b>Пригласить друга</b><small id="invStatus">+500 $AERO и +2 💎 (КД 12ч)</small></div>
+        <button class="btn gold" id="btnInv" onclick="invite()">Звать</button>
+      </div>
+      <div class="card">
+        <div><b>Ежедневный бонус</b><small>+400 $AERO и +1 💎 раз в 24ч</small></div>
+        <button class="btn" onclick="daily()">Забрать</button>
+      </div>
+      <div class="card">
+        <div><b>Канал проекта $AERO</b><small>+1,000 $AERO за подписку</small></div>
+        <button class="btn" id="bTg" onclick="social('https://t.me')">Перейти</button>
+      </div>
     </section>
   </main>
 
   <nav class="nav">
     <div class="ni active" onclick="tab('flight',this)">🛫<span>Полет</span></div>
     <div class="ni" onclick="tab('arcade',this)">🕹️<span>Аркада</span></div>
+    <div class="ni" onclick="tab('cases',this)">🎁<span>Кейсы</span></div>
     <div class="ni" onclick="tab('hangar',this)">🛠️<span>Ангар</span></div>
     <div class="ni" onclick="tab('missions',this)">🎯<span>Миссии</span></div>
   </nav>
