@@ -1,294 +1,71 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>$AERO // ECLIPSE</title>
-<script src="https://telegram.org"></script>
-<style>
-:root{--bg:#050507;--card:#111218;--card2:#191b24;--b:#262936;--gold:#ffb703;--vio:#8338ec;--red:#ff0055;--txt:#fff;--dim:#8890a6}
-*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif}
-body{background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
-.hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px;background:var(--bg);z-index:5}
-.usr{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--b);padding:5px 12px 5px 5px;border-radius:99px;color:#fff;font-weight:800;font-size:13px;cursor:pointer}
-.ava{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--vio));color:#000;display:flex;align-items:center;justify-content:center;font-weight:900}
-.hdr-r{display:flex;align-items:center;gap:8px}
-.sq{width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--b);color:#fff;font-size:14px;cursor:pointer}
-.bal{display:flex;align-items:center;gap:6px;background:rgba(255,183,3,.12);border:1px solid rgba(255,183,3,.4);padding:6px 12px;border-radius:99px;font-weight:900;color:var(--gold);font-size:14px}
-.bal b{background:var(--gold);color:#000;font-size:9px;padding:2px 5px;border-radius:99px}
-.tabs{display:flex;gap:6px;padding:4px 14px 8px}
-.tab{flex:1;background:var(--card);border:1px solid var(--b);color:var(--dim);padding:9px 4px;border-radius:12px;font-weight:800;font-size:11px;cursor:pointer}
-.tab.on{background:linear-gradient(135deg,rgba(255,183,3,.2),rgba(131,56,236,.25));border-color:var(--gold);color:#fff}
-.view{flex:1;display:none;flex-direction:column;justify-content:space-between;padding:2px 14px 14px;overflow-y:auto}
-.view.on{display:flex}
-.hist{display:flex;gap:5px;overflow-x:auto;padding-bottom:6px}
-.hc{font-size:11px;font-weight:800;padding:3px 9px;border-radius:8px;background:var(--card);border:1px solid var(--b);white-space:nowrap}
-.hc.w{color:var(--gold);border-color:rgba(255,183,3,.4)}.hc.l{color:var(--red)}
-.sky{position:relative;flex:1;margin:2px 0 10px;border-radius:24px;background:radial-gradient(circle at 50% 45%,#1a162b 0%,#08080c 90%);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.sky svg{position:absolute;inset:0;width:100%;height:100%}
-.hud{position:relative;z-index:2;text-align:center}
-.tag{display:inline-block;background:rgba(255,183,3,.14);border:1px solid rgba(255,183,3,.3);padding:4px 10px;border-radius:99px;font-size:10px;font-weight:800;color:var(--gold);margin-bottom:4px}
-.mult{font-size:56px;font-weight:900;letter-spacing:-2px}
-.ship{font-size:46px;margin-top:4px}
-.fly .ship{animation:vibe .16s infinite alternate}
-@keyframes vibe{from{transform:translateY(0) scale(1.05)}to{transform:translateY(-6px) scale(1.15)}}
-.box{background:var(--card);border:1px solid var(--b);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:8px}
-.row{display:flex;gap:6px}
-.ch{flex:1;background:var(--card2);border:1px solid var(--b);color:#fff;padding:8px 4px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer}
-.ch.on{border-color:var(--gold);color:var(--gold)}
-.inp{display:flex;align-items:center;justify-content:space-between;background:#08090d;border:1px solid var(--b);padding:8px 12px;border-radius:12px;font-size:11px;font-weight:800;color:var(--dim)}
-.inp input{background:transparent;border:none;color:#fff;font-size:19px;font-weight:900;text-align:center;width:110px;outline:none}
-.btn{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--gold),#ff8800);color:#000;font-size:14px;font-weight:900;cursor:pointer}
-.btn:active{transform:scale(.96)}.btn.vio{background:linear-gradient(135deg,var(--vio),#5a189a);color:#fff}.btn.red{background:var(--red);color:#fff}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.gc{background:var(--card);border:1px solid var(--b);border-radius:18px;padding:12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;cursor:pointer}
-.gc:active{border-color:var(--gold);transform:scale(.96)}
-.gc.w{grid-column:span 2;flex-direction:row;text-align:left;gap:12px;background:linear-gradient(135deg,rgba(131,56,236,.2),rgba(255,183,3,.1))}
-.gc span{font-size:26px}.gc b{font-size:13px}.gc small{font-size:11px;color:var(--gold);font-weight:700}
-.mg{flex:1;display:none;flex-direction:column;justify-content:space-between}
-.mg.on{display:flex}
-.mgh{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--b);padding:8px 12px;border-radius:12px;font-size:13px;font-weight:800}
-.bk{background:var(--card2);border:1px solid var(--b);color:#fff;padding:5px 10px;border-radius:8px;font-weight:800;font-size:11px;cursor:pointer}
-.st{flex:1;background:var(--card);border:1px solid var(--b);border-radius:20px;margin:8px 0;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:space-around}
-.jb{display:flex;gap:4px;width:100%}.js{flex:1;text-align:center;font-size:10px;font-weight:800;padding:5px 2px;border-radius:6px;background:var(--card2);color:var(--dim)}.js.ok{background:var(--gold);color:#000}
-.mg-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:265px;width:100%;margin:auto}
-.mc{aspect-ratio:1/1;background:var(--card);border:1px solid var(--b);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
-.mc.s{background:rgba(255,183,3,.2);border-color:var(--gold)}.mc.b{background:rgba(255,0,85,.25);border-color:var(--red)}
-.sl{width:72px;height:82px;background:#08090d;border:1px solid var(--b);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer}
-.orb{width:185px;height:185px;margin:auto;border-radius:50%;background:radial-gradient(circle,#241b35 0%,#0b0b10 100%);border:3px solid var(--gold);box-shadow:0 0 35px rgba(255,183,3,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#fff}
-.orb:active{transform:scale(.92)}
-.bw{width:100%;height:8px;background:#08090d;border-radius:99px;overflow:hidden}.bf{height:100%;width:100%;background:linear-gradient(90deg,var(--vio),var(--gold));transition:width .2s}
-.soc{background:var(--card);border:1px solid var(--b);padding:10px 12px;border-radius:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-.mod{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}.mod.on{display:flex}
-.pop{position:absolute;font-size:20px;font-weight:900;color:var(--gold);pointer-events:none;z-index:50;animation:up .7s ease-out forwards}
-@keyframes up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>AeroTap — $AERO</title>
+  <script src="https://telegram.org"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="hdr">
-<button class="usr" onclick="openMod()"><span class="ava" id="ava">A</span><span id="uname">Pilot</span> ✎</button>
-<div class="hdr-r"><button class="sq" id="snd" onclick="togSnd()">🔊</button><div class="bal"><b>$AERO</b><span id="bal">1 000</span></div></div>
-</header>
-<nav class="tabs">
-<button class="tab on" onclick="go('crash',this)">🚀 КРАШ</button>
-<button class="tab" onclick="go('games',this)">🎮 8 ИГР</button>
-<button class="tab" onclick="go('mine',this)">⚡ ФАРМ</button>
-<button class="tab" onclick="go('drop',this)">🪂 ДРОП</button>
-</nav>
-<main id="v-crash" class="view on">
-<div class="hist" id="hist"><span class="hc w">x14.2</span><span class="hc l">x1.15</span><span class="hc">x3.40</span></div>
-<div class="sky" id="box-crash">
-<svg viewBox="0 0 300 160" preserveAspectRatio="none"><path id="curve" d="M 12 148 Q 12 148 12 148" fill="none" stroke="#ffb703" stroke-width="4" stroke-linecap="round"/></svg>
-<div class="hud"><div class="tag" id="c-stat">ГОТОВ К СТАРТУ</div><div class="mult" id="c-mult">x1.00</div><div class="ship" id="c-ship">🚀</div></div>
-</div>
-<div class="box">
-<div class="row"><button class="ch" onclick="sb('bet-c',100)">100</button><button class="ch" onclick="sb('bet-c',500)">500</button><button class="ch" onclick="hb('bet-c')">½</button><button class="ch" onclick="db('bet-c')">2X</button><button class="ch on" onclick="mb('bet-c')">MAX</button></div>
-<div class="inp"><span>СТАВКА</span><input type="number" id="bet-c" value="100"><span style="color:var(--gold)">$AERO</span></div>
-<button class="btn" id="btn-c" onclick="runCrash()">🚀 СТАРТ (3-2-1)</button>
-</div>
-</main>
-<main id="v-games" class="view">
-<div id="lobby" class="grid">
-<div class="gc w" onclick="og('jet')"><span>✈️</span><div><b>Перехватчик (Хит)</b><br><small>Жми «Лететь», собирай бонусы до x50 или увернись от ПВО</small></div></div>
-<div class="gc" onclick="og('mines')"><span>💣</span><b>Мины</b><small>до x50</small></div>
-<div class="gc" onclick="og('coin')"><span>🪙</span><b>Монетка</b><small>x1.95</small></div>
-<div class="gc" onclick="og('dice')"><span>🎲</span><b>Кости</b><small>x1.95</small></div>
-<div class="gc" onclick="og('wheel')"><span>🎡</span><b>Колесо</b><small>до x15</small></div>
-<div class="gc" onclick="og('hilo')"><span>↕️</span><b>Выше/Ниже</b><small>x1.90</small></div>
-<div class="gc" onclick="og('slots')"><span>🎰</span><b>Слот 777</b><small>до x15</small></div>
-<div class="gc w" onclick="og('boxes')"><span>🎁</span><div><b>Сейфы (1 из 3)</b><br><small>Открой сейф с золотом и забери x2.8</small></div></div>
-</div>
-<div id="mg-jet" class="mg">
-<div class="mgh"><button class="bk" onclick="cg()">← Назад</button><span>✈️ Перехватчик (<b id="j-mult" style="color:var(--gold)">x1.0</b>)</span></div>
-<div class="st"><div class="jb"><span class="js">x1.3</span><span class="js">x1.8</span><span class="js">x2.6</span><span class="js">x4</span><span class="js">x7</span><span class="js">x15</span><span class="js">x50</span></div><div style="font-size:70px;transition:.2s" id="j-ico">✈️</div><div style="font-size:12px;color:var(--dim)" id="j-msg">Сделай ставку и жми «Лететь»!</div></div>
-<div class="box"><div class="inp"><span>СТАВКА</span><input type="number" id="bet-j" value="100"><span style="color:var(--gold)">$AERO</span></div><div class="row"><button class="btn" id="btn-jf" onclick="stepJet()">✈️ ЛЕТЕТЬ</button><button class="btn vio" id="btn-jc" style="display:none" onclick="cashJet()">💰 ЗАБРАТЬ</button></div></div>
-</div>
-<div id="mg-mines" class="mg">
-<div class="mgh"><button class="bk" onclick="cg()">← Назад</button><span>💣 Мины (<b id="m-mult" style="color:var(--gold)">x1.00</b>)</span></div>
-<div class="mg-grid" id="m-grid"></div>
-<div class="box"><div class="row"><button class="ch on" onclick="sm(3,this)">3 мины</button><button class="ch" onclick="sm(5,this)">5 мин</button><button class="ch" onclick="sm(10,this)">10 мин</button></div><div class="inp"><span>СТАВКА</span><input type="number" id="bet-m" value="100"><span style="color:var(--gold)">$AERO</span></div><button class="btn" id="btn-m" onclick="actM()">💎 ИГРАТЬ</button></div>
-</div>
-<div id="mg-coin" class="mg">
-<div class="mgh"><button class="bk" onclick="cg()">← Назад</button><span>🪙 Монетка (x1.95)</span></div>
-<div class="st"><div style="font-size:76px" id="coin-ico">🪙</div><div style="font-size:13px;color:var(--dim)" id="coin-msg">Выбери сторону</div></div>
-<div class="box"><div class="inp"><span>СТАВКА</span><input type="number" id="bet-coin" value="100"><span style="color:var(--gold)">$AERO</span></div><div class="row"><button class="btn" onclick="pCoin(0)">🦅 ОРЕЛ</button><button class="btn red" onclick="pCoin(1)">👑 РЕШКА</button></div></div>
-</div>
-<div id="mg-dice" class="mg">
-<div class="mgh"><button class="bk" onclick="cg()">← Назад</button><span>🎲 Кости (x1.95)</span></div>
-<div class="st"><div style="font-size:58px;font-weight:900;color:var(--gold)" id="dice-val">50</div><div style="font-size:13px;color:var(--dim)" id="dice-msg">Число 1–100. Выбери исход:</div></div>
-<div class="box"><div class="inp"><span>СТАВКА</span><input type="number" id="bet-dice" value="100"><span style="color:var(--gold)">$AERO</span></div><div class="row"><button class="btn" onclick="pDice(0)">Меньше 50</button><button class="btn red" onclick="pDice(1)">Больше 50</button></div></div>
-</div>
-<div id="mg-wheel" class="mg">
-<div class="mgh"><button class="bk" onclick="cg()">← Назад</button><span>🎡 Колесо Удачи</span></div>
-<div class="st"><div style="font-size:76px">🎡</div><div style="font-size:13px;color:var(--dim)" id="wheel-msg">Сектора: x0, x0.5, x1.5, x3, x5, x15</div></div>
-<div class="box"><div class="inp"><span>СТАВКА</span><input type="number" id="bet-wheel" value="100"><span style="color:var(--gold)">$AERO</span></div><button class="btn" onclick="pWheel()">🎡 КРУТИТЬ</button></div>
-</div>
-<div id="mg-hilo" class="mg">
-<div class="mgh"><button class="bk" onclick="cg()">← Назад</button><span>↕️ Выше/Ниже (x1.9)</span></div>
-<div class="st"><div style="font-size:58px;font-weight:900;color:var(--gold)" id="hilo-val">7</div><div style="font-size:13px;color:var(--dim)" id="hilo-msg">Число 1–13. Что дальше?</div></div>
-<div class="box"><div class="inp"><span>СТАВКА</span><input type="number" id="bet-hilo" value="100"><span style="color:var(--gold)">$AERO</span></div><div class="row"><button class="btn" onclick="pHiLo(1)">⬆️ ВЫШЕ</button><button class="btn red" onclick="pHiLo(0)">⬇️ НИЖЕ</button></div></div>
-</div>
-<div id="mg-slots" class="mg">
-<div class="mgh"><button class="bk" onclick="cg()">← Назад</button><span>🎰 Слот 777</span></div>
-<div class="st"><div class="row"><div class="sl" id="s1">💎</div><div class="sl" id="s2">🚀</div><div class="sl" id="s3">💎</div></div><div style="font-size:13px;color:var(--dim)" id="slots-msg">2 = x2 | 3 = x15</div></div>
-<div class="box"><div class="inp"><span>СТАВКА</span><input type="number" id="bet-slots" value="100"><span style="color:var(--gold)">$AERO</span></div><button class="btn" onclick="pSlots()">🎰 КРУТИТЬ</button></div>
-</div>
-<div id="mg-boxes" class="mg">
-<div class="mgh"><button class="bk" onclick="cg()">← Назад</button><span>🎁 Сейфы (x2.8)</span></div>
-<div class="st"><div class="row"><button class="sl" onclick="pBox(0)">🔒</button><button class="sl" onclick="pBox(1)">🔒</button><button class="sl" onclick="pBox(2)">🔒</button></div><div style="font-size:13px;color:var(--dim)" id="boxes-msg">Выбери любой сейф!</div></div>
-<div class="box"><div class="inp"><span>СТАВКА</span><input type="number" id="bet-boxes" value="100"><span style="color:var(--gold)">$AERO</span></div></div>
-</div>
-</main>
-<main id="v-mine" class="view">
-<div style="text-align:center"><span class="tag">ПАССИВ: +<span id="pas-rate">0</span>/Ч</span></div>
-<button class="orb" id="tap-btn"><span style="font-size:64px">🛸</span><span style="font-size:13px;font-weight:900;color:var(--gold)">+<span id="tap-pwr">5</span> за тап</span></button>
-<div class="box">
-<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800"><span>⚡ Энергия</span><span><span id="nrg">1000</span>/<span id="nrg-max">1000</span></span></div>
-<div class="bw"><div class="bf" id="nrg-bar"></div></div>
-<div class="row"><button class="ch" onclick="up('t')">⚡ Сила Ур.<span id="lvl-t">1</span> (<b id="cost-t">250</b>)</button><button class="ch" onclick="up('n')">🛰️ Узел Ур.<span id="lvl-n">0</span> (<b id="cost-n">500</b>)</button></div>
-</div>
-</main>
-<main id="v-drop" class="view">
-<div class="box" style="text-align:center"><h3 style="color:var(--gold)">🪂 AIRDROP $AERO</h3><p style="font-size:12px;color:var(--dim)">Приглашай друзей каждые 12 часов и забирай +5,000 $AERO!</p><button class="btn" id="btn-inv" onclick="inv()">🔥 Пригласить (+5,000)</button></div>
-<div style="display:flex;flex-direction:column;gap:8px;margin:8px 0">
-<div class="soc" onclick="soc('tg',15000,'https://t.me')"><div><b>📢 Канал @aerotap</b><br><small style="color:var(--gold)">+15,000 $AERO</small></div><button class="ch on" style="flex:none;padding:7px 12px" id="t-tg">Перейти</button></div>
-<div class="soc" onclick="soc('yt',15000,'https://youtube.com')"><div><b>📺 YouTube $AERO</b><br><small style="color:var(--gold)">+15,000 $AERO</small></div><button class="ch on" style="flex:none;padding:7px 12px" id="t-yt">Перейти</button></div>
-</div>
-<div class="box"><b style="font-size:12px;color:var(--dim)">🏆 ТОП ПИЛОТОВ</b><div id="top-list"></div></div>
-</main>
-<div class="mod" id="modal"><div class="box" style="width:100%;max-width:290px;text-align:center"><h3>Позывной</h3><input type="text" id="nick-inp" maxlength="15" style="padding:10px;border-radius:10px;border:1px solid var(--gold);background:#000;color:#fff;text-align:center"><button class="btn" onclick="svNick()">Сохранить</button><button class="ch" onclick="clsMod()">Отмена</button></div></div>
-<script>
-var tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null,uid='u'+Math.floor(Math.random()*999999),dn='Pilot';
-if(tg){try{tg.expand();tg.ready();if(tg.initDataUnsafe&&tg.initDataUnsafe.user){uid=tg.initDataUnsafe.user.id;if(tg.initDataUnsafe.user.first_name)dn=tg.initDataUnsafe.user.first_name}}catch(e){}}
-var DB='aero_v16',d=JSON.parse(localStorage.getItem(DB))||{nick:'',bal:1000,nrg:1000,max:1000,pwr:5,tl:1,tc:250,nl:0,nc:500,pas:0,inv:0,tk:{tg:false,yt:false}};
-function sv(){try{localStorage.setItem(DB,JSON.stringify(d))}catch(e){}}
-function gn(){return d.nick?d.nick:dn}
-function al(t){if(tg&&tg.showAlert){try{tg.showAlert(t)}catch(e){alert(t)}}else alert(t)}
-var snd=1,ac=null;
-function togSnd(){snd=!snd;document.getElementById('snd').innerText=snd?'🔊':'🔇';if(snd)pop()}
-function pop(){if(!snd)return;try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();var o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(180,ac.currentTime);o.frequency.exponentialRampToValueAtTime(360,ac.currentTime+.06);g.gain.setValueAtTime(.12,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.07);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.07)}catch(e){}}
-function win(){pop();setTimeout(pop,90)}
-function openMod(){document.getElementById('nick-inp').value=gn();document.getElementById('modal').classList.add('on')}
-function clsMod(){document.getElementById('modal').classList.remove('on')}
-function svNick(){var v=document.getElementById('nick-inp').value.trim();if(v.length>=2){d.nick=v;sv();ren();clsMod()}}
-function go(id,b){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on')});document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});document.getElementById('v-'+id).classList.add('on');if(b)b.classList.add('on');pop()}
-function og(id){document.getElementById('lobby').style.display='none';document.querySelectorAll('.mg').forEach(function(x){x.classList.remove('on')});document.getElementById('mg-'+id).classList.add('on');pop()}
-function cg(){document.querySelectorAll('.mg').forEach(function(x){x.classList.remove('on')});document.getElementById('lobby').style.display='grid';pop()}
-function sb(i,v){document.getElementById(i).value=v;pop()}
-function hb(i){var e=document.getElementById(i);e.value=Math.max(10,Math.floor(Number(e.value)/2))}
-function db(i){var e=document.getElementById(i);e.value=Math.min(Math.floor(d.bal),Math.floor(Number(e.value)*2))}
-function mb(i){document.getElementById(i).value=Math.max(10,Math.floor(d.bal))}
-function tk(i){var b=Math.floor(Number(document.getElementById(i).value));if(b<10||b>d.bal){al('Недостаточно $AERO! Нафарми во вкладке ФАРМ.');return 0}d.bal-=b;sv();ren();return b}
-var fl=0,cd=0,ml=1,cp=1,cb=0,lp=null,pg=0;
-function runCrash(){
-if(cd)return;var btn=document.getElementById('btn-c'),box=document.getElementById('box-crash'),mt=document.getElementById('c-mult'),st=document.getElementById('c-stat');
-if(!fl){
-var b=tk('bet-c');if(!b)return;cb=b;cd=1;document.getElementById('curve').setAttribute('d','M 12 148 Q 12 148 12 148');
-var c=3;st.innerText='ПРИГОТОВЬСЯ К СТАРТУ';mt.style.color='#ffb703';mt.innerText=c;btn.innerText='⏳ '+c+'...';pop();
-var t=setInterval(function(){c--;if(c>0){mt.innerText=c;btn.innerText='⏳ '+c+'...';pop()}else{
-clearInterval(t);cd=0;fl=1;ml=1;pg=0;var r=Math.random();cp=r<.15?1.1+Math.random()*.2:(r<.65?1.3+Math.random()*1.7:(r<.9?3+Math.random()*7:10+Math.random()*35));
-box.classList.add('fly');mt.style.color='#fff';mt.innerText='x1.00';st.innerText='В ПОЛЕТЕ...';btn.classList.add('vio');
-lp=setInterval(function(){ml+=.02+(ml*.015);pg+=.015;var p=Math.min(1,pg),ex=12+p*275,ey=148-Math.pow(p,1.4)*132,cx=12+p*160;
-document.getElementById('curve').setAttribute('d','M 12 148 Q '+cx+' 148 '+ex+' '+ey);mt.innerText='x'+ml.toFixed(2);btn.innerText='💰 ЗАБРАТЬ '+Math.floor(cb*ml).toLocaleString();
-if(ml>=cp){clearInterval(lp);fl=0;box.classList.remove('fly');mt.style.color='#ff0055';st.innerText='💥 УЛЕТЕЛ НА x'+cp.toFixed(2);btn.classList.remove('vio');btn.innerText='🚀 СТАРТ (3-2-1)';ah(cp)}
-},75)}},700);
-}else{clearInterval(lp);fl=0;box.classList.remove('fly');var w=Math.floor(cb*ml);d.bal+=w;mt.style.color='#ffb703';st.innerText='✅ ЗАБРАНО: +'+w.toLocaleString();btn.classList.remove('vio');btn.innerText='🚀 СТАРТ (3-2-1)';ah(ml);win();sv();ren()}}
-function ah(v){var s=document.getElementById('hist'),sp=document.createElement('span');sp.className='hc '+(v<1.5?'l':(v>=5?'w':''));sp.innerText='x'+v.toFixed(2);s.insertBefore(sp,s.firstChild);if(s.children.length>7)s.removeChild(s.lastChild)}
-var ja=0,jb=0,js=0,jm=Array.of(1.3,1.8,2.6,4,7,15,50);
-function stepJet(){var fb=document.getElementById('btn-jf'),cb=document.getElementById('btn-jc'),rs=document.getElementById('j-msg'),sp=document.getElementById('j-ico');if(!ja){var b=tk('bet-j');if(!b)return;jb=b;js=0;ja=1;document.querySelectorAll('.js').forEach(function(x){x.classList.remove('ok')});sp.innerText='✈️';sp.style.transform='translateY(0)'}if(Math.random()<(.22+js*.055)){ja=0;sp.innerText='💥';rs.innerText='💥 ПВО сбило борт!';document.getElementById('j-mult').innerText='x0.0';fb.innerText='✈️ СНОВА';cb.style.display='none'}else{var m=1.3;jm.forEach(function(v,i){if(i===js)m=v});document.querySelectorAll('.js').forEach(function(e,i){if(i===js)e.classList.add('ok')});js++;var w=Math.floor(jb*m);document.getElementById('j-mult').innerText='x'+m.toFixed(1);rs.innerText='⚡ Бонус! Множитель x'+m.toFixed(1);sp.style.transform='translateY(-'+(js*4)+'px) rotate(-'+(js*3)+'deg)';pop();if(js>=7){d.bal+=w;ja=0;rs.innerText='🏆 РЕКОРД x50! +'+w.toLocaleString();fb.innerText='✈️ ВЫЛЕТ';cb.style.display='none';win();sv();ren()}else{fb.innerText='✈️ ДАЛЬШЕ';cb.style.display='block';cb.innerText='💰 ЗАБРАТЬ '+w.toLocaleString()}}}
-function cashJet(){if(!ja||js===0)return;var m=1.3;jm.forEach(function(v,i){if(i===js-1)m=v});var w=Math.floor(jb*m);d.bal+=w;ja=0;document.getElementById('j-msg').innerText='✅ Забрано: +'+w.toLocaleString();document.getElementById('btn-jf').innerText='✈️ ВЫЛЕТ';document.getElementById('btn-jc').style.display='none';win();sv();ren()}
-var mc=3,ma=0,mb2=0,mm=1,mlc=Array.of(),mo=0;
-function sm(c,b){if(ma)return;mc=c;document.querySelectorAll('#mg-mines .ch').forEach(function(x){x.classList.remove('on')});b.classList.add('on');pop()}
-function bm(){var g=document.getElementById('m-grid');g.innerHTML='';for(var i=0;i<25;i++){var c=document.createElement('div');c.className='mc';c.innerText='✦';c.setAttribute('data-i',i);c.onclick=function(){hm(Number(this.getAttribute('data-i')),this)};g.appendChild(c)}}
-function actM(){var b=document.getElementById('btn-m');if(!ma){var bet=tk('bet-m');if(!bet)return;mb2=bet;mm=1;mo=0;ma=1;mlc=Array.of();while(mlc.length<mc){var r=Math.floor(Math.random()*25);if(mlc.indexOf(r)===-1)mlc.push(r)}bm();document.getElementById('m-mult').innerText='x1.00';b.classList.add('vio');b.innerText='💰 ЗАБРАТЬ '+bet.toLocaleString();pop()}else{if(mo===0)return;d.bal+=Math.floor(mb2*mm);ma=0;b.classList.remove('vio');b.innerText='💎 ИГРАТЬ';shm();win();sv();ren()}}
-function hm(i, el) {
-    if (!ma || el.classList.contains('s') || el.classList.contains('b')) return;
-    if (mlc.indexOf(i) !== -1) {
-        el.classList.add('b'); el.innerText = '💥'; ma = 0; shm();
-        var b = document.getElementById('btn-m'); b.classList.remove('vio'); b.innerText = '💎 ИГРАТЬ';
-    } else {
-        el.classList.add('s'); el.innerText = '💎'; mo++;
-        mm = Number((mm * (1 + .14 + mc * .045)).toFixed(2));
-        document.getElementById('m-mult').innerText = 'x' + mm.toFixed(2);
-        document.getElementById('btn-m').innerText = '💰 ЗАБРАТЬ ' + Math.floor(mb2 * mm).toLocaleString(); pop();
-    }
-}
-function shm() {
-    document.querySelectorAll('.mc').forEach(function(c, i) { if (mlc.indexOf(i) !== -1) { c.classList.add('b'); c.innerText = '💣'; } });
-}
-function pCoin(ch) {
-    var b = tk('bet-coin'); if (!b) return;
-    var s = Math.random() < .5 ? 0 : 1; document.getElementById('coin-ico').innerText = s === 0 ? '🦅' : '👑';
-    if (s === ch) { var w = Math.floor(b * 1.95); d.bal += w; document.getElementById('coin-msg').innerText = '✅ Победа! +' + w.toLocaleString(); win(); }
-    else document.getElementById('coin-msg').innerText = '❌ Не угадал!';
-    sv(); ren();
-}
-function pDice(dir) {
-    var b = tk('bet-dice'); if (!b) return;
-    var r = 1 + Math.floor(Math.random() * 100); document.getElementById('dice-val').innerText = r;
-    if ((dir === 0 && r < 50) || (dir === 1 && r > 50)) { var w = Math.floor(b * 1.95); d.bal += w; document.getElementById('dice-msg').innerText = '✅ Выпало ' + r + '! +' + w.toLocaleString(); win(); }
-    else document.getElementById('dice-msg').innerText = '❌ Выпало ' + r;
-    sv(); ren();
-}
-function pWheel() {
-    var b = tk('bet-wheel'); if (!b) return;
-    var r = Math.random(), m = r < .3 ? 0 : (r < .55 ? .5 : (r < .8 ? 1.5 : (r < .93 ? 3 : (r < .99 ? 5 : 15)))), w = Math.floor(b * m);
-    d.bal += w; document.getElementById('wheel-msg').innerText = m > 0 ? '🎉 Сектор x' + m + '! +' + w.toLocaleString() : '💥 Сектор x0!';
-    if (m >= 1.5) win(); sv(); ren();
-}
-var hl = 7;
-function pHiLo(g) {
-    var b = tk('bet-hilo'); if (!b) return;
-    var n = 1 + Math.floor(Math.random() * 13), ok = (g === 1 && n > hl) || (g === 0 && n < hl);
-    document.getElementById('hilo-val').innerText = n; hl = n;
-    if (ok) { var w = Math.floor(b * 1.9); d.bal += w; document.getElementById('hilo-msg').innerText = '✅ Выпало ' + n + '! +' + w.toLocaleString(); win(); }
-    else document.getElementById('hilo-msg').innerText = '❌ Выпало ' + n;
-    sv(); ren();
-}
-function pSlots() {
-    var b = tk('bet-slots'); if (!b) return;
-    var ic = Array.of('💎', '🚀', '⚡', '👑', '🔥');
-    var x1 = Array.from(ic).sort(function() { return .5 - Math.random(); }).pop();
-    var x2 = Array.from(ic).sort(function() { return .5 - Math.random(); }).pop();
-    var x3 = Array.from(ic).sort(function() { return .5 - Math.random(); }).pop();
-    document.getElementById('s1').innerText = x1; document.getElementById('s2').innerText = x2; document.getElementById('s3').innerText = x3;
-    if (x1 === x2 && x2 === x3) { var j = Math.floor(b * 15); d.bal += j; document.getElementById('slots-msg').innerText = '🔥 ДЖЕКПОТ x15! +' + j.toLocaleString(); win(); }
-    else if (x1 === x2 || x2 === x3 || x1 === x3) { var p = Math.floor(b * 2); d.bal += p; document.getElementById('slots-msg').innerText = '✅ Пара x2! +' + p.toLocaleString(); win(); }
-    else document.getElementById('slots-msg').innerText = '❌ Пусто!';
-    sv(); ren();
-}
-function pBox(ch) {
-    var b = tk('bet-boxes'); if (!b) return;
-    var pz = Math.floor(Math.random() * 3), all = document.querySelectorAll('#mg-boxes .sl');
-    all.forEach(function(x, i) { x.innerText = i === pz ? '💰' : '💨'; });
-    if (ch === pz) { var w = Math.floor(b * 2.8); d.bal += w; document.getElementById('boxes-msg').innerText = '🎉 Золото! +' + w.toLocaleString(); win(); }
-    else document.getElementById('boxes-msg').innerText = '❌ Пусто!';
-    sv(); ren(); setTimeout(function() { all.forEach(function(x) { x.innerText = '🔒'; }); }, 900);
-}
-document.getElementById('tap-btn').addEventListener('pointerdown', function(e) {
-    if (d.nrg >= d.pwr) {
-        d.bal += d.pwr; d.nrg -= d.pwr; pop();
-        var n = document.createElement('div'); n.className = 'pop'; n.innerText = '+' + d.pwr;
-        n.style.left = e.clientX + 'px'; n.style.top = (e.clientY - 20) + 'px'; document.body.appendChild(n);
-        setTimeout(function() { n.remove(); }, 700); sv(); ren();
-    }
-});
-function up(t) { if (t === 't' && d.bal >= d.tc) { d.bal -= d.tc; d.tl++; d.pwr += 5; d.tc = Math.floor(d.tc * 2); win(); } else if (t === 'n' && d.bal >= d.nc) { d.bal -= d.nc; d.nl++; d.pas += 1200; d.nc = Math.floor(d.nc * 2.2); win(); } sv(); ren(); }
-function fcd(ms) { var s = Math.ceil(ms / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return h + 'ч ' + m + 'м ' + (s % 60) + 'с'; }
-function inv() { var now = Date.now(), lk = 'https://t.me' + uid, tx = '🔥 Залетай в $AERO! 8 мини-игр и Airdrop до листинга!', u = 'https://t.me' + encodeURIComponent(lk) + '&text=' + encodeURIComponent(tx); if ((d.inv + 43200000) - now <= 0) { d.inv = now; d.bal += 5000; win(); sv(); ren(); } if (tg && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, '_blank'); }
-function soc(id, rw, u) { if (!d.tk[id]) { d.tk[id] = true; d.bal += rw; win(); sv(); ren(); } if (tg && u.indexOf('https://t.me') === 0 && tg.openTelegramLink) tg.openTelegramLink(u); else if (tg && tg.openLink) tg.openLink(u); else window.open(u, '_blank'); }
-function ren() {
-    var now = Date.now(); document.getElementById('uname').innerText = gn(); document.getElementById('ava').innerText = gn().charAt(0).toUpperCase(); document.getElementById('bal').innerText = Math.floor(d.bal).toLocaleString();
-    document.getElementById('pas-rate').innerText = d.pas.toLocaleString(); document.getElementById('tap-pwr').innerText = d.pwr; document.getElementById('nrg').innerText = Math.floor(d.nrg); document.getElementById('nrg-max').innerText = d.max; document.getElementById('nrg-bar').style.width = ((d.nrg / d.max) * 100) + '%';
-    document.getElementById('lvl-t').innerText = d.tl; document.getElementById('cost-t').innerText = d.tc.toLocaleString(); document.getElementById('lvl-n').innerText = d.nl; document.getElementById('cost-n').innerText = d.nc.toLocaleString();
-    var ib = document.getElementById('btn-inv'), lf = (d.inv + 43200000) - now; if (ib) ib.innerText = lf > 0 ? '⏳ Бонус через ' + fcd(lf) : '🔥 Пригласить (+5,000)';
-    if (d.tk.tg) document.getElementById('t-tg').innerText = 'OK ✅'; if (d.tk.yt) document.getElementById('t-yt').innerText = 'OK ✅';
-    var ld = Array.of({ n: 'Whale_TON 🐋', s: 420000 }, { n: 'Eclipse_Pro', s: 185000 }, { n: gn() + ' (Вы)', s: Math.floor(d.bal) }, { n: 'AeroJet', s: 45000 }); ld.sort(function(a, b) { return b.s - a.s; });
-    var h = ''; ld.forEach(function(l, i) { h += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #262936"><span>#' + (i + 1) + ' ' + l.n + '</span><b style="color:var(--gold)">' + l.s.toLocaleString() + ' $AERO</b></div>'; });
-    document.getElementById('top-list').innerHTML = h;
-}
-setInterval(function() { if (d.nrg < d.max) d.nrg = Math.min(d.max, d.nrg + 5); if (d.pas > 0) d.bal += (d.pas / 3600); sv(); ren(); }, 1000);
-bm(); ren();
-</script>
+  <div id="toast" class="toast"></div>
+  <header class="hdr">
+    <div><b id="userName">Пилот</b><small id="userRank">Кадет</small></div>
+    <div class="prof"><small>Майнинг/ч</small><b>+<span id="profitPerHour">0</span> $AERO</b></div>
+  </header>
+
+  <main class="cnt">
+    <section id="tab-flight" class="pane active">
+      <div class="bal"><small>БАЛАНС ДО ЛИСТИНГА</small><h1>✈️ <span id="balanceDisplay">0</span></h1></div>
+      <div class="tap" id="tapZone"><span>🛩️</span></div>
+      <div class="box">
+        <div class="row"><span>⚡ Топливо</span><span><b id="energyVal">500</b>/<span id="maxEnergyVal">500</span></span></div>
+        <div class="bar"><div class="fill" id="energyFill"></div></div>
+      </div>
+    </section>
+
+    <section id="tab-arcade" class="pane">
+      <h3>🚀 Набор высоты</h3>
+      <div class="box center">
+        <div class="sky" id="crashScreen"><div id="crashPlane">✈️</div><b id="crashMult">1.00x</b><small id="crashStatus">Готов к взлету</small></div>
+        <div class="row gap">
+          <input type="number" id="crashBet" value="50" min="10" step="10">
+          <button class="btn gold" id="btnCrash" onclick="toggleCrash()">Взлет (50)</button>
+        </div>
+      </div>
+
+      <h3>☁️ Разведка в облаках</h3>
+      <div class="box center">
+        <div class="grid" id="minesGrid"></div>
+        <div class="row gap">
+          <button class="btn" id="btnMinesStart" onclick="startMines()">Старт (50)</button>
+          <button class="btn gold" id="btnMinesTake" onclick="takeMines()" disabled>Забрать: 0</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-hangar" class="pane">
+      <h3>🛠️ Улучшения</h3>
+      <div class="card"><div><b>Турбина (Ур.<span id="lvlTap">1</span>)</b><small>+1 к клику</small></div><button class="btn" id="btnTap" onclick="buy('tap')">100</button></div>
+      <div class="card"><div><b>Топливный бак (Ур.<span id="lvlEnergy">1</span>)</b><small>+250 топлива</small></div><button class="btn" id="btnEnergy" onclick="buy('energy')">150</button></div>
+      <div class="card"><div><b>Дрон (Ур.<span id="lvlDrone">0</span>)</b><small>+120 $AERO/ч</small></div><button class="btn" id="btnDrone" onclick="buy('drone')">250</button></div>
+      <div class="card"><div><b>Лайнер (Ур.<span id="lvlLiner">0</span>)</b><small>+600 $AERO/ч</small></div><button class="btn" id="btnLiner" onclick="buy('liner')">1000</button></div>
+    </section>
+
+    <section id="tab-missions" class="pane">
+      <h3>🎯 Задания</h3>
+      <div class="card"><div><b>Пригласить друга</b><small>+500 $AERO (КД 12ч)</small></div><button class="btn gold" onclick="invite()">Звать</button></div>
+      <div class="card"><div><b>Ежедневный бонус</b><small>+300 $AERO раз в 24ч</small></div><button class="btn" onclick="daily()">Забрать</button></div>
+      <div class="card"><div><b>Канал $AERO</b><small>+500 $AERO за подписку</small></div><button class="btn" id="btnTg" onclick="social('https://t.me')">Перейти</button></div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <div class="ni active" onclick="tab('flight',this)">🛫<span>Полет</span></div>
+    <div class="ni" onclick="tab('arcade',this)">🕹️<span>Аркада</span></div>
+    <div class="ni" onclick="tab('hangar',this)">🛠️<span>Ангар</span></div>
+    <div class="ni" onclick="tab('missions',this)">🎯<span>Миссии</span></div>
+  </nav>
+  <script src="script.js"></script>
 </body>
 </html>
