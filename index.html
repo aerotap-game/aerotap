@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AeroTap — $AERO Empire</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -27,7 +27,8 @@
     <div id="tab-fly" class="tab-content active">
         <div class="top-actions">
             <button class="action-pill" onclick="claimDaily()">🎁 Бонус дня</button>
-            <button class="action-pill" onclick="openCipher()">🔐 Код рейса</button>
+            <button class="action-pill" id="cupcake-btn" onclick="eatCupcake()">🧁 Кекс</button>
+            <button class="action-pill" onclick="openCipher()">🔐 Код</button>
         </div>
 
         <div class="balance-container">
@@ -114,16 +115,16 @@
         <div class="friends-header">
             <div style="font-size: 48px;">👨‍✈️</div>
             <h2>Твоя Эскадрилья</h2>
-            <p class="airdrop-desc">Приглашай друзей в AeroTap и получай <b>+10,000 $AERO</b> за каждого нового пилота!</p>
+            <p class="airdrop-desc">Отправляй приглашение друзьям раз в 12 часов и получай <b>+10,000 $AERO</b> за вылет!</p>
         </div>
 
         <div class="stats-summary" style="width: 100%; text-align: center;">
-            <div>Приглашено пилотов: <b id="ref-count" style="color: var(--accent);">0</b></div>
-            <div>Заработано с друзей: <b id="ref-earned" style="color: var(--gold);">0 $AERO</b></div>
+            <div>Отправлено приглашений: <b id="ref-count" style="color: var(--accent);">0</b></div>
+            <div>Заработано на друзьях: <b id="ref-earned" style="color: var(--gold);">0 $AERO</b></div>
         </div>
 
         <div class="ref-actions">
-            <button class="wallet-btn" onclick="inviteFriend()">🚀 Пригласить друга</button>
+            <button class="wallet-btn" id="invite-btn" onclick="inviteFriend()">🚀 Пригласить друга (+10,000)</button>
             <button class="copy-btn" onclick="copyRefLink()">📋 Скопировать ссылку</button>
         </div>
     </div>
@@ -134,10 +135,18 @@
             <div class="airdrop-icon">🪂</div>
             <h2>Листинг токена $AERO</h2>
             <p class="airdrop-desc">
-                Подписывайся на наши соцсети, качай прибыль в час и поднимайся в Топ пилотов.
+                Подписывайся на наши каналы, крути штурвал удачи и готовься к дропу в сети TON.
             </p>
             
             <div class="tasks-list">
+                <div class="upgrade-card">
+                    <div class="upgrade-info">
+                        <h4>🎰 Штурвал Удачи</h4>
+                        <p>Выиграй до +50,000 $AERO</p>
+                    </div>
+                    <button class="buy-btn" id="spin-btn" onclick="spinWheel()">Крутить</button>
+                </div>
+
                 <div class="upgrade-card">
                     <div class="upgrade-info">
                         <h4>📢 Канал @aerotap</h4>
@@ -145,12 +154,13 @@
                     </div>
                     <button class="buy-btn" id="task-tg" onclick="completeTask('tg', 15000, 'https://t.me')">Забрать</button>
                 </div>
+
                 <div class="upgrade-card">
                     <div class="upgrade-info">
                         <h4>📺 Наш YouTube канал</h4>
                         <p>Награда: +15,000 $AERO</p>
                     </div>
-                    <button class="buy-btn" id="task-yt" onclick="completeTask('yt', 15000, 'https://www.youtube.com/channel/UCbmPiToX_wAFhO58WQr8FTg/posts?pvf=CAE%253D')">Забрать</button>
+                    <button class="buy-btn" id="task-yt" onclick="completeTask('yt', 15000, 'https://youtube.com')">Забрать</button>
                 </div>
             </div>
 
@@ -181,6 +191,6 @@
         </button>
     </div>
 
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html>
