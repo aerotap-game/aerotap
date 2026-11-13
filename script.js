@@ -69,36 +69,102 @@ function getPilotName() {
     return (state.customName && state.customName.trim().length > 0) ? state.customName.trim() : tgFirstName;
 }
 
+function createDynamicModal(id, title, subtitle, placeholder, btnText, onConfirm) {
+    var existing = document.getElementById(id);
+    if (existing) existing.remove();
+
+    var overlay = document.createElement('div');
+    overlay.id = id;
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,8,15,0.9);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+
+    var box = document.createElement('div');
+    box.style.cssText = 'width:100%;max-width:330px;background:#151c2c;border:2px solid #00d2ff;border-radius:20px;padding:20px;text-align:center;color:#fff;';
+
+    var h3 = document.createElement('h3');
+    h3.innerText = title;
+
+    var p = document.createElement('p');
+    p.innerText = subtitle;
+    p.style.cssText = 'font-size:12px;color:#8a99ad;margin-top:6px;';
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = placeholder;
+    input.maxLength = 16;
+    input.style.cssText = 'width:100%;margin-top:14px;padding:12px;border-radius:12px;border:1px solid #00d2ff;background:#0b0f19;color:#fff;font-size:16px;outline:none;text-align:center;';
+
+    var okBtn = document.createElement('button');
+    okBtn.innerText = btnText;
+    okBtn.style.cssText = 'margin-top:12px;width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(90deg,#ffcc00,#ff9900);color:#000;font-weight:800;font-size:15px;cursor:pointer;';
+    okBtn.onclick = function() {
+        onConfirm(input.value, overlay);
+    };
+
+    var cancelBtn = document.createElement('button');
+    cancelBtn.innerText = 'Закрыть';
+    cancelBtn.style.cssText = 'margin-top:8px;width:100%;padding:11px;border-radius:12px;border:1px solid rgba(0,210,255,0.4);background:rgba(0,210,255,0.1);color:#00d2ff;font-weight:700;font-size:14px;cursor:pointer;';
+    cancelBtn.onclick = function() { overlay.remove(); };
+
+    box.appendChild(h3);
+    box.appendChild(p);
+    box.appendChild(input);
+    box.appendChild(okBtn);
+    box.appendChild(cancelBtn);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    setTimeout(function() { input.focus(); }, 100);
+}
+
 function openNameModal() {
-    var modal = document.getElementById('name-modal');
-    var input = document.getElementById('name-input');
-    if (input) input.value = getPilotName();
-    if (modal) modal.style.display = 'flex';
-}
-
-function closeNameModal() {
-    var modal = document.getElementById('name-modal');
-    if (modal) modal.style.display = 'none';
-}
-
-function saveNewName() {
-    var input = document.getElementById('name-input');
-    if (!input) return;
-    var cleaned = input.value.trim().slice(0, 16);
-    if (cleaned.length >= 2) {
-        state.customName = cleaned;
-        saveState();
-        updateUI();
-        closeNameModal();
-        if (tg && tg.HapticFeedback) {
-            try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+    createDynamicModal(
+        'dyn-name-modal',
+        '👨‍✈️ Позывной пилота',
+        'Введи имя, которое увидят все игроки в Топе:',
+        getPilotName(),
+        'Сохранить имя',
+        function(val, overlay) {
+            var cleaned = val.trim().slice(0, 16);
+            if (cleaned.length >= 2) {
+                state.customName = cleaned;
+                saveState();
+                updateUI();
+                overlay.remove();
+                showMsg('✅ Позывной изменен на: ' + cleaned);
+            } else {
+                showMsg('❌ Введи хотя бы 2 символа!');
+            }
         }
-        showMsg('✅ Позывной изменен на: ' + cleaned);
-    } else {
-        showMsg('❌ Введи хотя бы 2 символа!');
-    }
+    );
 }
+var changePilotName = openNameModal;
 
+function openCipherModal() {
+    if (state.cipherClaimed) {
+        showMsg('Секретный код этого рейса уже активирован!');
+        return;
+    }
+    createDynamicModal(
+        'dyn-cipher-modal',
+        '🔐 Секретный код рейса',
+        'Ищи код дня в канале @aerotap (подсказка: AERO)',
+        'Введи код...',
+        'Активировать (+25,000)',
+        function(val, overlay) {
+            var code = val.trim().toUpperCase();
+            if (code === 'AERO') {
+                state.cipherClaimed = true;
+                state.balance += 25000;
+                saveState();
+                updateUI();
+                overlay.remove();
+                showMsg('🔓 Код принят! На твой счет зачислено +25,000 $AERO!');
+            } else {
+                showMsg('❌ Неверный код! Ищи актуальный шифр в канале @aerotap.');
+            }
+        }
+    );
+}
+var openCipher = openCipherModal;
 var rivals = Array.of(
     { name: 'Captain_TON', rank: 'Космонавт $AERO', score: 850000 },
     { name: 'SkyWalker_99', rank: 'Ас Истребитель', score: 420000 },
@@ -156,6 +222,7 @@ function formatTimeLeft(ms) {
     if (mins > 0) return mins + 'м ' + secs + 'с';
     return secs + 'с';
 }
+
 function checkOfflineEarnings() {
     if (state.profitPerHour > 0 && state.lastExitTime) {
         var now = Date.now();
@@ -308,334 +375,6 @@ function updateUI() {
     renderLeaderboard(currentRank.title);
     saveState();
 }
-function handleTap(x, y) {
-    var turboMult = isTurbo ? 5 : 1;
-    var vipMult = state.isVip ? 2 : 1;
-    var gain = state.tapPower * turboMult * vipMult;
-
-    if (isTurbo || state.fuel >= state.tapPower) {
-        comboStreak++;
-        var label = '+' + gain;
-        if (comboStreak >= 50) {
-            gain = gain * 10;
-            label = '🔥 КРИТ +' + gain;
-            comboStreak = 0;
-        }
-        state.balance += gain;
-        state.totalTaps += 1;
-        if (!isTurbo) state.fuel -= state.tapPower;
-        if (tg && tg.HapticFeedback) {
-            try { tg.HapticFeedback.impactOccurred(isTurbo ? 'heavy' : 'medium'); } catch (e) {}
-        }
-        createFloatingText(x, y, label);
-        updateUI();
-    } else if (tg && tg.HapticFeedback) {
-        try { tg.HapticFeedback.notificationOccurred('error'); } catch (e) {}
-    }
-}
-
-var planeBtn = document.getElementById('plane-btn');
-if (planeBtn) {
-    planeBtn.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        Array.from(e.changedTouches).forEach(function(t) {
-            handleTap(t.clientX, t.clientY);
-        });
-    }, { passive: false });
-
-    planeBtn.addEventListener('mousedown', function(e) {
-        handleTap(e.clientX, e.clientY);
-    });
-}
-
-function createFloatingText(x, y, text) {
-    var el = document.createElement('div');
-    el.className = 'floating-text';
-    el.innerText = text;
-    el.style.left = (x - 20) + 'px';
-    el.style.top = (y - 30) + 'px';
-    document.body.appendChild(el);
-    setTimeout(function() { el.remove(); }, 800);
-}
-
-function eatCupcake() {
-    var now = Date.now();
-    var left = (state.lastCupcakeTime + 10800000) - now;
-    if (left > 0) {
-        showMsg('🧁 Печь еще греется! Новый космо-кекс будет готов через ' + formatTimeLeft(left));
-        return;
-    }
-    state.lastCupcakeTime = now;
-    state.fuel = state.maxFuel;
-    var bonus = 1500 + Math.floor(Math.random() * 2500);
-    state.balance += bonus;
-    if (tg && tg.HapticFeedback) {
-        try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-    }
-    showMsg('🧁 Вкуснятина! Топливо восстановлено на 100%, а внутри кекса найдено +' + bonus.toLocaleString() + ' $AERO!');
-    updateUI();
-}
-
-function getRandomPrize() {
-    var roll = Math.random();
-    if (roll < 0.25) return 1000;
-    if (roll < 0.50) return 2000;
-    if (roll < 0.72) return 3500;
-    if (roll < 0.88) return 5000;
-    if (roll < 0.96) return 10000;
-    if (roll < 0.99) return 15000;
-    return 25000;
-}
-
-function openCaseModal() {
-    var now = Date.now();
-    var left = (state.lastSpinTime + 21600000) - now;
-    if (left > 0) {
-        showMsg('🎁 Следующий кейс будет доступен через ' + formatTimeLeft(left));
-        return;
-    }
-
-    state.lastSpinTime = now;
-    saveState();
-
-    var modal = document.getElementById('case-modal');
-    var track = document.getElementById('roulette-track');
-    var resultEl = document.getElementById('case-result');
-    var closeBtn = document.getElementById('case-close-btn');
-
-    modal.style.display = 'flex';
-    closeBtn.style.display = 'none';
-    resultEl.innerText = 'Раскручиваем барабан...';
-    track.style.transition = 'none';
-    track.style.transform = 'translateX(0px)';
-
-    var winIndex = 24;
-    var wonAmount = 3500;
-    var html = '';
-
-    for (var i = 0; i < 30; i++) {
-        var val = getRandomPrize();
-        if (i === winIndex) wonAmount = val;
-        var isJackpot = val >= 15000 ? 'jackpot' : '';
-        var icon = val >= 15000 ? '💎' : '🪙';
-        html += '<div class="roulette-item ' + isJackpot + '">' + icon + '<br>+' + val.toLocaleString() + '</div>';
-    }
-    track.innerHTML = html;
-
-    setTimeout(function() {
-        track.style.transition = 'transform 3.8s cubic-bezier(0.12, 0.85, 0.2, 1)';
-        var offset = (winIndex * 92) + 42;
-        track.style.transform = 'translateX(-' + offset + 'px)';
-    }, 50);
-
-    setTimeout(function() {
-        state.balance += wonAmount;
-        if (tg && tg.HapticFeedback) {
-            try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-        }
-        resultEl.innerText = '🎉 Твой выигрыш: +' + wonAmount.toLocaleString() + ' $AERO!';
-        closeBtn.style.display = 'block';
-        updateUI();
-    }, 4000);
-}
-
-function closeCaseModal() {
-    document.getElementById('case-modal').style.display = 'none';
-}
-
-function spawnDrone() {
-    var drone = document.getElementById('bonus-drone');
-    if (!drone) return;
-    drone.style.display = 'flex';
-    setTimeout(function() { drone.style.display = 'none'; }, 4000);
-}
-
-function catchDrone() {
-    document.getElementById('bonus-drone').style.display = 'none';
-    var reward = 400 + Math.floor(Math.random() * 450);
-    state.balance += reward;
-    if (tg && tg.HapticFeedback) {
-        try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-    }
-    showMsg('🛸 Груз перехвачен! Награда: +' + reward.toLocaleString() + ' $AERO!');
-    updateUI();
-}
-
-setInterval(spawnDrone, 90000);
-
-function activateTurbo() {
-    if (isTurbo || turboCooldown > 0) return;
-    isTurbo = true;
-    document.body.classList.add('turbo-active');
-    var btn = document.getElementById('turbo-btn');
-    btn.disabled = true;
-
-    var timeLeft = 15;
-    document.getElementById('turbo-status').innerText = timeLeft + 'с';
-
-    var turboTimer = setInterval(function() {
-        timeLeft--;
-        if (timeLeft > 0) {
-            document.getElementById('turbo-status').innerText = timeLeft + 'с';
-        } else {
-            clearInterval(turboTimer);
-            isTurbo = false;
-            document.body.classList.remove('turbo-active');
-            startTurboCooldown();
-        }
-    }, 1000);
-}
-
-function startTurboCooldown() {
-    turboCooldown = 45;
-    var btn = document.getElementById('turbo-btn');
-    var cdTimer = setInterval(function() {
-        turboCooldown--;
-        if (turboCooldown > 0) {
-            document.getElementById('turbo-status').innerText = 'ЗАРЯДКА ' + turboCooldown + 'с';
-        } else {
-            clearInterval(cdTimer);
-            btn.disabled = false;
-            document.getElementById('turbo-status').innerText = 'ГОТОВ';
-        }
-    }, 1000);
-}
-
-function claimDaily() {
-    var today = new Date().toDateString();
-    if (state.lastDaily === today) {
-        showMsg('Ты уже забрал сегодняшний бонус пилота! Возвращайся завтра.');
-        return;
-    }
-    state.lastDaily = today;
-    state.balance += 5000;
-    if (tg && tg.HapticFeedback) {
-        try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-    }
-    showMsg('🎁 Получен ежедневный бонус пилота: +5,000 $AERO!');
-    updateUI();
-}
-
-function openCipherModal() {
-    if (state.cipherClaimed) {
-        showMsg('Секретный код этого рейса уже активирован!');
-        return;
-    }
-    var modal = document.getElementById('cipher-modal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function closeCipherModal() {
-    var modal = document.getElementById('cipher-modal');
-    if (modal) modal.style.display = 'none';
-}
-
-function submitCipher() {
-    var input = document.getElementById('cipher-input');
-    if (!input) return;
-    var code = input.value.trim().toUpperCase();
-    if (code === 'AERO') {
-        state.cipherClaimed = true;
-        state.balance += 25000;
-        saveState();
-        updateUI();
-        closeCipherModal();
-        if (tg && tg.HapticFeedback) {
-            try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-        }
-        showMsg('🔓 Код принят! На твой счет зачислено +25,000 $AERO!');
-    } else {
-        showMsg('❌ Неверный код! Ищи актуальный шифр в канале @aerotap.');
-    }
-}
-
-function inviteFriend() {
-    var now = Date.now();
-    var refLink = 'https://t.me' + BOT_USERNAME + '?start=' + userId;
-    var promoText = '🔥 Залетай в AeroTap по моей ссылке и забирай +250 $AERO бонусом до листинга токена!';
-    var nativeShare = 'tg://msg_url?url=' + encodeURIComponent(refLink) + '&text=' + encodeURIComponent(promoText);
-
-    if (now - state.lastInviteTime >= 43200000) {
-        state.lastInviteTime = now;
-        state.refCount += 1;
-        state.refEarned += 10000;
-        state.balance += 10000;
-        if (tg && tg.HapticFeedback) {
-            try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-        }
-        updateUI();
-    }
-
-    window.location.href = nativeShare;
-}
-
-function copyRefLink() {
-    var refLink = 'https://t.me' + BOT_USERNAME + '?start=' + userId;
-    var fullMessage = '🔥 Залетай в AeroTap по моей ссылке и забирай +250 $AERO бонусом до листинга токена!\n👉 ' + refLink;
-    var tempInput = document.createElement('textarea');
-    tempInput.value = fullMessage;
-    tempInput.style.position = 'fixed';
-    tempInput.style.left = '-9999px';
-    document.body.appendChild(tempInput);
-    tempInput.focus();
-    tempInput.select();
-    try {
-        document.execCommand('copy');
-        showMsg('📋 Приглашение скопировано! Отправь его другу:\n\n' + fullMessage);
-    } catch (err) {
-        showMsg(fullMessage);
-    }
-    document.body.removeChild(tempInput);
-}
-
-function completeTask(taskId, reward, url) {
-    if (!state.tasks) state.tasks = {};
-    if (!state.tasks[taskId]) {
-        state.tasks[taskId] = true;
-        state.balance += reward;
-        if (tg && tg.HapticFeedback) {
-            try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-        }
-        updateUI();
-    }
-
-    setTimeout(function() {
-        if (taskId === 'tg') {
-            window.location.href = 'tg://resolve?domain=' + CHANNEL_USERNAME;
-        } else if (tg && tg.openLink) {
-            tg.openLink(url);
-        } else {
-            window.open(url, '_blank');
-        }
-    }, 300);
-}
-
-function buyUpgrade(type) {
-    if (type === 'tap' && state.balance >= state.tapCost) {
-        state.balance -= state.tapCost;
-        state.tapLevel++;
-state.tapPower += 2;
-state.tapCost = Math.floor(state.tapCost * 1.85);
-} else if (type === 'fuel' && state.balance >= state.fuelCost) {
-state.balance -= state.fuelCost;
-state.fuelLevel++;
-state.maxFuel += 500;
-state.fuel = state.maxFuel;
-state.fuelCost = Math.floor(state.fuelCost * 1.85);
-}
-if (tg && tg.HapticFeedback) {
-try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-}
-updateUI();
-}
-function buyCard(id) {
-var card = state.cards[id];
-if (state.balance >= card.cost) {
-state.balance -= card.cost;
-card.level++;
-state.profitPerHour += card.profit;
-card.cost = Math.floor(card.cost * 1.65);
-card.profit = Math.floor(card.profit * 1.25);
 if (tg && tg.HapticFeedback) {
 try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
 }
