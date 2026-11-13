@@ -1,11 +1,12 @@
-const tg = window.Telegram.WebApp;
-tg.expand();
-tg.ready();
-
-if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-    const user = tg.initDataUnsafe.user;
-    document.getElementById('pilot-name').innerText = user.first_name || 'Пилот';
-    document.getElementById('avatar').innerText = (user.first_name || 'A').toUpperCase();
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if (tg) {
+    tg.expand();
+    tg.ready();
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        const user = tg.initDataUnsafe.user;
+        document.getElementById('pilot-name').innerText = user.first_name || 'Пилот';
+        document.getElementById('avatar').innerText = (user.first_name || 'A').toUpperCase();
+    }
 }
 
 let state = JSON.parse(localStorage.getItem('aerotap_save')) || {
@@ -52,7 +53,7 @@ function updateUI() {
     document.getElementById('cost-auto').innerText = state.autoCost.toLocaleString();
     document.getElementById('btn-buy-auto').disabled = state.balance < state.autoCost;
 
-    let currentRank = ranks;
+    let currentRank = ranks[0];
     for (let r of ranks) {
         if (state.balance >= r.min) currentRank = r;
     }
@@ -63,24 +64,39 @@ function updateUI() {
     localStorage.setItem('aerotap_save', JSON.stringify(state));
 }
 
-const planeBtn = document.getElementById('plane-btn');
-
-planeBtn.addEventListener('pointerdown', (e) => {
+// Универсальная функция тапа (работает и на iPhone, и на Android, и на Mac)
+function handleTap(x, y) {
     if (state.fuel >= state.tapPower) {
         state.balance += state.tapPower;
         state.fuel -= state.tapPower;
 
-        if (tg.HapticFeedback) {
+        if (tg && tg.HapticFeedback) {
             tg.HapticFeedback.impactOccurred('medium');
         }
 
-        createFloatingText(e.clientX, e.clientY, `+${state.tapPower}`);
+        createFloatingText(x, y, `+${state.tapPower}`);
         updateUI();
     } else {
-        if (tg.HapticFeedback) {
+        if (tg && tg.HapticFeedback) {
             tg.HapticFeedback.notificationOccurred('error');
         }
     }
+}
+
+const planeBtn = document.getElementById('plane-btn');
+
+// Поддержка мультитача на телефонах
+planeBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        handleTap(touch.clientX, touch.clientY);
+    }
+}, { passive: false });
+
+// Поддержка клика мышкой на компьютере
+planeBtn.addEventListener('mousedown', (e) => {
+    handleTap(e.clientX, e.clientY);
 });
 
 function createFloatingText(x, y, text) {
@@ -112,7 +128,7 @@ function buyUpgrade(type) {
         state.autoCost = Math.floor(state.autoCost * 2);
     }
 
-    if (tg.HapticFeedback) {
+    if (tg && tg.HapticFeedback) {
         tg.HapticFeedback.notificationOccurred('success');
     }
     updateUI();
@@ -127,7 +143,11 @@ function switchTab(tabName, btn) {
 }
 
 function connectWallet() {
-    tg.showAlert('Модуль TON Connect будет активирован перед листингом токена $AERO!');
+    if (tg) {
+        tg.showAlert('Модуль TON Connect будет активирован перед листингом токена $AERO!');
+    } else {
+        alert('Модуль TON Connect будет активирован перед листингом токена $AERO!');
+    }
 }
 
 setInterval(() => {
