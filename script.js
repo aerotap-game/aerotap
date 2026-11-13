@@ -54,8 +54,10 @@ function updateUI() {
     document.getElementById('btn-buy-auto').disabled = state.balance < state.autoCost;
 
     let currentRank = ranks[0];
-    for (let r of ranks) {
-        if (state.balance >= r.min) currentRank = r;
+    for (let i = 0; i < ranks.length; i++) {
+        if (state.balance >= ranks[i].min) {
+            currentRank = ranks[i];
+        }
     }
     document.getElementById('pilot-rank').innerText = 'Ранг: ' + currentRank.title;
     document.getElementById('plane-icon').innerText = currentRank.icon;
@@ -64,7 +66,6 @@ function updateUI() {
     localStorage.setItem('aerotap_save', JSON.stringify(state));
 }
 
-// Универсальная функция тапа (работает и на iPhone, и на Android, и на Mac)
 function handleTap(x, y) {
     if (state.fuel >= state.tapPower) {
         state.balance += state.tapPower;
@@ -74,7 +75,7 @@ function handleTap(x, y) {
             tg.HapticFeedback.impactOccurred('medium');
         }
 
-        createFloatingText(x, y, `+${state.tapPower}`);
+        createFloatingText(x, y, '+' + state.tapPower);
         updateUI();
     } else {
         if (tg && tg.HapticFeedback) {
@@ -85,8 +86,7 @@ function handleTap(x, y) {
 
 const planeBtn = document.getElementById('plane-btn');
 
-// Поддержка мультитача на телефонах
-planeBtn.addEventListener('touchstart', (e) => {
+planeBtn.addEventListener('touchstart', function(e) {
     e.preventDefault();
     for (let i = 0; i < e.changedTouches.length; i++) {
         const touch = e.changedTouches[i];
@@ -94,8 +94,7 @@ planeBtn.addEventListener('touchstart', (e) => {
     }
 }, { passive: false });
 
-// Поддержка клика мышкой на компьютере
-planeBtn.addEventListener('mousedown', (e) => {
+planeBtn.addEventListener('mousedown', function(e) {
     handleTap(e.clientX, e.clientY);
 });
 
@@ -106,7 +105,7 @@ function createFloatingText(x, y, text) {
     el.style.left = (x - 20) + 'px';
     el.style.top = (y - 30) + 'px';
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 800);
+    setTimeout(function() { el.remove(); }, 800);
 }
 
 function buyUpgrade(type) {
@@ -135,8 +134,8 @@ function buyUpgrade(type) {
 }
 
 function switchTab(tabName, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
     
     document.getElementById('tab-' + tabName).classList.add('active');
     btn.classList.add('active');
@@ -150,7 +149,7 @@ function connectWallet() {
     }
 }
 
-setInterval(() => {
+setInterval(function() {
     if (state.fuel < state.maxFuel) {
         state.fuel = Math.min(state.maxFuel, state.fuel + 3);
     }
