@@ -7,255 +7,142 @@
   <script src="https://telegram.org"></script>
   <script src="https://adsgram.ai"></script>
   <style>
-    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
     body { margin: 0; background: #0b0f17; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-    .header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; background: #131a26; border-bottom: 1px solid #1f293a; font-weight: 600; font-size: 14px; }
+    .header { padding: 12px 16px; display: flex; justify-content: space-between; background: #131a26; border-bottom: 1px solid #1f293a; font-weight: 600; font-size: 13px; }
     .rank { color: #38bdf8; }
-    .stats-bar { display: flex; justify-content: space-around; background: #131a26; padding: 8px 12px; border-bottom: 1px solid #1f293a; font-size: 12px; }
-    .stat-item { text-align: center; }
-    .stat-label { color: #94a3b8; margin-bottom: 2px; }
-    .stat-val { color: #38bdf8; font-weight: 700; font-size: 14px; }
-    .balance-box { text-align: center; margin-top: 14px; }
-    .balance-label { font-size: 11px; color: #94a3b8; letter-spacing: 1px; }
-    .balance { font-size: 42px; font-weight: 800; margin: 2px 0; }
-    .tab-content { flex: 1; display: none; flex-direction: column; overflow-y: auto; }
-    .tab-content.active { display: flex; }
+    .stats { display: flex; justify-content: space-around; background: #131a26; padding: 6px; border-bottom: 1px solid #1f293a; font-size: 11px; text-align: center; }
+    .sval { color: #38bdf8; font-weight: 700; font-size: 13px; }
+    .bal-box { text-align: center; margin-top: 10px; }
+    .bal { font-size: 38px; font-weight: 800; }
+    .tab { flex: 1; display: none; flex-direction: column; overflow-y: auto; }
+    .tab.active { display: flex; }
     .tap-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-    .jet-btn { width: 205px; height: 205px; border-radius: 50%; background: radial-gradient(circle, #1e293b 0%, #0f172a 75%); border: 4px solid #38bdf8; box-shadow: 0 0 35px rgba(56, 189, 248, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.05s; }
-    .jet-btn:active { transform: scale(0.92); }
-    .jet-icon { font-size: 70px; pointer-events: none; }
-    .jet-name { margin-top: 6px; font-size: 13px; color: #94a3b8; font-weight: 600; pointer-events: none; }
+    .jet { width: 190px; height: 190px; border-radius: 50%; background: radial-gradient(circle, #1e293b 0%, #0f172a 75%); border: 4px solid #38bdf8; box-shadow: 0 0 35px rgba(56, 189, 248, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+    .jet:active { transform: scale(0.92); }
     .boost { border-color: #f59e0b !important; box-shadow: 0 0 40px rgba(245, 158, 11, 0.7) !important; }
-    .energy-box { padding: 0 20px 12px; }
-    .energy-text { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
-    .progress-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 99px; overflow: hidden; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8); width: 100%; transition: width 0.15s; }
-    .quick-actions { padding: 0 16px 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .btn:active { opacity: 0.7; }
+    .e-box { padding: 0 18px 10px; }
+    .p-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 99px; overflow: hidden; }
+    .p-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8); width: 100%; }
+    .acts { padding: 0 16px 10px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 10px 6px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
     .btn-ad { background: linear-gradient(135deg, #d97706, #f59e0b); border: none; color: #000; }
-    .shop-list { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-    .shop-title { font-size: 15px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
-    .card { background: #131a26; border: 1px solid #1f293a; border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
-    .card-info { display: flex; align-items: center; gap: 12px; }
-    .card-icon { font-size: 28px; background: #1e293b; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-    .card-name { font-size: 14px; font-weight: 700; color: #f8fafc; }
-    .card-sub { font-size: 12px; color: #38bdf8; margin-top: 2px; }
-    .card-lvl { font-size: 11px; color: #64748b; margin-top: 2px; }
-    .buy-btn { background: #0284c7; border: none; color: #fff; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; min-width: 85px; }
-    .buy-btn:active { opacity: 0.8; }
-    .friends-box { padding: 20px 16px; text-align: center; }
-    .friends-card { background: #131a26; border: 1px solid #1f293a; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
-    .btn-full { width: 100%; background: #0284c7; border: none; padding: 14px; font-size: 14px; }
-    .btn-done { background: #1e293b !important; color: #94a3b8 !important; border: 1px solid #334155 !important; }
-    .nav { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #131a26; border-top: 1px solid #1f293a; padding: 8px 10px 18px; gap: 8px; }
-    .nav-btn { background: transparent; border: none; color: #64748b; font-size: 12px; font-weight: 700; padding: 8px; border-radius: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .nav-btn.active { background: #1e293b; color: #38bdf8; }
-    .float-num { position: absolute; font-size: 26px; font-weight: 800; color: #38bdf8; pointer-events: none; animation: up 0.7s ease-out forwards; }
+    .btn-sp { background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; }
+    .lbox { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .card { background: #131a26; border: 1px solid #1f293a; border-radius: 14px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .bbtn { background: #0284c7; border: none; color: #fff; padding: 9px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .bbtn.done { background: #1e293b; color: #64748b; }
+    .nav { display: grid; grid-template-columns: repeat(4, 1fr); background: #131a26; border-top: 1px solid #1f293a; padding: 8px 8px 16px; gap: 6px; }
+    .nbtn { background: transparent; border: none; color: #64748b; font-size: 11px; font-weight: 700; padding: 6px; border-radius: 10px; cursor: pointer; }
+    .nbtn.active { background: #1e293b; color: #38bdf8; }
+    .fnum { position: absolute; font-size: 26px; font-weight: 800; color: #38bdf8; pointer-events: none; animation: up 0.7s ease-out forwards; }
     @keyframes up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-80px); } }
-    .toast { position: fixed; top: 65px; left: 50%; transform: translateX(-50%); background: #0284c7; color: #fff; padding: 8px 16px; border-radius: 99px; font-size: 12px; font-weight: 700; z-index: 99; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: #0284c7; color: #fff; padding: 8px 16px; border-radius: 99px; font-size: 12px; font-weight: 700; z-index: 99; display: none; }
   </style>
 </head>
 <body>
   <div class="toast" id="toast"></div>
-
-  <div class="header">
-    <div id="user-name">Pilot</div>
-    <div class="rank" id="rank-name">Level 1: Prop Plane</div>
+  <div class="header"><div id="uname">Pilot</div><div class="rank" id="rname">Lvl 1: Prop Plane</div></div>
+  <div class="stats">
+    <div><div style="color:#94a3b8">Tap</div><div class="sval" id="stap">+1</div></div>
+    <div><div style="color:#94a3b8">Profit / Hr</div><div class="sval" id="spph">0</div></div>
+    <div><div style="color:#94a3b8">Streak</div><div class="sval" id="sday">Day 1</div></div>
   </div>
+  <div class="bal-box"><div style="font-size:11px;color:#94a3b8">$ATAP BALANCE</div><div class="bal" id="score">0</div></div>
 
-  <div class="stats-bar">
-    <div class="stat-item">
-      <div class="stat-label">Tap Power</div>
-      <div class="stat-val" id="stat-tap">+1</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">Profit / Hour</div>
-      <div class="stat-val" id="stat-pph">0 / hr</div>
-    </div>
-  </div>
-
-  <div class="balance-box">
-    <div class="balance-label">$AERO BALANCE</div>
-    <div class="balance" id="score">0</div>
-  </div>
-
-  <div class="tab-content active" id="tab-tap">
-    <div class="tap-area" id="tap-zone">
-      <div class="jet-btn" id="jet-btn" onclick="tapPlane(event)">
-        <div class="jet-icon" id="jet-icon">🛩️</div>
-        <div class="jet-name" id="tap-power">+1 per tap</div>
+  <div class="tab active" id="t-tap">
+    <div class="tap-area" id="tzone">
+      <div class="jet" id="jet" onclick="tap(event)">
+        <div id="jicon" style="font-size:66px;pointer-events:none">🛩️</div>
+        <div id="tpow" style="margin-top:4px;font-size:12px;color:#94a3b8;font-weight:600;pointer-events:none">+1 per tap</div>
       </div>
     </div>
-
-    <div class="energy-box">
-      <div class="energy-text">
-        <span>⚡ Fuel</span>
-        <span id="energy-val">1000 / 1000</span>
-      </div>
-      <div class="progress-bg"><div class="progress-fill" id="energy-bar"></div></div>
+    <div class="e-box">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:4px"><span>⚡ Fuel</span><span id="eval">1000 / 1000</span></div>
+      <div class="p-bg"><div class="p-fill" id="ebar"></div></div>
     </div>
-
-    <div class="quick-actions">
-      <button class="btn" id="upgrade-btn" onclick="buyUpgrade()">⬆️ Tap Lvl (<span id="tap-cost">100</span>)</button>
-      <button class="btn btn-ad" id="ad-btn" onclick="activateTurbo()">📺 Turbo x3 (Ad)</button>
+    <div class="acts">
+      <button class="btn" id="ubtn" onclick="buyUp()">⬆️ Tap (100)</button>
+      <button class="btn btn-ad" id="abtn" onclick="turbo()">📺 Turbo x3</button>
+      <button class="btn btn-sp" onclick="spin()">🎰 Spin (Ad)</button>
     </div>
   </div>
 
-  <div class="tab-content" id="tab-shop">
-    <div class="shop-list">
-      <div class="shop-title">🛒 Auto-Clickers & Passive Income</div>
-      <div id="cards-container"></div>
-    </div>
-  </div>
-
-  <div class="tab-content" id="tab-friends">
-    <div class="friends-box">
-      <div class="friends-card">
-        <div style="font-size: 42px; margin-bottom: 8px;">🎁</div>
-        <div style="font-size: 18px; font-weight: 800; margin-bottom: 6px;">Invite Pilots & Earn</div>
-        <div style="font-size: 13px; color: #94a3b8; line-height: 1.4;">Share your personal link! You get <b>+500 $AERO</b> and your friend starts with a <b>+250 $AERO</b> welcome bonus.</div>
+  <div class="tab" id="t-shop"><div class="lbox"><div style="font-size:14px;font-weight:700">🛒 Auto-Clickers & Passive Income</div><div id="cards"></div></div></div>
+  <div class="tab" id="t-quests"><div class="lbox"><div style="font-size:14px;font-weight:700">🎯 Daily Bonus & Quests</div><div id="quests"></div></div></div>
+  <div class="tab" id="t-friends">
+    <div style="padding:16px;text-align:center">
+      <div style="background:#131a26;border:1px solid #1f293a;border-radius:16px;padding:18px;margin-bottom:14px">
+        <div style="font-size:40px;margin-bottom:8px">🎁</div>
+        <div style="font-size:17px;font-weight:800;margin-bottom:6px">Invite Pilots & Earn $ATAP</div>
+        <div style="font-size:12px;color:#94a3b8">You get <b>+500 $ATAP</b> and your friend gets <b>+250 $ATAP</b>!</div>
       </div>
-      <button class="btn btn-full" id="invite-btn" onclick="inviteFriend()">👥 Share & Claim +500 $AERO</button>
+      <button class="btn" style="width:100%;background:#0284c7;border:none;padding:14px;font-size:14px" id="ibtn" onclick="invite()">👥 Share & Claim +500 $ATAP</button>
     </div>
   </div>
 
   <div class="nav">
-    <button class="nav-btn active" id="nav-tap" onclick="switchTab('tap')">✈️<span>Flight</span></button>
-    <button class="nav-btn" id="nav-shop" onclick="switchTab('shop')">🛒<span>Shop</span></button>
-    <button class="nav-btn" id="nav-friends" onclick="switchTab('friends')">👥<span>Friends</span></button>
+    <button class="nbtn active" id="n-tap" onclick="go('tap')">✈️<br>Flight</button>
+    <button class="nbtn" id="n-shop" onclick="go('shop')">🛒<br>Shop</button>
+    <button class="nbtn" id="n-quests" onclick="go('quests')">🎯<br>Tasks</button>
+    <button class="nbtn" id="n-friends" onclick="go('friends')">👥<br>Friends</button>
   </div>
-
   <script>
-    let state = {
-      score: 0, power: 1, level: 1, cost: 100, energy: 1000, maxEnergy: 1000, pph: 0, shared: false, lastTime: Date.now(),
+    let s = { score: 0, pow: 1, lvl: 1, cost: 100, en: 1000, maxEn: 1000, pph: 0, shared: false, last: Date.now(), daily: 0, streak: 1, taps: 0, q: {},
       cards: [
-        { id: 'autoclicker', name: 'Auto-Clicker Bot', icon: '🤖', baseCost: 500, basePph: 1000, lvl: 0 },
-        { id: 'hangar', name: 'Private Hangar', icon: '🏢', baseCost: 2000, basePph: 4500, lvl: 0 },
-        { id: 'airline', name: 'Global Airline', icon: '🌍', baseCost: 10000, basePph: 25000, lvl: 0 },
-        { id: 'spaceport', name: 'Orbital Spaceport', icon: '🛰️', baseCost: 50000, basePph: 150000, lvl: 0 }
+        { name: 'Auto-Clicker Bot', icon: '🤖', cost: 500, pph: 1000, lvl: 0 },
+        { name: 'Private Hangar', icon: '🏢', cost: 2000, pph: 4500, lvl: 0 },
+        { name: 'Global Airline', icon: '🌍', cost: 10000, pph: 25000, lvl: 0 },
+        { name: 'Orbital Spaceport', icon: '🛰️', cost: 50000, pph: 150000, lvl: 0 }
       ]
     };
-    let mult = 1, userId = 'pilot', AdController = null;
-
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.innerText = msg; t.style.display = 'block';
-      setTimeout(() => { t.style.display = 'none'; }, 2500);
-    }
-
+    let mult = 1, uid = 'pilot', Ad = null;
+    function toast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2200); }
     try {
-      if (window.Adsgram) AdController = window.Adsgram.init({ blockId: "59556" });
-      const saved = JSON.parse(localStorage.getItem('aerotap_v10'));
-      if (saved) {
-        state = { ...state, ...saved };
-        if (state.pph > 0 && state.lastTime) {
-          const diffSec = Math.min(10800, Math.floor((Date.now() - state.lastTime) / 1000));
-          if (diffSec > 10) {
-            const offlineEarned = Math.floor((state.pph / 3600) * diffSec);
-            if (offlineEarned > 0) {
-              state.score += offlineEarned;
-              setTimeout(() => showToast('🤖 Auto-Clicker earned +' + offlineEarned.toLocaleString() + ' $AERO!'), 500);
-            }
-          }
-        }
+      if (window.Adsgram) Ad = window.Adsgram.init({ blockId: "59556" });
+      const sv = JSON.parse(localStorage.getItem('atap_v12'));
+      if (sv) {
+        s = { ...s, ...sv };
+        const sec = Math.min(10800, Math.floor((Date.now() - s.last) / 1000));
+        if (s.pph > 0 && sec > 10) { const earn = Math.floor((s.pph / 3600) * sec); s.score += earn; setTimeout(() => toast('🤖 Auto-Clicker: +' + earn + ' $ATAP!'), 500); }
       }
-      if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand();
-        const u = window.Telegram.WebApp.initDataUnsafe?.user;
-        if (u) { document.getElementById('user-name').innerText = '@' + (u.username || u.first_name); userId = u.id || 'pilot'; }
-      }
+      if (window.Telegram?.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); const u = window.Telegram.WebApp.initDataUnsafe?.user; if (u) { document.getElementById('uname').innerText = '@' + (u.username || u.first_name); uid = u.id; } }
     } catch (e) {}
 
-    function getCardCost(card) { return Math.floor(card.baseCost * Math.pow(1.6, card.lvl)); }
-
-    function renderShop() {
-      const container = document.getElementById('cards-container');
-      container.innerHTML = '';
-      state.cards.forEach((card, idx) => {
-        const cCost = getCardCost(card);
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `<div class="card-info"><div class="card-icon">${card.icon}</div><div><div class="card-name">${card.name}</div><div class="card-sub">+${card.basePph.toLocaleString()} / hr</div><div class="card-lvl">Level ${card.lvl}</div></div></div><button class="buy-btn" onclick="buyCard(${idx})">${cCost.toLocaleString()}</button>`;
-        container.appendChild(div);
-      });
+    function cCost(c) { return Math.floor(c.cost * Math.pow(1.6, c.lvl)); }
+    function rShop() {
+      document.getElementById('cards').innerHTML = s.cards.map((c, i) => `<div class="card"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:24px;background:#1e293b;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center">${c.icon}</div><div><div style="font-size:13px;font-weight:700">${c.name}</div><div style="font-size:11px;color:#38bdf8">+${c.pph.toLocaleString()}/hr • Lvl ${c.lvl}</div></div></div><button class="bbtn" onclick="buyC(${i})">${cCost(c).toLocaleString()}</button></div>`).join('');
     }
-
-    function buyCard(idx) {
-      const card = state.cards[idx], cCost = getCardCost(card);
-      if (state.score >= cCost) {
-        state.score -= cCost; card.lvl += 1; state.pph += card.basePph;
-        showToast('✅ ' + card.name + ' Lvl ' + card.lvl + '!'); renderShop(); render();
-      } else { showToast('❌ Need ' + cCost.toLocaleString() + ' $AERO'); }
+    function buyC(i) { const c = s.cards[i], cost = cCost(c); if (s.score >= cost) { s.score -= cost; c.lvl++; s.pph += c.pph; toast('✅ Upgraded!'); rShop(); render(); } else toast('❌ Need ' + cost); }
+    function rQuests() {
+      const canD = (Date.now() - s.daily) > 86400000;
+      document.getElementById('quests').innerHTML = `
+        <div class="card"><div><div style="font-size:13px;font-weight:700">📅 Daily Bonus (Day ${s.streak})</div><div style="font-size:11px;color:#38bdf8">+${(s.streak*1000).toLocaleString()} $ATAP</div></div><button class="bbtn ${canD?'':'done'}" onclick="getD()">${canD?'Claim':'Done'}</button></div>
+        <div class="card"><div><div style="font-size:13px;font-weight:700">▶️ Watch AeroScale Shorts</div><div style="font-size:11px;color:#38bdf8">+3,000 $ATAP</div></div><button class="bbtn ${s.q.yt?'done':''}" onclick="getQ('yt',3000,'https://youtube.com')">${s.q.yt?'Done':'Go'}</button></div>
+        <div class="card"><div><div style="font-size:13px;font-weight:700">✈️ Make 100 Taps (${Math.min(100,s.taps)}/100)</div><div style="font-size:11px;color:#38bdf8">+1,500 $ATAP</div></div><button class="bbtn ${s.q.tp?'done':''}" onclick="getTp()">${s.q.tp?'Done':'Claim'}</button></div>`;
     }
-
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
-      document.getElementById('nav-' + tab).classList.add('active');
-      if (tab === 'shop') renderShop();
-    }
-
+    function getD() { if ((Date.now() - s.daily) > 86400000) { s.score += s.streak * 1000; s.daily = Date.now(); s.streak++; toast('🎉 Daily claimed!'); rQuests(); render(); } else toast('⏳ Come back tomorrow'); }
+    function getQ(id, rw, url) { if (!s.q[id]) { s.q[id] = true; s.score += rw; toast('🎉 +' + rw + ' $ATAP!'); rQuests(); render(); window.open(url, '_blank'); } }
+    function getTp() { if (!s.q.tp && s.taps >= 100) { s.q.tp = true; s.score += 1500; toast('🎉 +1,500 $ATAP!'); rQuests(); render(); } else if (!s.q.tp) toast('❌ Tap ' + (100 - s.taps) + ' more!'); }
+    function go(t) { document.querySelectorAll('.tab').forEach(e => e.classList.remove('active')); document.querySelectorAll('.nbtn').forEach(e => e.classList.remove('active')); document.getElementById('t-'+t).classList.add('active'); document.getElementById('n-'+t).classList.add('active'); if (t==='shop') rShop(); if (t==='quests') rQuests(); }
     function render() {
-      document.getElementById('score').innerText = Math.floor(state.score).toLocaleString();
-      document.getElementById('stat-tap').innerText = '+' + (state.power * mult);
-      document.getElementById('stat-pph').innerText = state.pph.toLocaleString() + ' / hr';
-      document.getElementById('tap-power').innerText = '+' + (state.power * mult) + ' per tap';
-      document.getElementById('upgrade-btn').innerText = '⬆️ Tap Lvl (' + state.cost + ')';
-      document.getElementById('energy-val').innerText = Math.floor(state.energy) + ' / ' + state.maxEnergy;
-      document.getElementById('energy-bar').style.width = (state.energy / state.maxEnergy * 100) + '%';
-      let rName = 'Level ' + state.level + ': Prop Plane', rIcon = '🛩️';
-      if (state.level >= 10) { rName = 'Level ' + state.level + ': Stratosphere'; rIcon = '🚀'; }
-      else if (state.level >= 6) { rName = 'Level ' + state.level + ': Supersonic'; rIcon = '✈️'; }
-      else if (state.level >= 3) { rName = 'Level ' + state.level + ': Business Jet'; rIcon = '🛫'; }
-      document.getElementById('rank-name').innerText = rName; document.getElementById('jet-icon').innerText = rIcon;
-      if (state.shared) {
-        const invBtn = document.getElementById('invite-btn');
-        invBtn.innerText = '📋 Copy Invite Link (+500 Claimed)'; invBtn.classList.add('btn-done');
-      }
-      state.lastTime = Date.now();
-      try { localStorage.setItem('aerotap_v10', JSON.stringify(state)); } catch (e) {}
+      document.getElementById('score').innerText = Math.floor(s.score).toLocaleString(); document.getElementById('stap').innerText = '+' + (s.pow*mult); document.getElementById('spph').innerText = s.pph.toLocaleString(); document.getElementById('sday').innerText = 'Day ' + s.streak;
+      document.getElementById('tpow').innerText = '+' + (s.pow*mult) + ' per tap'; document.getElementById('ubtn').innerText = '⬆️ Tap (' + s.cost + ')'; document.getElementById('eval').innerText = Math.floor(s.en) + ' / ' + s.maxEn; document.getElementById('ebar').style.width = (s.en/s.maxEn*100) + '%';
+      let rn = 'Lvl ' + s.lvl + ': Prop Plane', ri = '🛩️';
+      if (s.lvl >= 10) { rn = 'Lvl ' + s.lvl + ': Stratosphere'; ri = '🚀'; } else if (s.lvl >= 6) { rn = 'Lvl ' + s.lvl + ': Supersonic'; ri = '✈️'; } else if (s.lvl >= 3) { rn = 'Lvl ' + s.lvl + ': Business Jet'; ri = '🛫'; }
+      document.getElementById('rname').innerText = rn; document.getElementById('jicon').innerText = ri;
+      if (s.shared) { document.getElementById('ibtn').innerText = '📋 Copy Invite Link (Claimed)'; document.getElementById('ibtn').style.background = '#1e293b'; }
+      s.last = Date.now(); try { localStorage.setItem('atap_v12', JSON.stringify(s)); } catch (e) {}
     }
-
-    function tapPlane(e) {
-      if (state.energy < state.power) return;
-      const gain = state.power * mult; state.score += gain; state.energy -= state.power;
-      const el = document.createElement('div'); el.className = 'float-num'; el.innerText = '+' + gain;
-      el.style.left = ((e.clientX || 150) - 20) + 'px'; el.style.top = ((e.clientY || 250) - 30) + 'px';
-      document.body.appendChild(el); setTimeout(() => el.remove(), 700); render();
-    }
-
-    function buyUpgrade() {
-      if (state.score >= state.cost) {
-        state.score -= state.cost; state.level += 1; state.power += 1; state.maxEnergy += 200; state.cost = Math.floor(state.cost * 1.8); render();
-      } else { showToast('❌ Need ' + state.cost + ' $AERO'); }
-    }
-
-    function startBoost() {
-      mult = 3; document.getElementById('jet-btn').classList.add('boost'); document.getElementById('ad-btn').innerText = '🔥 Turbo x3 ON!'; render();
-      setTimeout(() => { mult = 1; document.getElementById('jet-btn').classList.remove('boost'); document.getElementById('ad-btn').innerText = '📺 Turbo x3 (Ad)'; render(); }, 30000);
-    }
-
-    function activateTurbo() {
-      if (mult === 3) return;
-      if (AdController) { AdController.show().then(() => startBoost()).catch(() => startBoost()); } else { startBoost(); }
-    }
-
-    function inviteFriend() {
-      const refLink = 'https://t.me_' + userId;
-      const inviteText = '🚀 Join AeroTap with me and get +250 $AERO bonus points before token listing!\n\n🔥 Залетай в AeroTap по моей ссылке и забирай +250 $AERO бонусом до листинга токена!\n👉 ' + refLink;
-      if (navigator.clipboard) navigator.clipboard.writeText(inviteText);
-      if (!state.shared) { state.score += 500; state.shared = true; showToast('✅ +500 $AERO claimed & link copied!'); render(); } else { showToast('📋 Invite message copied!'); }
-    }
-
-    setInterval(() => {
-      if (state.energy < state.maxEnergy) state.energy = Math.min(state.maxEnergy, state.energy + 3);
-      if (state.pph > 0) state.score += state.pph / 3600;
-      render();
-    }, 1000);
-
-    renderShop(); render();
+    function tap(e) { if (s.en < s.pow) return; const g = s.pow*mult; s.score += g; s.en -= s.pow; s.taps++; const el = document.createElement('div'); el.className = 'fnum'; el.innerText = '+'+g; el.style.left = ((e.clientX||150)-20)+'px'; el.style.top = ((e.clientY||250)-30)+'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 700); render(); }
+    function buyUp() { if (s.score >= s.cost) { s.score -= s.cost; s.lvl++; s.pow++; s.maxEn += 200; s.cost = Math.floor(s.cost*1.8); render(); } else toast('❌ Need ' + s.cost); }
+    function onBoost() { mult = 3; document.getElementById('jet').classList.add('boost'); document.getElementById('abtn').innerText = '🔥 x3 ON!'; render(); setTimeout(() => { mult = 1; document.getElementById('jet').classList.remove('boost'); document.getElementById('abtn').innerText = '📺 Turbo x3'; render(); }, 30000); }
+    function turbo() { if (mult === 3) return; if (Ad) Ad.show().then(onBoost).catch(onBoost); else onBoost(); }
+    function onSpin() { const p =; const w = p[Math.floor(Math.random()*p.length)]; s.score += w; s.en = s.maxEn; toast('🎰 Jackpot: +' + w.toLocaleString() + ' $ATAP & Full Fuel!'); render(); }
+    function spin() { if (Ad) Ad.show().then(onSpin).catch(onSpin); else onSpin(); }
+    function invite() { const l = 'https://t.me_' + uid; if (navigator.clipboard) navigator.clipboard.writeText('🚀 Join AeroTap & get +250 $ATAP!\n🔥 Залетай в AeroTap и забирай +250 $ATAP!\n👉 ' + l); if (!s.shared) { s.score += 500; s.shared = true; toast('✅ +500 $ATAP claimed!'); render(); } else toast('📋 Link copied!'); }
+    setInterval(() => { if (s.en < s.maxEn) s.en = Math.min(s.maxEn, s.en + 3); if (s.pph > 0) s.score += s.pph / 3600; render(); }, 1000);
+    rShop(); rQuests(); render();
   </script>
 </body>
 </html>
