@@ -16,7 +16,7 @@ if (tg) {
 }
 
 var BOT_NAME = 'aerotap_bot';
-var DB_KEY = 'aero_brutal_v10';
+var DB_KEY = 'aero_stealth_v11';
 
 var data = JSON.parse(localStorage.getItem(DB_KEY)) || {
     nick: '',
@@ -108,12 +108,12 @@ function openNameModal() {
     var inp = document.getElementById('nick-input');
     var mod = document.getElementById('name-modal');
     if (inp) inp.value = getNick();
-    if (mod) mod.style.display = 'flex';
+    if (mod) { mod.hidden = false; mod.style.display = 'flex'; }
 }
 
 function closeNameModal() {
     var mod = document.getElementById('name-modal');
-    if (mod) mod.style.display = 'none';
+    if (mod) { mod.hidden = true; mod.style.display = 'none'; }
 }
 
 function saveNick() {
@@ -159,7 +159,9 @@ function takeBet(inputId) {
     return bet;
 }
 
+// КРАШ С ОБРАТНЫМ ОТСЧЕТОМ 3 - 2 - 1
 var isFlying = false;
+var isCountingDown = false;
 var currentMult = 1.00;
 var crashPoint = 1.00;
 var currentBet = 0;
@@ -185,6 +187,8 @@ function updateCurve(progress) {
 }
 
 function handleCrashAction() {
+    if (isCountingDown) return;
+
     var btn = document.getElementById('crash-btn');
     var radar = document.getElementById('radar-screen');
     var multEl = document.getElementById('mult-text');
@@ -194,47 +198,38 @@ function handleCrashAction() {
         var bet = takeBet('bet-input');
         if (!bet) return;
         currentBet = bet;
-        currentMult = 1.00;
-        flightProgress = 0;
-        crashPoint = generateCrashPoint();
-        isFlying = true;
+        isCountingDown = true;
         updateCurve(0);
 
-        radar.classList.add('flying');
-        multEl.style.color = '#000000';
-        statusEl.innerText = 'НАБОР ВЫСОТЫ...';
-        btn.classList.add('yellow');
+        var count = 3;
+        statusEl.innerText = 'ПРИГОТОВЬСЯ К СТАРТУ...';
+        multEl.style.color = '#ffcc00';
+        multEl.innerText = count;
+        btn.innerText = '⏳ ОТСЧЕТ: ' + count + '...';
+        playPopSound();
 
-        flightLoop = setInterval(function() {
-            currentMult += 0.02 + (currentMult * 0.015);
-            flightProgress += 0.015;
-            updateCurve(flightProgress);
-            multEl.innerText = 'x' + currentMult.toFixed(2);
-            var winNow = Math.floor(currentBet * currentMult);
-            btn.innerText = '💰 ЗАБРАТЬ ' + winNow.toLocaleString();
-
-            if (currentMult >= crashPoint) {
-                clearInterval(flightLoop);
-                isFlying = false;
-                radar.classList.remove('flying');
-                multEl.style.color = '#ff3b30';
-                statusEl.innerText = '💥 УЛЕТЕЛ НА x' + crashPoint.toFixed(2);
-                btn.classList.remove('yellow');
-                btn.innerText = '🚀 ЗАПУСТИТЬ РАКЕТУ';
-                addHistory(crashPoint);
-                playBoomSound();
+        var cdTimer = setInterval(function() {
+            count--;
+            if (count > 0) {
+                multEl.innerText = count;
+                btn.innerText = '⏳ ОТСЧЕТ: ' + count + '...';
+                playPopSound();
+            } else {
+                clearInterval(cdTimer);
+                isCountingDown = false;
+                startFlightNow(btn, radar, multEl, statusEl);
             }
-        }, 75);
+        }, 700);
     } else {
         clearInterval(flightLoop);
         isFlying = false;
         radar.classList.remove('flying');
         var totalWin = Math.floor(currentBet * currentMult);
         data.balance += totalWin;
-        multEl.style.color = '#8b5cf6';
+        multEl.style.color = '#00ff88';
         statusEl.innerText = '✅ ЗАБРАНО: +' + totalWin.toLocaleString();
-        btn.classList.remove('yellow');
-        btn.innerText = '🚀 ЗАПУСТИТЬ РАКЕТУ';
+        btn.classList.remove('gold');
+        btn.innerText = '🚀 ЗАПУСК (3-2-1)';
         addHistory(currentMult);
         playWinSound();
         save();
@@ -242,28 +237,64 @@ function handleCrashAction() {
     }
 }
 
+function startFlightNow(btn, radar, multEl, statusEl) {
+    currentMult = 1.00;
+    flightProgress = 0;
+    crashPoint = generateCrashPoint();
+    isFlying = true;
+
+    radar.classList.add('flying');
+    multEl.style.color = '#ffffff';
+    multEl.innerText = 'x1.00';
+    statusEl.innerText = 'НАБОР ВЫСОТЫ...';
+    btn.classList.add('gold');
+
+    flightLoop = setInterval(function() {
+        currentMult += 0.02 + (currentMult * 0.015);
+        flightProgress += 0.015;
+        updateCurve(flightProgress);
+        multEl.innerText = 'x' + currentMult.toFixed(2);
+        var winNow = Math.floor(currentBet * currentMult);
+        btn.innerText = '💰 ЗАБРАТЬ ' + winNow.toLocaleString();
+
+        if (currentMult >= crashPoint) {
+            clearInterval(flightLoop);
+            isFlying = false;
+            radar.classList.remove('flying');
+            multEl.style.color = '#ff2a5f';
+            statusEl.innerText = '💥 УЛЕТЕЛ НА x' + crashPoint.toFixed(2);
+            btn.classList.remove('gold');
+            btn.innerText = '🚀 ЗАПУСК (3-2-1)';
+            addHistory(crashPoint);
+            playBoomSound();
+        }
+    }, 75);
+}
+
 function addHistory(val) {
     var strip = document.getElementById('history-strip');
     if (!strip) return;
-    var cls = val < 1.5 ? 'red' : (val >= 5 ? 'lime' : '');
+    var cls = val < 1.5 ? 'lo' : (val >= 5 ? 'hi' : '');
     var span = document.createElement('span');
-    span.className = 'st-chip ' + cls;
+    span.className = 'h-pill ' + cls;
     span.innerText = 'x' + val.toFixed(2);
     strip.insertBefore(span, strip.firstChild);
     if (strip.children.length > 7) strip.removeChild(strip.lastChild);
 }
 
 function openMiniGame(name) {
-    document.getElementById('arcade-lobby').style.display = 'none';
-    document.querySelectorAll('.mg-wrap').forEach(function(b) { b.style.display = 'none'; });
+    var lobby = document.getElementById('arcade-lobby');
+    if (lobby) { lobby.hidden = true; lobby.style.display = 'none'; }
+    document.querySelectorAll('.mg-box').forEach(function(b) { b.hidden = true; b.style.display = 'none'; });
     var target = document.getElementById('mg-' + name);
-    if (target) target.style.display = 'flex';
+    if (target) { target.hidden = false; target.style.display = 'flex'; }
     playPopSound();
 }
 
 function backToLobby() {
-    document.querySelectorAll('.mg-wrap').forEach(function(b) { b.style.display = 'none'; });
-    document.getElementById('arcade-lobby').style.display = 'block';
+    document.querySelectorAll('.mg-box').forEach(function(b) { b.hidden = true; b.style.display = 'none'; });
+    var lobby = document.getElementById('arcade-lobby');
+    if (lobby) { lobby.hidden = false; lobby.style.display = 'block'; }
     playPopSound();
 }
 var jetActive = false;
@@ -349,8 +380,8 @@ var openedSafeCells = 0;
 function setMinesCount(count, btn) {
     if (minesActive) return;
     minesCount = count;
-    document.querySelectorAll('#mg-mines .mini-key').forEach(function(b) { b.classList.remove('lime'); });
-    if (btn) btn.classList.add('lime');
+    document.querySelectorAll('#mg-mines .q-btn').forEach(function(b) { b.classList.remove('accent'); });
+    if (btn) btn.classList.add('accent');
     playPopSound();
 }
 
@@ -384,14 +415,14 @@ function handleMinesAction() {
         }
         buildMinesGrid();
         document.getElementById('mines-mult').innerText = 'x1.00';
-        btn.classList.add('yellow');
+        btn.classList.add('gold');
         btn.innerText = '💰 ЗАБРАТЬ ' + bet.toLocaleString();
         playPopSound();
     } else {
         if (openedSafeCells === 0) return;
         data.balance += Math.floor(minesBetAmount * minesMultiplier);
         minesActive = false;
-        btn.classList.remove('yellow');
+        btn.classList.remove('gold');
         btn.innerText = '💎 ИГРАТЬ';
         revealAllMines();
         playWinSound();
@@ -408,7 +439,7 @@ function clickMineCell(idx, el) {
         minesActive = false;
         revealAllMines();
         var btn = document.getElementById('mines-action-btn');
-        btn.classList.remove('yellow');
+        btn.classList.remove('gold');
         btn.innerText = '💎 ИГРАТЬ';
         playBoomSound();
     } else {
@@ -530,7 +561,7 @@ function playBoxes(chosen) {
     var bet = takeBet('boxes-bet');
     if (!bet) return;
     var prizeBox = Math.floor(Math.random() * 3);
-    var all = document.querySelectorAll('.safe-item');
+    var all = document.querySelectorAll('.safe-cell');
     all.forEach(function(b, i) { b.innerText = i === prizeBox ? '💰' : '💨'; });
     if (chosen === prizeBox) {
         var win = Math.floor(bet * 2.8);
@@ -616,10 +647,18 @@ else if (tg && tg.openLink) tg.openLink(url);
 else window.open(url, '_blank');
 }
 function switchView(name, btn) {
-document.querySelectorAll('.screen').forEach(function(v) { v.style.display = 'none'; });
-document.querySelectorAll('.tab-folder').forEach(function(b) { b.classList.remove('active'); });
+document.querySelectorAll('.view-page').forEach(function(v) {
+v.hidden = true;
+v.style.display = 'none';
+});
+document.querySelectorAll('.seg-btn').forEach(function(b) {
+b.classList.remove('active');
+});
 var target = document.getElementById('view-' + name);
-if (target) target.style.display = 'flex';
+if (target) {
+target.hidden = false;
+target.style.display = 'flex';
+}
 if (btn) btn.classList.add('active');
 playPopSound();
 }
@@ -644,9 +683,9 @@ if (data.tasks.tg) document.getElementById('btn-tg').innerText = 'OK ✅';
 if (data.tasks.yt) document.getElementById('btn-yt').innerText = 'OK ✅';
 var leaders = Array.of(
 { n: 'Whale_TON 🐋', s: 420000 },
-{ n: 'StreetDrop_01', s: 185000 },
+{ n: 'Stealth_01', s: 185000 },
 { n: getNick() + ' (ВЫ)', s: Math.floor(data.balance) },
-{ n: 'AeroHype', s: 45000 }
+{ n: 'AeroCarbon', s: 45000 }
 );
 leaders.sort(function(a, b) { return b.s - a.s; });
 var topHtml = '';
