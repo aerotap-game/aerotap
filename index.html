@@ -1,147 +1,423 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>AeroTap — $AERO Pre-Launch</title>
-  <script src="https://telegram.org"></script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RAKETA TAP — $RAKETA</title>
+    <script src="https://telegram.org"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0b0e;
+            --card-bg: #14171f;
+            --accent: #00ff88;
+            --accent-glow: rgba(0, 255, 136, 0.35);
+            --danger: #ff2e55;
+            --gold: #ffcc00;
+            --text: #ffffff;
+            --text-muted: #8a93a6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-dark); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(20, 23, 31, 0.95); border-bottom: 1px solid #222736; }
+        .user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #0099ff); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; }
+        .profit-badge { background: #1d2230; padding: 6px 12px; border-radius: 20px; font-size: 12px; border: 1px solid #2c3347; }
+        .profit-badge span { color: var(--accent); font-weight: bold; }
+        .main-content { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 85px; }
+        .tab-section { display: none; animation: fadeIn 0.2s ease; }
+        .tab-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .balance-container { text-align: center; margin: 12px 0; }
+        .balance-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .balance-amount { font-size: 38px; font-weight: 900; color: var(--text); text-shadow: 0 0 20px var(--accent-glow); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tap-zone { display: flex; justify-content: center; align-items: center; margin: 22px 0; position: relative; }
+        .tap-btn { width: 210px; height: 210px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #242b3d, #0d1017); border: 4px solid var(--accent); box-shadow: 0 0 35px var(--accent-glow), inset 0 0 25px rgba(0, 255, 136, 0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.08s ease; }
+        .tap-btn:active { transform: scale(0.93); }
+        .tap-emoji { font-size: 72px; }
+        .tap-sub { font-size: 12px; font-weight: bold; color: var(--accent); margin-top: 5px; }
+        .energy-box { background: var(--card-bg); padding: 12px; border-radius: 14px; border: 1px solid #222736; }
+        .energy-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .energy-bar-bg { width: 100%; height: 10px; background: #0a0b0e; border-radius: 5px; overflow: hidden; }
+        .energy-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--accent)); width: 100%; transition: width 0.2s; }
+        .floating-text { position: fixed; font-size: 24px; font-weight: 900; color: var(--accent); pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 999; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-90px); } }
+        .card { background: var(--card-bg); border: 1px solid #222736; border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+        .btn { width: 100%; padding: 13px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-gold { background: var(--gold); color: #000; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .game-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+        .game-pill { background: var(--card-bg); border: 1px solid #282f42; color: var(--text-muted); padding: 8px 4px; border-radius: 10px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; }
+        .game-pill.active { background: var(--accent); color: #000; }
+        .crash-screen { height: 185px; background: radial-gradient(circle at bottom, #1b2436, #0b0d13); border-radius: 14px; border: 1px solid #2b344a; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; }
+        .crash-mult { font-size: 44px; font-weight: 900; z-index: 2; }
+        .crash-quote { font-size: 12px; color: var(--gold); background: rgba(0,0,0,0.65); padding: 4px 10px; border-radius: 20px; margin-top: 6px; z-index: 2; text-align: center; }
+        .rocket-actor { position: absolute; font-size: 40px; bottom: 15px; left: 20px; transition: transform 0.1s linear; }
+        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 12px 0; }
+        .mine-cell { aspect-ratio: 1; background: #1f2536; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid #2e374f; }
+        .mine-cell.safe { background: rgba(0, 255, 136, 0.2); border-color: var(--accent); }
+        .mine-cell.boom { background: rgba(255, 46, 85, 0.3); border-color: var(--danger); }
+        .bet-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .bet-input { flex: 1; background: #0a0b0e; border: 1px solid #2c344a; color: #fff; padding: 10px; border-radius: 10px; font-size: 15px; font-weight: bold; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #11141c; border-top: 1px solid #222736; display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); font-size: 11px; gap: 4px; cursor: pointer; border-radius: 10px; }
+        .nav-item.active { color: var(--accent); background: rgba(0, 255, 136, 0.08); }
+        .nav-icon { font-size: 20px; }
+        .case-roller { background: #0a0b0e; border: 2px solid var(--gold); border-radius: 12px; padding: 20px; text-align: center; font-size: 22px; font-weight: bold; margin: 12px 0; min-height: 75px; display: flex; align-items: center; justify-content: center; }
+    </style>
 </head>
 <body>
-  <div id="toast" class="toast"></div>
-
-  <!-- Модальное окно открытия кейса -->
-  <div id="caseModal" class="modal">
-    <div class="modal-box">
-      <h3 id="caseTitle">Открытие контейнера</h3>
-      <div class="crate-stage" id="crateStage">📦</div>
-      <div class="prize-text" id="prizeText">Вскрываем замок...</div>
-      <button class="btn gold" id="btnCloseModal" onclick="closeModal()" style="display:none;width:100%;">Забрать награду</button>
+    <div class="header">
+        <div class="user-info" onclick="changeUsername()">
+            <div class="avatar" id="avatarLetter">R</div>
+            <div>
+                <div style="font-weight: bold; font-size: 14px;" id="displayUsername">Пилот #1</div>
+                <div style="font-size: 11px; color: var(--accent);">✏️ Сменить ник</div>
+            </div>
+        </div>
+        <div class="profit-badge">Доход: <span id="passiveRate">+0</span>/ч</div>
     </div>
-  </div>
 
-  <!-- Шапка -->
-  <header class="hdr">
-    <div class="pilot" onclick="changeName()">
-      <div class="pilot-top"><b id="userName">Пилот</b> <span>✏️</span></div>
-      <small id="userRank">Ранг: Кадет</small>
+    <div class="main-content">
+        <div class="balance-container">
+            <div class="balance-label">Твой баланс $RAKETA</div>
+            <div class="balance-amount">🚀 <span id="balanceText">0</span></div>
+        </div>
+
+        <div id="tab-tap" class="tab-section active">
+            <div class="tap-zone">
+                <div class="tap-btn" id="mainTapBtn">
+                    <div class="tap-emoji">🚀</div>
+                    <div class="tap-sub">ГАЗ В ПОЛ (+<span id="tapPowerText">1</span>)</div>
+                </div>
+            </div>
+            <div class="energy-box">
+                <div class="energy-header">
+                    <span>⚡ Энергия турбины</span>
+                    <span><b id="energyText">1000</b> / <span id="maxEnergyText">1000</span></span>
+                </div>
+                <div class="energy-bar-bg"><div class="energy-bar-fill" id="energyBar"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-games" class="tab-section">
+            <div class="game-selector">
+                <div class="game-pill active" onclick="switchSubGame('crash', this)">🚀 Ракета</div>
+                <div class="game-pill" onclick="switchSubGame('mines', this)">💣 Шахта</div>
+                <div class="game-pill" onclick="switchSubGame('plane', this)">✈️ Полет</div>
+                <div class="game-pill" onclick="switchSubGame('cases', this)">📦 Кейсы</div>
+            </div>
+
+            <div id="sub-crash" class="sub-game">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <b>🚀 РАКЕТА: ВЕНГАЛБИ СТАЙЛ</b>
+                        <span style="font-size:12px; color:var(--accent);">Макс: 100x</span>
+                    </div>
+                    <div class="crash-screen">
+                        <div class="rocket-actor" id="rocketIcon">🚀</div>
+                        <div class="crash-mult" id="crashMultText">1.00x</div>
+                        <div class="crash-quote" id="crashQuoteText">«Брат, заводи мотор, щас будет икс!»</div>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="crashBet" class="bet-input" value="100" min="10">
+                        <button class="btn" style="width:auto; background:#222736; color:#fff;" onclick="doubleBet('crashBet')">x2</button>
+                    </div>
+                    <button class="btn btn-primary" id="crashActionBtn" onclick="handleCrashAction()">ЗАПУСТИТЬ РАКЕТУ</button>
+                </div>
+            </div>
+
+            <div id="sub-mines" class="sub-game" style="display:none;">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <b>💣 ШАХТА АЛМАЗОВ</b>
+                        <span id="minesMultBadge" style="color:var(--accent); font-weight:bold;">Множитель: 1.00x</span>
+                    </div>
+                    <div class="mines-grid" id="minesGrid"></div>
+                    <div class="bet-row">
+                        <input type="number" id="minesBet" class="bet-input" value="100" min="10">
+                        <select id="minesCount" class="bet-input" style="max-width:110px;">
+                            <option value="3">3 бомбы</option>
+                            <option value="5" selected>5 бомб</option>
+                            <option value="10">10 бомб</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="minesBtn" onclick="startOrCashoutMines()">НАЧАТЬ ИГРУ</button>
+                </div>
+            </div>
+
+            <div id="sub-plane" class="sub-game" style="display:none;">
+                <div class="card">
+                    <b>✈️ САМОЛЕТИК: УДЕРЖИ ВЫСОТУ</b>
+                    <p style="font-size:12px; color:var(--text-muted); margin:6px 0;">Выбери эшелон полета. Чем выше риск, тем больше награда!</p>
+                    <div class="bet-row" style="margin-top:10px;">
+                        <input type="number" id="planeBet" class="bet-input" value="150" min="10">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+                        <button class="btn btn-primary" onclick="playPlane(1.5, 0.65)">Низкий<br><small>1.5x (65%)</small></button>
+                        <button class="btn btn-gold" onclick="playPlane(2.5, 0.40)">Средний<br><small>2.5x (40%)</small></button>
+                        <button class="btn btn-danger" onclick="playPlane(5.0, 0.20)">Форсаж<br><small>5.0x (20%)</small></button>
+                    </div>
+                    <div id="planeResult" style="text-align:center; margin-top:12px; font-weight:bold; font-size:14px;"></div>
+                </div>
+            </div>
+
+            <div id="sub-cases" class="sub-game" style="display:none;">
+                <div class="card">
+                    <b>📦 КОНТЕЙНЕР «БРАТСКИЙ ПОДГОН»</b>
+                    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Внутри от 350 до 25 000 монет $RAKETA!</p>
+                    <div class="case-roller" id="caseDisplay">🎁 Готов к открытию</div>
+                    <button class="btn btn-gold" id="openCaseBtn" onclick="openCase()">ОТКРЫТЬ ЗА 500 🚀</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-upgrade" class="tab-section">
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div><b>👆 Сила тапа (Ур. <span id="lvlTap">1</span>)</b><div style="font-size:12px; color:var(--text-muted);">+1 монета за клик</div></div>
+                <button class="btn btn-primary" style="width:auto; padding:10px 16px;" onclick="buyUpgrade('tap')" id="btnBuyTap">150 🚀</button>
+            </div>
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div><b>🔋 Бак энергии (Ур. <span id="lvlEnergy">1</span>)</b><div style="font-size:12px; color:var(--text-muted);">+500 к запасу</div></div>
+                <button class="btn btn-primary" style="width:auto; padding:10px 16px;" onclick="buyUpgrade('energy')" id="btnBuyEnergy">200 🚀</button>
+            </div>
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div><b>⚙️ Авто-ферма (Ур. <span id="lvlAuto">0</span>)</b><div style="font-size:12px; color:var(--text-muted);">+300 монет в час</div></div>
+                <button class="btn btn-primary" style="width:auto; padding:10px 16px;" onclick="buyUpgrade('auto')" id="btnBuyAuto">300 🚀</button>
+            </div>
+        </div>
+
+        <div id="tab-friends" class="tab-section">
+            <div class="card">
+                <b>🤝 ПРИГЛАСИ ДРУГА В КОМАНДУ</b>
+                <p style="font-size:12px; color:var(--text-muted); margin:8px 0;">Забирай бонус <b>+2 500 $RAKETA</b> каждые 12 часов!</p>
+                <button class="btn btn-primary" onclick="copyRefLink()" style="margin-bottom:8px;">📋 СКОПИРОВАТЬ ССЫЛКУ</button>
+                <button class="btn btn-gold" id="claimRefBtn" onclick="claimRefBonus()">🎁 ЗАБРАТЬ БОНУС (+2500)</button>
+                <div id="refCooldownText" style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:6px;"></div>
+            </div>
+            <div class="card">
+                <b>📢 СОЦСЕТИ ПРОЕКТА</b>
+                <p style="font-size:12px; color:var(--text-muted); margin:6px 0 10px;">Подпишись перед листингом токена $RAKETA:</p>
+                <button class="btn" style="background:#24A1DE; color:#fff;" onclick="claimSocialBonus()">✈️ Канал @raketa_tap (+1 000 🚀)</button>
+            </div>
+        </div>
     </div>
-    <div class="hdr-r">
-      <div class="gems-pill">💎 <b id="gems">0</b></div>
-      <button class="icon-btn" id="sndBtn" onclick="toggleSound()">🔊</button>
-      <div class="prof"><small>Майнинг/ч</small><b>+<span id="pph">0</span></b></div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('tab-tap', this)"><div class="nav-icon">🚀</div><div>Тапалка</div></div>
+        <div class="nav-item" onclick="switchTab('tab-games', this)"><div class="nav-icon">🎰</div><div>Игры</div></div>
+        <div class="nav-item" onclick="switchTab('tab-upgrade', this)"><div class="nav-icon">⚡</div><div>Прокачка</div></div>
+        <div class="nav-item" onclick="switchTab('tab-friends', this)"><div class="nav-icon">👥</div><div>Друзья</div></div>
     </div>
-  </header>
+    <script>
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.expand(); tg.ready(); }
 
-  <main class="cnt">
-    <!-- 1. ПОЛЕТ (Кликер + Комбо) -->
-    <section id="tab-flight" class="pane active">
-      <div class="bal-card">
-        <small>БАЛАНС ТОКЕНОВ ДО ЛИСТИНГА</small>
-        <h1>✈️ <span id="bal">0</span> <span class="ticker">$AERO</span></h1>
-        <div class="combo-badge" id="comboBadge">Комбо x1</div>
-      </div>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if (type === 'tap') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(320, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.06);
+                gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+                osc.start(now); osc.stop(now + 0.06);
+            } else if (type === 'win') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(523, now); osc.frequency.setValueAtTime(659, now + 0.1); osc.frequency.setValueAtTime(784, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now); osc.stop(now + 0.35);
+            } else if (type === 'boom') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, now); osc.frequency.exponentialRampToValueAtTime(35, now + 0.4);
+                gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
+            }
+        }
 
-      <div class="tap-wrap">
-        <div class="tap-ring"></div>
-        <div class="tap" id="tapZone"><span>🛩️</span></div>
-      </div>
+        const defaultState = { username: tg?.initDataUnsafe?.user?.first_name || 'Пилот #1', balance: 500, energy: 1000, maxEnergy: 1000, tapPower: 1, passivePerHour: 0, lvlTap: 1, lvlEnergy: 1, lvlAuto: 0, lastRefClaim: 0, socialClaimed: false };
+        let state = JSON.parse(localStorage.getItem('raketa_save_v1')) || defaultState;
 
-      <div class="box">
-        <div class="row"><span>⚡ Топливо реактора</span><span><b id="en">500</b> / <span id="maxEn">500</span></span></div>
-        <div class="bar"><div class="fill" id="enFill"></div></div>
-      </div>
-    </section>
+        function saveState() { localStorage.setItem('raketa_save_v1', JSON.stringify(state)); updateUI(); }
 
-    <!-- 2. АРКАДА (Ракетка, Шахта, Кристаллы) -->
-    <section id="tab-arcade" class="pane">
-      <!-- Режим 1: Ракетка -->
-      <div class="box">
-        <div class="row"><h3>🚀 Ракетка</h3><span class="tag gold">X-ПОЛЕТ</span></div>
-        <div class="sky" id="skyBox">
-          <div id="rocket">🚀</div>
-          <b id="mult">1.00x</b>
-          <small id="status">Успей забрать до ухода с радара</small>
-        </div>
-        <div class="row gap">
-          <input type="number" id="betRocket" value="50" min="10" step="10">
-          <button class="btn gold" id="btnRocket" onclick="toggleRocket()">Взлет (50)</button>
-        </div>
-      </div>
+        function updateUI() {
+            document.getElementById('displayUsername').innerText = state.username;
+            document.getElementById('avatarLetter').innerText = state.username.charAt(0).toUpperCase();
+            document.getElementById('balanceText').innerText = Math.floor(state.balance).toLocaleString('ru-RU');
+            document.getElementById('tapPowerText').innerText = state.tapPower;
+            document.getElementById('energyText').innerText = Math.floor(state.energy);
+            document.getElementById('maxEnergyText').innerText = state.maxEnergy;
+            document.getElementById('passiveRate').innerText = '+' + state.passivePerHour;
+            document.getElementById('energyBar').style.width = Math.min(100, (state.energy / state.maxEnergy) * 100) + '%';
+            document.getElementById('lvlTap').innerText = state.lvlTap;
+            document.getElementById('btnBuyTap').innerText = (state.lvlTap * 150) + ' 🚀';
+            document.getElementById('lvlEnergy').innerText = state.lvlEnergy;
+            document.getElementById('btnBuyEnergy').innerText = (state.lvlEnergy * 200) + ' 🚀';
+            document.getElementById('lvlAuto').innerText = state.lvlAuto;
+            document.getElementById('btnBuyAuto').innerText = ((state.lvlAuto + 1) * 300) + ' 🚀';
+            checkRefCooldown();
+        }
 
-      <!-- Режим 2: Шахта 5x5 -->
-      <div class="box">
-        <div class="row"><h3>⛏️ Кристальная шахта</h3><span class="tag">5x5</span></div>
-        <div class="mine-grid" id="mineGrid"></div>
-        <div class="row gap">
-          <button class="btn" id="btnMineStart" onclick="startMine()">Копать (50)</button>
-          <button class="btn gold" id="btnMineTake" onclick="takeMine()" disabled>Забрать: 0</button>
-        </div>
-      </div>
+        document.getElementById('mainTapBtn').addEventListener('pointerdown', (e) => {
+            if (state.energy < state.tapPower) return;
+            state.balance += state.tapPower; state.energy -= state.tapPower; playSound('tap');
+            if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            const el = document.createElement('div'); el.className = 'floating-text'; el.innerText = '+' + state.tapPower;
+            el.style.left = (e.clientX - 15) + 'px'; el.style.top = (e.clientY - 25) + 'px';
+            document.body.appendChild(el); setTimeout(() => el.remove(), 800);
+            saveState();
+        });
 
-      <!-- Режим 3: Кристальный спин -->
-      <div class="box">
-        <div class="row"><h3>💎 Кристальный реактор</h3><span class="tag">СЛОТ</span></div>
-        <div class="reels">
-          <div class="reel" id="r1">💎</div>
-          <div class="reel" id="r2">✈️</div>
-          <div class="reel" id="r3">⚡</div>
-        </div>
-        <button class="btn gold" id="btnSpin" onclick="spinReels()" style="width:100%;max-width:none;">Крутить за 100 $AERO</button>
-      </div>
-    </section>
+        setInterval(() => {
+            if (state.energy < state.maxEnergy) state.energy = Math.min(state.maxEnergy, state.energy + 3);
+            if (state.passivePerHour > 0) state.balance += state.passivePerHour / 3600;
+            saveState();
+        }, 1000);
 
-    <!-- 3. КЕЙСЫ И КОНТЕЙНЕРЫ -->
-    <section id="tab-cases" class="pane">
-      <h3>🎁 Контейнеры и Кейсы</h3>
-      <div class="card">
-        <div><b>📦 Ящик Кадета</b><small>Награда: от 100 до 1,000 $AERO</small></div>
-        <button class="btn" onclick="openCase('cadet')">250 $AERO</button>
-      </div>
-      <div class="card">
-        <div><b>🛰️ Спутниковый сейф</b><small>Награда: 500–5,000 $AERO или +5 💎</small></div>
-        <button class="btn gold" onclick="openCase('cyber')">1,000 $AERO</button>
-      </div>
-      <div class="card">
-        <div><b>💎 Кристальный контейнер</b><small>Супер-дроп: 5,000–25,000 $AERO</small></div>
-        <button class="btn purple" onclick="openCase('gem')">10 💎</button>
-      </div>
-    </section>
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
 
-    <!-- 4. АНГАР -->
-    <section id="tab-hangar" class="pane">
-      <h3>🛠️ Улучшения и Флот</h3>
-      <div class="card"><div><b>Турбина (Ур.<span id="lTap">1</span>)</b><small>+1 $AERO за каждый тап</small></div><button class="btn" id="bTap" onclick="buy('tap')">100</button></div>
-      <div class="card"><div><b>Топливный бак (Ур.<span id="lEn">1</span>)</b><small>+250 к объему топлива</small></div><button class="btn" id="bEn" onclick="buy('en')">150</button></div>
-      <div class="card"><div><b>Дрон-майнер (Ур.<span id="lDrn">0</span>)</b><small>+150 $AERO в час в фоне</small></div><button class="btn" id="bDrn" onclick="buy('drn')">250</button></div>
-      <div class="card"><div><b>Космолайнер (Ур.<span id="lSht">0</span>)</b><small>+750 $AERO в час в фоне</small></div><button class="btn" id="bSht" onclick="buy('sht')">1000</button></div>
-    </section>
+        function switchSubGame(subId, el) {
+            document.querySelectorAll('.sub-game').forEach(s => s.style.display = 'none');
+            document.getElementById('sub-' + subId).style.display = 'block';
+            document.querySelectorAll('.game-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+        }
 
-    <!-- 5. МИССИИ И ДРУЗЬЯ -->
-    <section id="tab-missions" class="pane">
-      <h3>🎯 Эскадрилья и Бонусы</h3>
-      <div class="card">
-        <div><b>Пригласить друга</b><small id="invStatus">+500 $AERO и +2 💎 (КД 12ч)</small></div>
-        <button class="btn gold" id="btnInv" onclick="invite()">Звать</button>
-      </div>
-      <div class="card">
-        <div><b>Ежедневный бонус</b><small>+400 $AERO и +1 💎 раз в 24ч</small></div>
-        <button class="btn" onclick="daily()">Забрать</button>
-      </div>
-      <div class="card">
-        <div><b>Канал проекта $AERO</b><small>+1,000 $AERO за подписку</small></div>
-        <button class="btn" id="bTg" onclick="social('https://t.me')">Перейти</button>
-      </div>
-    </section>
-  </main>
+        function changeUsername() {
+            const name = prompt('Введи новый никнейм пилот:', state.username);
+            if (name && name.trim().length > 0) { state.username = name.trim().slice(0, 16); saveState(); }
+        }
 
-  <nav class="nav">
-    <div class="ni active" onclick="tab('flight',this)">🛫<span>Полет</span></div>
-    <div class="ni" onclick="tab('arcade',this)">🕹️<span>Аркада</span></div>
-    <div class="ni" onclick="tab('cases',this)">🎁<span>Кейсы</span></div>
-    <div class="ni" onclick="tab('hangar',this)">🛠️<span>Ангар</span></div>
-    <div class="ni" onclick="tab('missions',this)">🎯<span>Миссии</span></div>
-  </nav>
-  <script src="script.js"></script>
-</body>
-</html>
+        function doubleBet(id) { const inp = document.getElementById(id); inp.value = Math.min(Math.floor(state.balance), Number(inp.value) * 2); }
+
+        let crashRunning = false, crashMult = 1.00, crashTarget = 1.00, crashCurrentBet = 0, crashTimer = null;
+        const tamaevQuotes = ["«Брат, это база! Держим курс на луну!»", "«Венгалби на связи, забираем иксы!»", "«Газ в палас, не тормози!»", "«Асхаб говорит: вовремя забрать — искусство!»"];
+
+        function handleCrashAction() {
+            const btn = document.getElementById('crashActionBtn'), multEl = document.getElementById('crashMultText'), quoteEl = document.getElementById('crashQuoteText'), rocketEl = document.getElementById('rocketIcon');
+            if (!crashRunning) {
+                const bet = Number(document.getElementById('crashBet').value);
+                if (bet < 10 || bet > state.balance) return alert('Недостаточно монет!');
+                state.balance -= bet; crashCurrentBet = bet; crashRunning = true; crashMult = 1.00;
+                crashTarget = Math.random() < 0.12 ? 1.05 : +(1 + Math.pow(Math.random(), 2.3) * 18).toFixed(2);
+                multEl.style.color = '#fff'; quoteEl.innerText = tamaevQuotes[Math.floor(Math.random() * tamaevQuotes.length)];
+                btn.className = 'btn btn-gold'; btn.innerText = 'ЗАБРАТЬ (' + bet + ' 🚀)'; saveState();
+                crashTimer = setInterval(() => {
+                    crashMult = +(crashMult + 0.03 * (crashMult * 0.6)).toFixed(2);
+                    multEl.innerText = crashMult.toFixed(2) + 'x';
+                    btn.innerText = 'ЗАБРАТЬ (' + Math.floor(crashCurrentBet * crashMult) + ' 🚀)';
+                    rocketEl.style.transform = `translate(${Math.min(220, (crashMult - 1) * 45)}px, -${Math.min(110, (crashMult - 1) * 25)}px)`;
+                    if (crashMult >= crashTarget) {
+                        clearInterval(crashTimer); crashRunning = false; playSound('boom');
+                        multEl.style.color = 'var(--danger)'; multEl.innerText = 'КРАШ @ ' + crashTarget.toFixed(2) + 'x';
+                        quoteEl.innerText = '«Двигатель лег, брат... В следующий раз повезет!»';
+                        rocketEl.style.transform = 'translate(0,0)'; btn.className = 'btn btn-primary'; btn.innerText = 'ЗАПУСТИТЬ РАКЕТУ';
+                    }
+                }, 80);
+            } else {
+                clearInterval(crashTimer); crashRunning = false; const win = Math.floor(crashCurrentBet * crashMult);
+                state.balance += win; playSound('win'); multEl.style.color = 'var(--accent)';
+                quoteEl.innerText = `«Красава! Забрал +${win} $RAKETA!»`; rocketEl.style.transform = 'translate(0,0)';
+                btn.className = 'btn btn-primary'; btn.innerText = 'ЗАПУСТИТЬ РАКЕТУ'; saveState();
+            }
+        }
+
+        let minesActive = false, minesBoard = [], minesBetVal = 0, minesCurrentMult = 1.00, safeOpened = 0;
+        function renderEmptyMines() {
+            const grid = document.getElementById('minesGrid'); grid.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div'); cell.className = 'mine-cell'; cell.innerText = '?';
+                cell.onclick = () => clickMineCell(i, cell); grid.appendChild(cell);
+            }
+        }
+        renderEmptyMines();
+
+        function startOrCashoutMines() {
+            const btn = document.getElementById('minesBtn');
+            if (!minesActive) {
+                const bet = Number(document.getElementById('minesBet').value), bombs = Number(document.getElementById('minesCount').value);
+                if (bet < 10 || bet > state.balance) return alert('Не хватает монет!');
+                state.balance -= bet; minesBetVal = bet; minesActive = true; minesCurrentMult = 1.00; safeOpened = 0;
+                minesBoard = Array(25).fill('gem'); let placed = 0;
+                while (placed < bombs) { let idx = Math.floor(Math.random() * 25); if (minesBoard[idx] !== 'bomb') { minesBoard[idx] = 'bomb'; placed++; } }
+                renderEmptyMines(); document.getElementById('minesMultBadge').innerText = 'Множитель: 1.00x';
+                btn.className = 'btn btn-gold'; btn.innerText = 'ЗАБРАТЬ ' + bet + ' 🚀'; saveState();
+            } else {
+                state.balance += Math.floor(minesBetVal * minesCurrentMult); minesActive = false; playSound('win');
+                btn.className = 'btn btn-primary'; btn.innerText = 'НАЧАТЬ ИГРУ'; saveState();
+            }
+        }
+
+        function clickMineCell(idx, cellEl) {
+            if (!minesActive || cellEl.classList.contains('safe')) return;
+const bombs = Number(document.getElementById('minesCount').value);
+if (minesBoard[idx] === 'bomb') {
+minesActive = false; playSound('boom'); cellEl.classList.add('boom'); cellEl.innerText = '💥';
+document.getElementById('minesBtn').className = 'btn btn-primary'; document.getElementById('minesBtn').innerText = 'НАЧАТЬ ИГРУ';
+} else {
+safeOpened++; playSound('tap'); cellEl.classList.add('safe'); cellEl.innerText = '💎';
+minesCurrentMult = +(1 + safeOpened * (bombs * 0.08)).toFixed(2);
+document.getElementById('minesMultBadge').innerText = Множитель: ${minesCurrentMult}x;
+document.getElementById('minesBtn').innerText = ЗАБРАТЬ ${Math.floor(minesBetVal * minesCurrentMult)} 🚀;
+}
+}
+function playPlane(mult, chance) {
+const bet = Number(document.getElementById('planeBet').value), resEl = document.getElementById('planeResult');
+if (bet < 10 || bet > state.balance) return alert('Недостаточно монет!');
+state.balance -= bet;
+if (Math.random() < chance) {
+const win = Math.floor(bet * mult); state.balance += win; playSound('win');
+resEl.style.color = 'var(--accent)'; resEl.innerText = ✅ Успешный рейс! Выигрыш: +${win} $RAKETA;
+} else {
+playSound('boom'); resEl.style.color = 'var(--danger)'; resEl.innerText = 🌪️ Турбулентность! Ставка сгорела.;
+}
+saveState();
+}
+let caseOpening = false;
+function openCase() {
+if (caseOpening || state.balance < 500) return alert(state.balance < 500 ? 'Нужно 500 🚀!' : 'Подожди...');
+state.balance -= 500; caseOpening = true; saveState();
+const prizes =, display = document.getElementById('caseDisplay'); let ticks = 0;
+const spin = setInterval(() => {
+display.innerText = 🎰 ${prizes[Math.floor(Math.random() * prizes.length)].toLocaleString('ru-RU')} 🚀;
+playSound('tap'); ticks++;
+if (ticks > 18) {
+clearInterval(spin); const r = Math.random();
+let finalPrize = r > 0.96 ? 25000 : r > 0.85 ? 5000 : r > 0.65 ? 2500 : r > 0.40 ? 1000 : r > 0.20 ? 600 : 350;
+state.balance += finalPrize; playSound('win');
+display.innerText = 🎉 ВЫПАЛО: +${finalPrize.toLocaleString('ru-RU')} 🚀;
+caseOpening = false; saveState();
+}
+}, 90);
+}
+function buyUpgrade(type) {
+if (type === 'tap') { const c = state.lvlTap * 150; if (state.balance < c) return alert('Мало монет!'); state.balance -= c; state.lvlTap++; state.tapPower++; }
+else if (type === 'energy') { const c = state.lvlEnergy * 200; if (state.balance < c) return alert('Мало монет!'); state.balance -= c; state.lvlEnergy++; state.maxEnergy += 500; state.energy = state.maxEnergy; }
+else if (type === 'auto') { const c = (state.lvlAuto + 1) * 300; if (state.balance < c) return alert('Мало монет!'); state.balance -= c; state.lvlAuto++; state.passivePerHour += 300; }
+playSound('win'); saveState();
+}
+function copyRefLink() {
+const link = https://t.me{Math.floor(Math.random()*90000+10000)};
+navigator.clipboard?.writeText(link); alert('Ссылка скопирована:\n' + link);
+}
+function checkRefCooldown() {
+const twelveHours = 12 * 60 * 60 * 1000, diff = Date.now() - state.lastRefClaim;
+const btn = document.getElementById('claimRefBtn'), txt = document.getElementById('refCooldownText');
+if (diff < twelveHours) { btn.disabled = true; txt.innerText = Следующий бонус через ~${Math.ceil((twelveHours - diff) / 3600000)} ч.; }
+else { btn.disabled = false; txt.innerText = 'Бонус готов к получению!'; }
+}
+function claimRefBonus() {
+if (Date.now() - state.lastRefClaim < 12 * 3600000) return;
+state.balance += 2500; state.lastRefClaim = Date.now(); playSound('win'); saveState();
+}
+function claimSocialBonus() {
+if (state.socialClaimed) return alert('Уже получено!');
+state.balance += 1000; state.socialClaimed = true; playSound('win'); saveState(); alert('Начислено +1 000 🚀!');
+}
+updateUI();
