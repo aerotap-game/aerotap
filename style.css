@@ -1,28 +1,28 @@
 :root {
-    --bg: #050608;
-    --surface: #0f1219;
-    --surface-2: #171c28;
-    --border: rgba(255, 255, 255, 0.08);
-    --gold: #f59e0b;
-    --gold-light: #fcd34d;
-    --emerald: #10b981;
-    --blue: #3b82f6;
-    --red: #ef4444;
-    --text: #f8fafc;
-    --muted: #64748b;
+    --mac-bg: #141416;
+    --mac-window: rgba(28, 28, 30, 0.85);
+    --mac-card: rgba(44, 44, 46, 0.72);
+    --mac-border: rgba(255, 255, 255, 0.12);
+    --blue: #0A84FF;
+    --green: #30D158;
+    --orange: #FF9F0A;
+    --gold: #FFD60A;
+    --red: #FF453A;
+    --text: #FFFFFF;
+    --muted: #98989D;
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', sans-serif;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
 
 body {
-    background: #050608;
+    background: radial-gradient(circle at 20% 0%, #1c2841 0%, #0d0d0f 60%, #000000 100%);
     color: var(--text);
     height: 100vh;
     display: flex;
@@ -30,252 +30,209 @@ body {
     overflow: hidden;
 }
 
-.top-bar {
+/* Верхняя панель окна macOS со светофором */
+.mac-titlebar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    background: rgba(36, 36, 38, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--mac-border);
 }
 
-.pilot-chip { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.pilot-ava {
-    width: 40px; height: 40px; border-radius: 14px;
-    background: linear-gradient(135deg, #f59e0b, #b45309);
-    color: #000; font-weight: 900; font-size: 17px;
-    display: flex; align-items: center; justify-content: center;
-}
-.pilot-nick { font-size: 14px; font-weight: 800; }
-.pilot-sub { font-size: 11px; color: var(--gold-light); font-weight: 600; }
+.traffic-lights { display: flex; gap: 6px; }
+.tl-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.tl-red { background: #FF5F56; }
+.tl-yellow { background: #FFBD2E; }
+.tl-green { background: #27C93F; }
 
-.top-actions { display: flex; align-items: center; gap: 8px; }
-.icon-chip { background: var(--surface-2); border: 1px solid var(--border); color: #fff; width: 36px; height: 36px; border-radius: 12px; cursor: pointer; }
-.income-chip {
-    background: rgba(16, 185, 129, 0.14);
-    border: 1px solid rgba(16, 185, 129, 0.35);
-    color: var(--emerald);
-    padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 800;
-}
-
-.viewport { flex: 1; overflow-y: auto; padding: 14px 14px 96px; }
-
-/* Крупная банковская карта баланса как в Business Empire */
-.score-panel {
-    background: linear-gradient(135deg, #181e2c 0%, #0d1017 100%);
-    border: 1px solid rgba(245, 158, 11, 0.35);
-    border-radius: 22px;
-    padding: 18px;
-    text-align: left;
-    margin-bottom: 14px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-}
-.score-panel::after {
-    content: '$AERO';
-    position: absolute; right: 16px; top: 14px;
-    font-size: 11px; font-weight: 900; color: var(--gold);
-    background: rgba(245, 158, 11, 0.15); padding: 4px 10px; border-radius: 8px;
-}
-.score-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; font-weight: 700; }
-.score-value { font-size: 34px; font-weight: 900; margin-top: 6px; color: #fff; }
-.combo-strip { font-size: 11px; color: var(--emerald); margin-top: 6px; font-weight: 700; }
-
-.screen { display: none; animation: fadeIn 0.2s ease; }
-.screen.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-.quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
-.q-btn {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-    padding: 10px 4px; color: #fff; display: flex; flex-direction: column;
-    align-items: center; gap: 3px; cursor: pointer;
-}
-.q-btn:active { transform: scale(0.94); }
-.q-btn span { font-size: 20px; }
-.q-btn b { font-size: 10px; font-weight: 700; }
-.q-btn small { font-size: 9px; color: var(--muted); }
-.cockpit-center { position: relative; height: 210px; display: flex; align-items: center; justify-content: center; margin: 6px 0 14px; }
-.radar-circle {
-    position: absolute; width: 200px; height: 200px; border-radius: 50%;
-    border: 1px dashed rgba(245, 158, 11, 0.35);
-    animation: spinRadar 22s linear infinite; pointer-events: none;
-}
-@keyframes spinRadar { to { transform: rotate(360deg); } }
-
-.jet-trigger {
-    width: 158px; height: 158px; border-radius: 50%;
-    background: radial-gradient(circle at 30% 25%, #242b3d 0%, #0f1219 80%);
-    border: 2px solid var(--gold);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), inset 0 0 25px rgba(245, 158, 11, 0.25);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 2; transition: transform 0.07s;
-}
-.jet-trigger:active { transform: scale(0.92); }
-.jet-icon { font-size: 60px; }
-.jet-tag { font-size: 11px; font-weight: 900; color: var(--gold); margin-top: 6px; }
-
-.fuel-hud, .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 14px;
-    margin-bottom: 12px;
+.mac-window-title { font-size: 12px; font-weight: 700; color: #e5e5ea; }
+.mac-right-tools { display: flex; gap: 6px; }
+.mac-icon-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--mac-border);
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
 }
 
-.fuel-info { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 7px; color: var(--muted); font-weight: 700; }
-.fuel-info b { color: #fff; }
-.fuel-bar { height: 8px; background: #050608; border-radius: 10px; overflow: hidden; }
-.fuel-progress { height: 100%; width: 100%; background: linear-gradient(90deg, var(--gold), var(--emerald)); border-radius: 10px; transition: width 0.2s; }
-
-.floating-text {
-    position: fixed; font-size: 22px; font-weight: 900; color: var(--gold);
-    pointer-events: none; animation: floatUp 0.75s ease-out forwards; z-index: 999;
-}
-@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-85px); } }
-
-.mode-tabs, .mode-tabs-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; scrollbar-width: none; }
-.mode-tabs-scroll::-webkit-scrollbar { display: none; }
-.m-tab {
-    flex: 0 0 auto; background: var(--surface); border: 1px solid var(--border);
-    color: var(--muted); padding: 9px 13px; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer;
-}
-.m-tab.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 800; }
-
-.panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; }
-.tag-orange, .tag-gold { background: rgba(245, 158, 11, 0.15); color: var(--gold); padding: 4px 9px; border-radius: 8px; font-size: 10px; font-weight: 800; }
-.tag-cyan { background: rgba(16, 185, 129, 0.15); color: var(--emerald); padding: 4px 9px; border-radius: 8px; font-size: 10px; font-weight: 800; }
-
-.crash-arena { height: 165px; background: radial-gradient(circle at bottom, #1e263b 0%, #090b12 100%); border: 1px solid var(--border); border-radius: 16px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; }
-.crash-x { font-size: 42px; font-weight: 900; z-index: 2; }
-.crash-msg { font-size: 11px; color: var(--gold); background: rgba(0,0,0,0.7); padding: 5px 12px; border-radius: 20px; margin-top: 6px; z-index: 2; }
-.fly-obj { position: absolute; font-size: 36px; bottom: 14px; left: 18px; transition: transform 0.1s linear; }
-
-.bet-bar { display: flex; gap: 6px; margin-bottom: 10px; }
-.bet-field { flex: 1; min-width: 60px; background: #050608; border: 1px solid var(--border); color: #fff; padding: 11px 12px; border-radius: 12px; font-size: 13px; font-weight: 700; outline: none; }
-.b-chip { background: var(--surface-2); border: 1px solid var(--border); color: #fff; padding: 0 11px; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer; }
-
-.big-btn { width: 100%; padding: 12px; border: none; border-radius: 14px; font-size: 13px; font-weight: 800; cursor: pointer; }
-.big-btn:active { transform: scale(0.97); }
-.btn-orange, .btn-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #000; }
-.btn-cyan { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; }
-.btn-red { background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); color: #fff; }
-.big-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* Витринные карточки авто с иллюстрацией и износом (как в Business Empire) */
-.car-showcase {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 12px;
-    margin-bottom: 10px;
-}
-.car-visual-banner {
-    height: 76px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #1f2738 0%, #0d1017 100%);
-    border: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 14px;
-    margin-bottom: 10px;
-    position: relative;
-    overflow: hidden;
-}
-.car-class-pill {
-    position: absolute; top: 8px; left: 10px;
-    font-size: 9px; font-weight: 800; text-transform: uppercase;
-    padding: 2px 7px; border-radius: 6px;
-    background: rgba(245, 158, 11, 0.2); color: var(--gold);
-}
-.car-svg-wrap { width: 135px; height: 54px; margin-left: auto; }
-.hp-track { height: 6px; background: #050608; border-radius: 6px; overflow: hidden; margin: 6px 0; }
-.hp-fill { height: 100%; background: var(--emerald); transition: width 0.2s; }
-
-.mines-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 10px; }
-.mine-cell { aspect-ratio: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
-.mine-cell.safe { background: rgba(16, 185, 129, 0.2); border-color: var(--emerald); }
-.mine-cell.boom { background: rgba(239, 68, 68, 0.25); border-color: var(--red); }
-
-.slots-window { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
-.slot-reel { background: #050608; border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 14px; height: 78px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
-.risk-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.status-line { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; font-weight: 600; }
-.upg-item, .task-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.task-row { padding: 12px 0; border-top: 1px solid var(--border); margin-top: 6px; }
-.task-row:first-child { border-top: none; padding-top: 2px; margin-top: 0; }
-.sm-btn { width: auto; padding: 9px 12px; white-space: nowrap; font-size: 11px; }
-.sub-txt { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-.wheel-stage { position: relative; height: 190px; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
-.wheel-pointer { position: absolute; top: 2px; font-size: 24px; color: var(--gold); z-index: 5; }
-.wheel-disc { width: 165px; height: 165px; border-radius: 50%; border: 3px solid var(--gold); background: conic-gradient(#f59e0b 0deg 60deg, #1e2538 60deg 120deg, #10b981 120deg 180deg, #7c3aed 180deg 240deg, #eab308 240deg 300deg, #ef4444 300deg 360deg); position: relative; display: flex; align-items: center; justify-content: center; transition: transform 3.5s cubic-bezier(0.15, 0.85, 0.25, 1); }
-.wheel-disc span { position: absolute; font-size: 13px; font-weight: 900; color: #fff; text-shadow: 0 1px 4px #000; height: 130px; }
-
-.roulette-tape-wrap { position: relative; height: 86px; background: #050608; border: 1px solid var(--gold); border-radius: 14px; overflow: hidden; margin: 12px 0; display: flex; align-items: center; }
-.tape-center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--gold); z-index: 5; }
-.roulette-tape { display: flex; gap: 8px; padding-left: 50%; transition: transform 3.8s cubic-bezier(0.12, 0.88, 0.2, 1); }
-.tape-item { flex: 0 0 76px; height: 68px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
-
-.roulette-ball-box, .dice-screen, .card-table { height: 95px; background: #050608; border: 1px solid var(--border); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 38px; font-weight: 900; margin: 10px 0; }
-.coin-stage { height: 105px; display: flex; align-items: center; justify-content: center; margin: 8px 0; }
-.coin-disc { width: 82px; height: 82px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fde047, #b45309); border: 2px solid #fef08a; display: flex; align-items: center; justify-content: center; font-size: 38px; transition: transform 0.8s ease; }
-.coin-flip-anim { transform: rotateY(1080deg) scale(1.15); }
-
-.tower-grid { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
-.tower-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.tower-cell { height: 38px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
-.tower-cell.safe { background: rgba(16, 185, 129, 0.2); border-color: var(--emerald); }
-.tower-cell.boom { background: rgba(239, 68, 68, 0.25); border-color: var(--red); }
-
-.blitz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
-.blitz-cell { height: 64px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
-
-.floating-dock {
-    position: fixed; bottom: 12px; left: 12px; right: 12px; height: 64px;
-    background: rgba(15, 18, 25, 0.96);
-border: 1px solid var(--border); border-radius: 22px;
-display: grid; grid-template-columns: repeat(5, 1fr);
-padding: 5px; z-index: 100; box-shadow: 0 12px 35px rgba(0,0,0,0.85);
-}
-.dock-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; gap: 3px; border-radius: 16px; cursor: pointer; }
-.dock-btn span { font-size: 10px; font-weight: 700; }
-.dock-btn.active { color: var(--gold); background: rgba(245, 158, 11, 0.14); }
-/* Удобная сетка крупных кнопок-карточек (Bento 2x2) */
-.bento-2x2 {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 14px;
+.mac-workspace {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 14px 96px;
 }
 
-.bento-tile {
-    background: linear-gradient(145deg, #171c28 0%, #0e1118 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+.mac-balance-card {
+    background: linear-gradient(145deg, rgba(44, 44, 48, 0.85) 0%, rgba(24, 24, 26, 0.95) 100%);
+    border: 1px solid var(--mac-border);
     border-radius: 18px;
-    padding: 13px 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+}
+
+.mac-bal-row { display: flex; justify-content: space-between; align-items: center; }
+.mac-caption { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: 0.6px; }
+.mac-big-num { font-size: 30px; font-weight: 800; margin-top: 2px; }
+.mac-income-pill {
+    background: rgba(48, 209, 88, 0.16);
+    border: 1px solid rgba(48, 209, 88, 0.35);
+    padding: 6px 10px;
+    border-radius: 12px;
+    text-align: right;
+}
+.mac-income-pill small { display: block; font-size: 9px; color: var(--green); font-weight: 700; }
+.mac-income-pill b { font-size: 13px; color: #fff; }
+.mac-status-bar { font-size: 11px; color: var(--gold); margin-top: 8px; font-weight: 600; }
+
+.screen { display: none; animation: macFade 0.18s ease; }
+.screen.active { display: block; }
+@keyframes macFade { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: scale(1); } }
+
+/* Сетка виджетов macOS 2x2 */
+.mac-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+.mac-widget-btn {
+    background: var(--mac-card);
+    border: 1px solid var(--mac-border);
+    border-radius: 14px;
+    padding: 10px;
     color: #fff;
     display: flex;
     align-items: center;
     gap: 10px;
     text-align: left;
     cursor: pointer;
-    transition: transform 0.1s, border-color 0.15s;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    transition: transform 0.1s, background 0.15s;
 }
+.mac-widget-btn:active { transform: scale(0.96); background: rgba(65, 65, 70, 0.9); }
+.mw-ico { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.bg-blue { background: var(--blue); }
+.bg-green { background: var(--green); }
+.bg-orange { background: var(--orange); }
+.bg-gold { background: linear-gradient(135deg, #FFD60A, #FF9F0A); color: #000; }
+.bg-red { background: var(--red); }
 
-.bento-tile:active { transform: scale(0.96); }
-.bento-tile.active-tile {
-    border-color: var(--gold);
-    background: linear-gradient(145deg, rgba(245, 158, 11, 0.18) 0%, #121620 100%);
-}
-.bento-tile.tile-vip {
-    border-color: rgba(245, 158, 11, 0.55);
-    background: linear-gradient(145deg, rgba(245, 158, 11, 0.22) 0%, #141824 100%);
-}
-.tile-ico { font-size: 26px; flex-shrink: 0; }
-.bento-tile b { display: block; font-size: 12px; font-weight: 800; line-height: 1.2; }
-.bento-tile small { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 600; }
+.mw-info b { display: block; font-size: 12px; font-weight: 700; }
+.mw-info span { display: block; font-size: 10px; color: var(--muted); }
+/* Штурвал и прогресс-бар */
+.mac-stage { position: relative; height: 195px; display: flex; align-items: center; justify-content: center; margin: 4px 0 10px; }
+.mac-orbit { position: absolute; width: 185px; height: 185px; border-radius: 50%; border: 1px dashed rgba(10, 132, 255, 0.4); animation: spinOrbit 20s linear infinite; pointer-events: none; }
+@keyframes spinOrbit { to { transform: rotate(360deg); } }
 
+.mac-yoke {
+    width: 148px; height: 148px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, #3a3a3e 0%, #1c1c1e 80%);
+    border: 2px solid var(--blue);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(10, 132, 255, 0.25);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 2; transition: transform 0.07s;
+}
+.mac-yoke:active { transform: scale(0.92); }
+.yoke-plane { font-size: 56px; }
+.yoke-lbl { font-size: 11px; font-weight: 800; color: var(--blue); margin-top: 4px; }
+
+.mac-card { background: var(--mac-card); backdrop-filter: blur(16px); border: 1px solid var(--mac-border); border-radius: 16px; padding: 13px; margin-bottom: 10px; }
+.mac-row-between { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.mac-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.mac-progress-bg { height: 8px; background: rgba(0,0,0,0.45); border-radius: 8px; overflow: hidden; }
+.mac-progress-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width 0.2s; }
+
+/* macOS Segmented Control */
+.mac-segmented { display: flex; background: rgba(0, 0, 0, 0.4); padding: 3px; border-radius: 11px; border: 1px solid var(--mac-border); margin-bottom: 10px; gap: 2px; }
+.seg-btn { flex: 1; background: transparent; border: none; color: var(--muted); padding: 7px 4px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.15s; }
+.seg-btn.active { background: #3a3a3c; color: #fff; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+
+/* Цветные кнопки macOS */
+.mac-btn { padding: 9px 13px; border: none; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform 0.08s, opacity 0.15s; color: #fff; }
+.mac-btn:active { transform: scale(0.96); }
+.mac-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-blue { background: var(--blue); color: #fff; }
+.btn-green { background: var(--green); color: #000; }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-red { background: var(--red); color: #fff; }
+.btn-glass { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid var(--mac-border); }
+
+.mac-tag { padding: 3px 8px; border-radius: 7px; font-size: 10px; font-weight: 800; }
+.tag-green { background: rgba(48, 209, 88, 0.18); color: var(--green); }
+.tag-gold { background: rgba(255, 214, 10, 0.18); color: var(--gold); }
+.tag-blue { background: rgba(10, 132, 255, 0.18); color: var(--blue); }
+
+.mac-list-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--mac-border); }
+.mac-list-row:first-child { border-top: none; padding-top: 0; }
+
+/* Карточки авто с кузовами */
+.car-showcase { background: rgba(24, 24, 28, 0.9); border: 1px solid var(--mac-border); border-radius: 14px; padding: 10px; margin-bottom: 8px; }
+.car-visual-banner { height: 64px; border-radius: 10px; background: linear-gradient(135deg, #242429 0%, #141416 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; margin-bottom: 8px; }
+.car-class-pill { font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 6px; background: rgba(255, 214, 10, 0.16); color: var(--gold); }
+.hp-track { height: 6px; background: #000; border-radius: 6px; overflow: hidden; margin: 5px 0; }
+.hp-fill { height: 100%; background: var(--green); }
+
+/* Игровые экраны и рулетки */
+.crash-arena { height: 155px; background: #101014; border: 1px solid var(--mac-border); border-radius: 12px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 10px; }
+.crash-x { font-size: 38px; font-weight: 900; z-index: 2; }
+.crash-msg { font-size: 11px; color: var(--gold); background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 12px; margin-top: 4px; z-index: 2; }
+.fly-obj { position: absolute; font-size: 34px; bottom: 12px; left: 16px; transition: transform 0.1s linear; }
+
+.bet-bar { display: flex; gap: 6px; margin-bottom: 8px; }
+.mac-input { flex: 1; min-width: 60px; background: #0d0d10; border: 1px solid var(--mac-border); color: #fff; padding: 9px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none; }
+.mac-chip { background: rgba(255,255,255,0.1); border: 1px solid var(--mac-border); color: #fff; padding: 0 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.mac-status { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; font-weight: 600; }
+
+.mines-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 8px; }
+.mine-cell { aspect-ratio: 1; background: #1c1c20; border: 1px solid var(--mac-border); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+.mine-cell.safe { background: rgba(48, 209, 88, 0.22); border-color: var(--green); }
+.mine-cell.boom { background: rgba(255, 69, 58, 0.28); border-color: var(--red); }
+
+.slots-window { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+.slot-reel { background: #0d0d10; border: 1px solid var(--gold); border-radius: 12px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+.risk-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+
+.wheel-stage { position: relative; height: 180px; display: flex; align-items: center; justify-content: center; margin: 8px 0; }
+.wheel-pointer { position: absolute; top: 0; font-size: 22px; color: var(--gold); z-index: 5; }
+.wheel-disc { width: 155px; height: 155px; border-radius: 50%; border: 3px solid var(--gold); background: conic-gradient(#FF9F0A 0deg 60deg, #2c2c2e 60deg 120deg, #30D158 120deg 180deg, #0A84FF 180deg 240deg, #FFD60A 240deg 300deg, #FF453A 300deg 360deg); position: relative; display: flex; align-items: center; justify-content: center; transition: transform 3.5s cubic-bezier(0.15, 0.85, 0.25, 1); }
+.wheel-disc span { position: absolute; font-size: 12px; font-weight: 900; color: #fff; text-shadow: 0 1px 4px #000; height: 120px; }
+
+.roulette-tape-wrap { position: relative; height: 80px; background: #0d0d10; border: 1px solid var(--blue); border-radius: 12px; overflow: hidden; margin: 10px 0; display: flex; align-items: center; }
+.tape-center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--gold); z-index: 5; }
+.roulette-tape { display: flex; gap: 8px; padding-left: 50%; transition: transform 3.8s cubic-bezier(0.12, 0.88, 0.2, 1); }
+.tape-item { flex: 0 0 74px; height: 64px; background: #1c1c20; border: 1px solid var(--mac-border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+
+.roulette-ball-box, .dice-screen, .card-table { height: 86px; background: #0d0d10; border: 1px solid var(--mac-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 900; margin: 8px 0; }
+.coin-stage { height: 96px; display: flex; align-items: center; justify-content: center; margin: 6px 0; }
+.coin-disc { width: 76px; height: 76px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #FFD60A, #FF9F0A); display: flex; align-items: center; justify-content: center; font-size: 34px; transition: transform 0.8s ease; }
+.coin-flip-anim { transform: rotateY(1080deg) scale(1.15); }
+
+.tower-grid { display: flex; flex-direction: column; gap: 5px; margin: 8px 0; }
+.tower-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.tower-cell { height: 34px; background: #1c1c20; border: 1px solid var(--mac-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; }
+.tower-cell.safe { background: rgba(48, 209, 88, 0.22); border-color: var(--green); }
+.tower-cell.boom { background: rgba(255, 69, 58, 0.28); border-color: var(--red); }
+
+.blitz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
+.blitz-cell { height: 58px; background: #1c1c20; border: 1px solid var(--mac-border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; }
+
+.floating-text { position: fixed; font-size: 20px; font-weight: 900; color: var(--blue); pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 999; }
+@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-75px); } }
+
+/* Нижний стеклянный Dock как в macOS */
+.mac-dock {
+    position: fixed; bottom: 10px; left: 16px; right: 16px; height: 66px;
+    background: rgba(44, 44, 48, 0.78);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 22px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    padding: 5px; z-index: 100;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75);
+}
+.dock-item { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; transition: transform 0.12s; }
+.dock-item:active { transform: scale(0.9); }
+.dock-ico { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 3px 8px rgba(0,0,0,0.4); }
+.dock-item span { font-size: 10px; font-weight: 600; }
+.dock-item.active span { color: #fff; font-weight: 800; }
