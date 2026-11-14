@@ -1,4 +1,4 @@
-// app.js — Главный движок "Бомж Инвестор" ($HOBO)
+// app.js — Главный движок "Бомж Инвестор" ($HOBO) [Pure Frontend]
 
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) {
@@ -7,7 +7,7 @@ if (tg) {
     tg.setHeaderColor('#000000');
 }
 
-// Звуковой движок из твоей исходной сборки
+// Звуковой движок (Web Audio API)
 let soundOn = true;
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 const audioCtx = AudioCtx ? new AudioCtx() : null;
@@ -56,7 +56,7 @@ function playSound(type) {
     } catch (e) {}
 }
 
-// Состояние игрока (загружается из localStorage или с бэкенда)
+// Состояние игрока (хранится локально на устройстве)
 let state = JSON.parse(localStorage.getItem('hobo_state_v1')) || {
     balance: 0,
     totalEarned: 0,
@@ -75,8 +75,9 @@ const games = new HoboGames(state, empire, () => {
 
 let currentCategory = 'street';
 let islandTimer = null;
+let lastTapTimestamp = 0;
 
-// Расчет офлайн-заработка (максимум за 3 часа отсутствия, как в Хомяке)
+// Расчет офлайн-заработка (максимум за 3 часа отсутствия)
 function calculateOfflineProfit() {
     const now = Date.now();
     const diffSec = Math.floor((now - (state.lastSaveTime || now)) / 1000);
@@ -85,7 +86,6 @@ function calculateOfflineProfit() {
         const profitPerSec = empire.getTotalProfitPerHour() / 3600;
         const offlineEarned = Math.floor(profitPerSec * cappedSec);
 
-        // Восстановление энергии за время отсутствия (+2 в сек)
         state.energy = Math.min(state.maxEnergy, state.energy + cappedSec * 2);
 
         if (offlineEarned > 0) {
@@ -126,8 +126,12 @@ function updateClock() {
     if (clockEl) clockEl.innerText = `${h}:${m}`;
 }
 
-// Обработка Тапа
+// Обработка Тапа (с базовой защитой от автокликера — не быстрее 1 клика в 35 мс)
 function handleTap(e) {
+    const now = Date.now();
+    if (now - lastTapTimestamp < 35) return;
+    lastTapTimestamp = now;
+
     const rank = empire.getCurrentRank();
     const power = rank.tapPower;
 
@@ -145,10 +149,10 @@ function handleTap(e) {
         tg.HapticFeedback.impactOccurred('light');
     }
 
-    // Всплывающая цифра +1
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    spawnFloatingText(clientX, clientY, `+${power}`);
+    const touch = e.touches ? e.touches[0] : e;
+    if (touch) {
+        spawnFloatingText(touch.clientX, touch.clientY, `+${power}`);
+    }
 
     updateUI();
 }
@@ -163,20 +167,18 @@ function spawnFloatingText(x, y, text) {
     setTimeout(() => el.remove(), 800);
 }
 
-// Обновление всего интерфейса
+// Обновление интерфейса
 function updateUI() {
     const rank = empire.getCurrentRank();
     const nextRank = HOBO_RANKS.find(r => r.level === rank.level + 1);
     const profitPerHour = empire.getTotalProfitPerHour();
     const realTokens = empire.getEstimatedRealTokens();
 
-    // Баланс и AirDrop
     document.getElementById('balance-display').innerText = Math.floor(state.balance).toLocaleString();
     document.getElementById('real-token-display').innerText = realTokens;
     document.getElementById('stat-balance').innerText = Math.floor(state.balance).toLocaleString();
     document.getElementById('stat-real').innerText = `${realTokens} $HOBO`;
 
-    // Ранг и прогресс
     document.getElementById('rank-icon').innerText = rank.icon;
     document.getElementById('rank-name').innerText = rank.name;
     document.getElementById('tap-avatar').innerText = rank.icon;
@@ -190,18 +192,16 @@ function updateUI() {
     }
     document.getElementById('rank-progress').style.width = `${progress}%`;
 
-    // Энергия
     document.getElementById('energy-current').innerText = Math.floor(state.energy);
     document.getElementById('energy-max').innerText = state.maxEnergy;
     document.getElementById('energy-fill').style.width = `${(state.energy / state.maxEnergy) * 100}%`;
 
-    // Dynamic Island данные
     document.getElementById('island-profit-badge').innerText = `+${profitPerHour.toLocaleString()}/ч`;
     document.getElementById('island-real-tokens').innerText = `${realTokens} $HOBO`;
     document.getElementById('island-defense').innerText = `${empire.getTotalDefense()} 🛡️`;
 }
 
-// Навигация по вкладкам
+// Переключение вкладок
 function switchTab(tabName, btnEl) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.dock-item').forEach(b => b.classList.remove('active'));
@@ -210,26 +210,26 @@ function switchTab(tabName, btnEl) {
     btnEl.classList.add('active');
 
     if (tabName === 'empire') {
-        empire.renderCards(currentCategory, 'cards-container', () => {
-            saveState();
-            updateUI();
-            empire.renderCards(currentCategory, 'cards-container', updateUI);
-        });
+        renderCurrentCards();
     }
+}
+
+function renderCurrentCards() {
+    empire.renderCards(currentCategory, 'cards-container', () => {
+        saveState();
+        updateUI();
+        renderCurrentCards();
+    });
 }
 
 function switchCategory(cat, btnEl) {
     currentCategory = cat;
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     btnEl.classList.add('active');
-    empire.renderCards(cat, 'cards-container', () => {
-        saveState();
-        updateUI();
-        empire.renderCards(cat, 'cards-container', updateUI);
-    });
+    renderCurrentCards();
 }
 
-// Обработчики мини-игр
+// Мини-игры
 function handleRaidClick() {
     const res = games.executeRaid();
     notifyDynamicIsland(res.message, 4500);
@@ -255,27 +255,7 @@ function saveState() {
     localStorage.setItem('hobo_state_v1', JSON.stringify(state));
 }
 
-// Синхронизация с твоим Python-бэкендом в папке /api
-async function syncWithServer() {
-    const userId = tg?.initDataUnsafe?.user?.id || 'local_test_user';
-    try {
-        await fetch('/api/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                user_id: userId,
-                init_data: tg?.initData || '',
-                balance: Math.floor(state.balance),
-                total_earned: Math.floor(state.totalEarned),
-                cards: state.cards
-            })
-        });
-    } catch (e) {
-        // Если бэкенд еще не поднят, игра спокойно работает локально
-    }
-}
-
-// Инициализация при запуске
+// Запуск приложения
 document.addEventListener('DOMContentLoaded', () => {
     calculateOfflineProfit();
     updateClock();
@@ -290,22 +270,20 @@ document.addEventListener('DOMContentLoaded', () => {
         tapBtn.addEventListener('mousedown', handleTap);
     }
 
-// Игровой тик каждую секунду (пассивный доход + реген энергии)
-setInterval(() => {
-const profitPerSec = empire.getTotalProfitPerHour() / 3600;
-if (profitPerSec > 0) {
-state.balance += profitPerSec;
-state.totalEarned += profitPerSec;
-}
-if (state.energy < state.maxEnergy) {
-state.energy = Math.min(state.maxEnergy, state.energy + 2);
-}
-updateUI();
-}, 1000);
-// Автосохранение и синхронизация с сервером каждые 10 секунд
-setInterval(() => {
-saveState();
-syncWithServer();
-}, 10000);
-setInterval(updateClock, 15000);
+    // Игровой цикл (каждую секунду)
+    setInterval(() => {
+        const profitPerSec = empire.getTotalProfitPerHour() / 3600;
+        if (profitPerSec > 0) {
+            state.balance += profitPerSec;
+            state.totalEarned += profitPerSec;
+        }
+        if (state.energy < state.maxEnergy) {
+            state.energy = Math.min(state.maxEnergy, state.energy + 2);
+        }
+        updateUI();
+    }, 1000);
+
+    // Автосохранение каждые 5 секунд
+    setInterval(saveState, 5000);
+    setInterval(updateClock, 15000);
 });
