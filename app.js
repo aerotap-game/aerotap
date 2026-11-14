@@ -95,10 +95,7 @@ function getRefLink() {
     return 'https://t.me_' + userId;
 }
 
-function openTgChannel() {
-    const url = 'https://t.me';
-    if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-    else window.open(url, '_blank');
+function claimChannelReward() {
     if (!state.channelClaimed) {
         state.channelClaimed = true;
         state.balance += 150;
@@ -106,20 +103,6 @@ function openTgChannel() {
         showIslandNotice('+150 $AERO за @aerotap');
         saveState();
     }
-}
-
-function openTgBot() {
-    const url = 'https://t.me_bot';
-    if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
-    else window.open(url, '_blank');
-}
-
-function shareRefTelegram() {
-    const link = getRefLink();
-    const text = encodeURIComponent('Залетай в AeroTap ($AERO) в сети TON! Лови стартовый бонус по моей ссылке:');
-    const shareUrl = 'https://t.me' + encodeURIComponent(link) + '&text=' + text;
-    if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
-    else window.open(shareUrl, '_blank');
 }
 
 function updateUI() {
@@ -150,9 +133,16 @@ function updateUI() {
     const refInput = document.getElementById('refLinkInput');
     if (refInput) refInput.value = getRefLink();
 
+    const shareBtn = document.getElementById('tgShareLink');
+    if (shareBtn) {
+        const shareText = encodeURIComponent('Залетай в AeroTap ($AERO) в сети TON! Лови стартовый бонус по моей ссылке:');
+        shareBtn.href = 'https://t.me' + encodeURIComponent(getRefLink()) + '&text=' + shareText;
+    }
+
     const tonInput = document.getElementById('tonAddressInput');
     if (tonInput && state.tonWallet && !tonInput.value) tonInput.value = state.tonWallet;
 }
+
 function changePilotName() {
     const name = prompt('Введи новый позывной:', state.username);
     if (name && name.trim()) {
@@ -174,7 +164,6 @@ function openApp(screenId) {
     if (screenId === 'screen-games' && dock[3]) dock[3].classList.add('active');
 }
 
-// Штурвал (кликер с нагревом и вибрацией iOS)
 const tapBtn = document.getElementById('mainTapBtn');
 if (tapBtn) {
     tapBtn.addEventListener('pointerdown', (e) => {
@@ -215,8 +204,7 @@ function refillFuel() {
     showIslandNotice('⛽ Топливо восстановлено');
     saveState();
 }
-
-// Новая мини-игра: Авиадиспетчер (15 сек, кулдаун 10 мин)
+// Авиадиспетчер (15 сек, раз в 10 мин)
 let atcActive = false, atcTarget = 'ЛЕВАЯ', atcScore = 0, atcSec = 15, atcTimer = null;
 
 function nextATCPlane() {
@@ -227,7 +215,7 @@ function nextATCPlane() {
 
 function startATC() {
     if (Date.now() - state.lastAtcTime < 10 * 60000) {
-        return showIslandNotice('Смена доступна раз в 10 мин');
+        return showIslandNotice('Смена раз в 10 мин');
     }
     atcActive = true;
     atcScore = 0;
@@ -247,7 +235,7 @@ function startATC() {
             state.balance += reward;
             document.getElementById('atcStartBtn').style.display = 'block';
             document.getElementById('atcControls').style.display = 'none';
-            document.getElementById('atcPrompt').innerText = 'Смена окончена! Награда: +' + reward + ' $AERO';
+            document.getElementById('atcPrompt').innerText = 'Смена окончена! +' + reward + ' $AERO';
             playSound('win');
             saveState();
         }
@@ -262,7 +250,7 @@ function landPlane(side) {
         nextATCPlane();
     } else {
         playSound('boom');
-        document.getElementById('atcPrompt').innerText = '⚠️ Ошибка полосы! Попробуй снова';
+        document.getElementById('atcPrompt').innerText = '⚠️ Ошибка полосы!';
     }
 }
 
@@ -334,7 +322,8 @@ function buyHangar(id) {
     renderShop();
     saveState();
 }
-// Аркада (6 игр с лимитом ставки 300 $AERO)
+
+// Аркада
 function selectGame(gameId) {
     document.getElementById('gamesLobby').style.display = 'none';
     document.getElementById('activeGameBox').style.display = 'block';
@@ -362,13 +351,12 @@ function getValidBet(inputId) {
     return bet;
 }
 
-// 1. Краш Ракетка
+// 1. Краш
 let crashOn = false, crashTimer = null, crashMult = 1.0, crashBetVal = 0;
 function toggleCrash() {
     const btn = document.getElementById('crashBtn');
     const multEl = document.getElementById('crashMult');
     const stEl = document.getElementById('crashStatus');
-
     if (!crashOn) {
         const bet = getValidBet('crashBet');
         if (!bet) return;
@@ -381,7 +369,6 @@ function toggleCrash() {
         multEl.style.color = 'var(--ios-green)';
         stEl.innerText = '🚀 Набираем высоту...';
         saveState();
-
         const crashLimit = Math.random() < 0.35 ? 1.08 : Math.min(15, 1.15 + Math.random() * 4.5);
         crashTimer = setInterval(() => {
             crashMult += 0.03 + crashMult * 0.012;
@@ -416,7 +403,6 @@ function toggleAviator() {
     const btn = document.getElementById('aviatorBtn');
     const multEl = document.getElementById('aviatorMult');
     const stEl = document.getElementById('aviatorStatus');
-
     if (!avOn) {
         const bet = getValidBet('aviatorBet');
         if (!bet) return;
@@ -429,7 +415,6 @@ function toggleAviator() {
         multEl.style.color = 'var(--ios-blue)';
         stEl.innerText = '✈️ Самолет в воздухе...';
         saveState();
-
         const limit = 1.1 + Math.random() * 3.5;
         avTimer = setInterval(() => {
             avMult += 0.04;
@@ -458,7 +443,7 @@ function toggleAviator() {
     }
 }
 
-// 3. Минное поле 5x5
+// 3. Мины 5x5
 let minesOn = false, bombs = [], minesBet = 0, minesMult = 1.0;
 function initMines() {
     const board = document.getElementById('minesGrid');
@@ -477,168 +462,152 @@ function toggleMines() {
     if (!minesOn) {
         const bet = getValidBet('minesBet');
         if (!bet) return;
-        state.balance -= bet;
-        minesBet = bet;
-        minesMult = 1.0;
-        minesOn = true;
-        bombs = [];
-        while (bombs.length < 5) {
-            const r = Math.floor(Math.random() * 25);
-            if (!bombs.includes(r)) bombs.push(r);
-        }
-        initMines();
-        btn.innerText = 'ЗАБРАТЬ';
-        btn.className = 'ios-btn btn-green';
-        document.getElementById('minesMultText').innerText = '1.00x';
-        saveState();
-    } else {
-        minesOn = false;
-        const win = Math.floor(minesBet * minesMult);
-        state.balance += win;
-        btn.innerText = 'ИГРАТЬ';
-        btn.className = 'ios-btn btn-orange';
-        playSound('win');
-        showIslandNotice('Выигрыш: +' + win + ' $AERO');
-        saveState();
-    }
+state.balance -= bet;
+minesBet = bet;
+minesMult = 1.0;
+minesOn = true;
+bombs = [];
+while (bombs.length < 5) {
+const r = Math.floor(Math.random() * 25);
+if (!bombs.includes(r)) bombs.push(r);
 }
-
+initMines();
+btn.innerText = 'ЗАБРАТЬ';
+btn.className = 'ios-btn btn-green';
+document.getElementById('minesMultText').innerText = '1.00x';
+saveState();
+} else {
+minesOn = false;
+const win = Math.floor(minesBet * minesMult);
+state.balance += win;
+btn.innerText = 'ИГРАТЬ';
+btn.className = 'ios-btn btn-orange';
+playSound('win');
+showIslandNotice('Выигрыш: +' + win + ' $AERO');
+saveState();
+}
+}
 function stepMine(idx, tile) {
-    if (!minesOn || tile.classList.contains('safe')) return;
-    if (bombs.includes(idx)) {
-        tile.className = 'mine-cell bomb';
-        tile.innerText = '💣';
-        minesOn = false;
-        document.getElementById('minesBtn').innerText = 'ИГРАТЬ';
-        document.getElementById('minesBtn').className = 'ios-btn btn-orange';
-        playSound('boom');
-        saveState();
-    } else {
-        tile.className = 'mine-cell safe';
-        tile.innerText = '💎';
-        minesMult = +(minesMult + 0.25).toFixed(2);
-        document.getElementById('minesMultText').innerText = minesMult.toFixed(2) + 'x';
-        playSound('tap');
-    }
+if (!minesOn || tile.classList.contains('safe')) return;
+if (bombs.includes(idx)) {
+tile.className = 'mine-cell bomb';
+tile.innerText = '💣';
+minesOn = false;
+document.getElementById('minesBtn').innerText = 'ИГРАТЬ';
+document.getElementById('minesBtn').className = 'ios-btn btn-orange';
+playSound('boom');
+saveState();
+} else {
+tile.className = 'mine-cell safe';
+tile.innerText = '💎';
+minesMult = +(minesMult + 0.25).toFixed(2);
+document.getElementById('minesMultText').innerText = minesMult.toFixed(2) + 'x';
+playSound('tap');
 }
-
+}
 // 4. Колесо Фортуны
 function spinWheel() {
-    const bet = getValidBet('wheelBet');
-    if (!bet) return;
-    state.balance -= bet;
-    const sectors = [0, 0, 0.5, 0.5, 1.5, 2, 5];
-    const mult = sectors[Math.floor(Math.random() * sectors.length)];
-    const win = Math.floor(bet * mult);
-    state.balance += win;
-    const resEl = document.getElementById('wheelRes');
-    resEl.innerText = mult > 0 ? (mult + 'x • +' + win + ' $AERO') : '0x • МИМО';
-    resEl.style.color = mult >= 1.5 ? 'var(--ios-green)' : 'var(--ios-red)';
-    playSound(mult >= 1.5 ? 'win' : 'boom');
-    saveState();
+const bet = getValidBet('wheelBet');
+if (!bet) return;
+state.balance -= bet;
+const r = Math.random();
+let mult = 0;
+if (r > 0.88) mult = 5;
+else if (r > 0.68) mult = 2;
+else if (r > 0.45) mult = 1.5;
+else if (r > 0.25) mult = 0.5;
+const win = Math.floor(bet * mult);
+state.balance += win;
+const resEl = document.getElementById('wheelRes');
+resEl.innerText = mult > 0 ? (mult + 'x • +' + win + ' $AERO') : '0x • МИМО';
+resEl.style.color = mult >= 1.5 ? 'var(--ios-green)' : 'var(--ios-red)';
+playSound(mult >= 1.5 ? 'win' : 'boom');
+saveState();
 }
-
 // 5. Кейс Пилота
 function openPilotCase() {
-    if (state.balance < 50) return showIslandNotice('Нужно 50 $AERO');
-    state.balance -= 50;
-    const prize = Math.floor(15 + Math.random() * 135);
-    state.balance += prize;
-    const resEl = document.getElementById('caseRes');
-    resEl.innerText = '🎁 ВЫПАЛО: +' + prize + ' $AERO';
-    resEl.style.color = prize >= 50 ? 'var(--ios-green)' : 'var(--ios-orange)';
-    playSound(prize >= 50 ? 'win' : 'tap');
-    saveState();
+if (state.balance < 50) return showIslandNotice('Нужно 50 $AERO');
+state.balance -= 50;
+const prize = Math.floor(15 + Math.random() * 135);
+state.balance += prize;
+const resEl = document.getElementById('caseRes');
+resEl.innerText = '🎁 ВЫПАЛО: +' + prize + ' $AERO';
+resEl.style.color = prize >= 50 ? 'var(--ios-green)' : 'var(--ios-orange)';
+playSound(prize >= 50 ? 'win' : 'tap');
+saveState();
 }
-
-function claimChannelReward() {
-    if (!state.channelClaimed) {
-        state.channelClaimed = true;
-        state.balance += 150;
-        playSound('win');
-        showIslandNotice('+150 $AERO за @aerotap');
-        saveState();
-    }
-}
-
 // 6. Орел / Решка
 function playCoin(choice) {
-    const bet = getValidBet('coinBet');
-    if (!bet) return;
-    state.balance -= bet;
-    const result = Math.random() < 0.48 ? choice : (choice === 'ОРЕЛ' ? 'РЕШКА' : 'ОРЕЛ');
-    const resEl = document.getElementById('coinResult');
-    if (result === choice) {
-        const win = bet * 2;
-        state.balance += win;
-        resEl.innerText = result + '! +' + win + ' $AERO';
-        resEl.style.color = 'var(--ios-green)';
-        playSound('win');
-    } else {
-        resEl.innerText = 'ВЫПАЛ ' + result;
-        resEl.style.color = 'var(--ios-red)';
-        playSound('boom');
-    }
-    saveState();
+const bet = getValidBet('coinBet');
+if (!bet) return;
+state.balance -= bet;
+const result = Math.random() < 0.48 ? choice : (choice === 'ОРЕЛ' ? 'РЕШКА' : 'ОРЕЛ');
+const resEl = document.getElementById('coinResult');
+if (result === choice) {
+const win = bet * 2;
+state.balance += win;
+resEl.innerText = result + '! +' + win + ' $AERO';
+resEl.style.color = 'var(--ios-green)';
+playSound('win');
+} else {
+resEl.innerText = 'ВЫПАЛ ' + result;
+resEl.style.color = 'var(--ios-red)';
+playSound('boom');
 }
-
-// Сейф 24 часа (🚀 → 🧭 → 📡 → ⚡)
-let safeInput = [];
-const safeTarget = ['🚀', '🧭', '📡', '⚡'];
+saveState();
+}
+// Сейф 24ч (🚀 → 🧭 → 📡 → ⚡)
+let safeInput = '';
 function pressSafeBtn(sym) {
-    if (Date.now() - state.lastSafe24 < 24 * 3600000) {
-        return showIslandNotice('Сейф уже открыт сегодня');
-    }
-    safeInput.push(sym);
-    playSound('tap');
-    document.getElementById('safeDisplay').innerText = safeInput.join(' ');
-    if (safeInput.length === 4) {
-        if (safeInput.join('') === safeTarget.join('')) {
-            state.lastSafe24 = Date.now();
-            state.balance += 300;
-            playSound('win');
-            saveState();
-            showIslandNotice('🔐 Сейф открыт: +300 $AERO');
-        } else {
-            playSound('boom');
-            showIslandNotice('❌ Неверный порядок');
-        }
-        safeInput = [];
-        document.getElementById('safeDisplay').innerText = '_ _ _ _';
-    }
+if (Date.now() - state.lastSafe24 < 24 * 3600000) {
+return showIslandNotice('Сейф уже открыт сегодня');
 }
-
-// Рефералы, TON, паек и шифры для @aerotap
+safeInput += sym;
+playSound('tap');
+document.getElementById('safeDisplay').innerText = safeInput;
+if (Array.from(safeInput).length === 4) {
+if (safeInput === '🚀🧭📡⚡') {
+state.lastSafe24 = Date.now();
+state.balance += 300;
+playSound('win');
+saveState();
+showIslandNotice('🔐 Сейф открыт: +300 $AERO');
+} else {
+playSound('boom');
+showIslandNotice('❌ Неверный порядок');
+}
+safeInput = '';
+document.getElementById('safeDisplay').innerText = '_ _ _ _';
+}
+}
+// Рефералы, TON, паек и шифры
 function copyRefLink() {
-    const link = getRefLink();
-    if (navigator.clipboard) navigator.clipboard.writeText(link);
-    showIslandNotice('📋 Ссылка скопирована');
+const link = getRefLink();
+if (navigator.clipboard) navigator.clipboard.writeText(link);
+showIslandNotice('📋 Ссылка скопирована');
 }
-
 function claimRefBonus() {
-    if (Date.now() - state.lastRefBonus < 12 * 3600000) {
-        return showIslandNotice('Бонус раз в 12 часов');
-    }
-    state.balance += 200;
-    state.lastRefBonus = Date.now();
-    playSound('win');
-    saveState();
-    showIslandNotice('+200 $AERO за экипаж');
+if (Date.now() - state.lastRefBonus < 12 * 3600000) {
+return showIslandNotice('Бонус раз в 12 часов');
 }
-
+state.balance += 200;
+state.lastRefBonus = Date.now();
+playSound('win');
+saveState();
+showIslandNotice('+200 $AERO за экипаж');
+}
 function saveTonWallet() {
-    const addr = document.getElementById('tonAddressInput').value.trim();
-    if (addr.length < 20) return showIslandNotice('Неверный адрес TON');
-    state.tonWallet = addr;
-    playSound('win');
-    saveState();
-    showIslandNotice('Кошелек TON сохранен');
+const addr = document.getElementById('tonAddressInput').value.trim();
+if (addr.length < 20) return showIslandNotice('Неверный адрес TON');
+state.tonWallet = addr;
+playSound('win');
+saveState();
+showIslandNotice('Кошелек TON сохранен');
 }
-
 function claimDaily() {
-    if (Date.now() - state.lastDaily < 24 * 3600000) return showIslandNotice('Паек уже получен');
-    state.balance += 120;
-    state.lastDaily = Date.now();
+if (Date.now() - state.lastDaily < 24 * 3600000) return showIslandNotice('Паек уже получен');
+state.balance += 120;
+state.lastDaily = Date.now();
 playSound('win');
 saveState();
 showIslandNotice('+120 $AERO получено');
