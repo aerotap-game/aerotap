@@ -563,3 +563,85 @@ color: var(--neon-green);
 from { opacity: 0; transform: translateY(4px); }
 to { opacity: 1; transform: translateY(0); }
 }
+/* Стили для Крипто-Ракетки (Crash) */
+.crash-screen {
+    background: radial-gradient(circle at bottom, #162e21 0%, #090b0e 85%);
+    border: 1px solid rgba(0, 255, 136, 0.25);
+    border-radius: 14px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.crash-rocket {
+    font-size: 28px;
+    transition: transform 0.1s linear;
+}
+
+.crash-mult {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--neon-green);
+}
+
+.crash-screen.crashed {
+    border-color: #ff3b30;
+    background: radial-gradient(circle, #381212 0%, #090b0e 85%);
+}
+
+.crash-screen.crashed .crash-mult {
+    color: #ff3b30;
+}
+
+.neon-btn {
+    background: var(--neon-green);
+    color: #000;
+}
+
+.cashout-mode {
+    background: #ffcc00 !important;
+    color: #000 !important;
+    animation: pulse 0.8s infinite;
+}
+
+/* Стили для Слотов (Однорукий Бомж) */
+.slots-display {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.slot-reel {
+    flex: 1;
+    background: #101218;
+    border: 2px solid rgba(255, 204, 0, 0.35);
+    border-radius: 14px;
+    height: 68px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 34px;
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+}
+
+.slot-reel.spinning {
+    animation: slotShake 0.12s infinite;
+    border-color: var(--neon-green);
+}
+
+.gold-btn {
+    background: linear-gradient(90deg, #ff9500, #ffcc00);
+    color: #000;
+}
+
+@keyframes slotShake {
+    0% { transform: translateY(-2px); }
+    50% { transform: translateY(2px); }
+    100% { transform: translateY(-2px); }
+}
