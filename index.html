@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AeroTap — $AERO Empire</title>
+    <title>AeroTap — AeroOS Edition</title>
     <script src="https://telegram.org"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="app-shell">
+    <div class="island-bar">
+        <span class="island-dot"></span>
+        <span>AeroOS • TON • 1 Декабря</span>
+    </div>
+
     <header class="top-bar">
         <div class="pilot-pill" onclick="changePilotName()">
             <div class="pilot-avatar" id="avatarInitial">П</div>
@@ -25,15 +30,14 @@
     </header>
 
     <section class="balance-hero">
-        <div class="network-tag">TON • ЭМИССИЯ 1 МЛРД • ЛИСТИНГ 1 ДЕКАБРЯ</div>
         <div class="balance-row">
             <span class="coin-symbol">✈️</span>
             <span class="balance-value" id="balanceText">50</span>
         </div>
-        <div class="ticker-label">$AERO TOKEN</div>
+        <div class="ticker-label">$AERO BALANCE</div>
     </section>
 
-    <div id="bonusDrone" class="bonus-drone" onclick="catchDrone()">🛸 +75</div>
+    <div id="bonusDrone" class="bonus-drone" onclick="catchDrone()">🛸 +35</div>
 
     <main id="screen-home" class="screen active">
         <div class="apps-grid">
@@ -51,7 +55,11 @@
             </div>
             <div class="app-tile" onclick="openApp('screen-games')">
                 <div class="app-icon grad-purple">🎰</div>
-                <span>Аркада</span>
+                <span>Аркада (8)</span>
+            </div>
+            <div class="app-tile" onclick="openApp('screen-daily24')">
+                <div class="app-icon grad-red">🔐</div>
+                <span>Сейф 24ч</span>
             </div>
             <div class="app-tile" onclick="openApp('screen-bank')">
                 <div class="app-icon grad-gold">💳</div>
@@ -65,18 +73,14 @@
                 <div class="app-icon grad-dark">⬛</div>
                 <span>Черный ящик</span>
             </div>
-            <div class="app-tile" onclick="openApp('screen-listing')">
-                <div class="app-icon grad-red">🚀</div>
-                <span>1 Декабря</span>
-            </div>
         </div>
 
         <div class="glass-card links-banner">
             <div class="banner-info">
                 <strong>Канал <a href="https://t.me" target="_blank" rel="noopener" style="color:#38bdf8;">@aerotap</a></strong>
-                <span>Шифры и новости листинга $AERO</span>
+                <span>Шифры к сейфу и новости листинга 1 декабря</span>
             </div>
-            <a href="https://t.me" target="_blank" rel="noopener" class="action-btn btn-blue" onclick="claimChannelReward()">Перейти</a>
+            <a href="https://t.me" target="_blank" rel="noopener" class="action-btn btn-blue" onclick="claimChannelReward()">Открыть</a>
         </div>
     </main>
 
@@ -94,7 +98,7 @@
         </div>
         <div class="energy-panel glass-card">
             <div class="energy-head">
-                <span>⚡ Топливо</span>
+                <span>⚡ Топливо реактора</span>
                 <span><strong id="energyText">500</strong> / <strong id="maxEnergyText">500</strong></span>
             </div>
             <div class="progress-track">
@@ -125,14 +129,14 @@
     <section id="screen-games" class="screen">
         <div class="screen-header">
             <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Игровой Центр</h2>
+            <h2>Игровой Центр (8)</h2>
         </div>
 
         <div id="gamesLobby" class="games-grid">
             <div class="game-card" onclick="selectGame('crash')">
                 <span class="g-ico">🚀</span>
                 <strong>Краш Ракетка</strong>
-                <small>Макс. x15</small>
+                <small>До x15</small>
             </div>
             <div class="game-card" onclick="selectGame('mines')">
                 <span class="g-ico">💣</span>
@@ -144,23 +148,42 @@
                 <strong>Высотный рейс</strong>
                 <small>Быстрый взлет</small>
             </div>
+            <div class="game-card" onclick="selectGame('wheel')">
+                <span class="g-ico">🎡</span>
+                <strong>Колесо Фортуны</strong>
+                <small>До x5</small>
+            </div>
+            <div class="game-card" onclick="selectGame('case')">
+                <span class="g-ico">🧳</span>
+                <strong>Кейс Пилота</strong>
+                <small>Случайный лут</small>
+            </div>
+            <div class="game-card" onclick="selectGame('dice')">
+                <span class="g-ico">🎲</span>
+                <strong>Кости 1–100</strong>
+                <small>Больше 55 = x2</small>
+            </div>
+            <div class="game-card" onclick="selectGame('tower')">
+                <span class="g-ico">🗼</span>
+                <strong>Диспетчерская</strong>
+                <small>Подъем по этажам</small>
+            </div>
             <div class="game-card" onclick="selectGame('coin')">
                 <span class="g-ico">🪙</span>
                 <strong>Орел / Решка</strong>
-                <small>Удвоение x2</small>
+                <small>Классика x2</small>
             </div>
         </div>
-
         <div id="activeGameBox" class="glass-card" style="display:none;">
             <button class="back-btn" style="margin-bottom:10px;" onclick="closeGame()">‹ К списку игр</button>
 
             <div id="game-crash" class="sub-game" style="display:none;">
                 <div class="radar-box">
                     <div class="mult-big" id="crashMult">1.00x</div>
-                    <div class="radar-status" id="crashStatus">Лимит ставки: 500 $AERO</div>
+                    <div class="radar-status" id="crashStatus">Лимит ставки: 300 $AERO</div>
                 </div>
                 <div class="bet-controls">
-                    <input type="number" id="crashBet" value="25" min="5" max="500">
+                    <input type="number" id="crashBet" value="20" min="5" max="300">
                     <button class="action-btn btn-green" id="crashBtn" onclick="toggleCrash()">ПУСК</button>
                 </div>
             </div>
@@ -172,7 +195,7 @@
                 </div>
                 <div id="minesGrid" class="mines-board"></div>
                 <div class="bet-controls">
-                    <input type="number" id="minesBet" value="25" min="5" max="500">
+                    <input type="number" id="minesBet" value="20" min="5" max="300">
                     <button class="action-btn btn-gold" id="minesBtn" onclick="toggleMines()">ИГРАТЬ</button>
                 </div>
             </div>
@@ -183,8 +206,52 @@
                     <div class="radar-status" id="aviatorStatus">На взлетной полосе</div>
                 </div>
                 <div class="bet-controls">
-                    <input type="number" id="aviatorBet" value="25" min="5" max="500">
+                    <input type="number" id="aviatorBet" value="20" min="5" max="300">
                     <button class="action-btn btn-blue" id="aviatorBtn" onclick="toggleAviator()">ВЗЛЕТ</button>
+                </div>
+            </div>
+
+            <div id="game-wheel" class="sub-game" style="display:none;">
+                <div class="radar-box" style="height:110px;">
+                    <div class="mult-big" id="wheelRes" style="font-size:26px;">КРУТИ БАРАБАН</div>
+                    <div class="radar-status">Сектора: 0x, 0.5x, 1.5x, 2x, 5x</div>
+                </div>
+                <div class="bet-controls">
+                    <input type="number" id="wheelBet" value="20" min="5" max="300">
+                    <button class="action-btn btn-purple" onclick="spinWheel()">КРУТИТЬ</button>
+                </div>
+            </div>
+            <div id="game-case" class="sub-game" style="display:none;">
+                <div class="radar-box" style="height:110px;">
+                    <div class="mult-big" id="caseRes" style="font-size:24px;">🧳 ОТКРОЙ КЕЙС</div>
+                    <div class="radar-status">Цена открытия: 50 $AERO</div>
+                </div>
+                <button class="action-btn btn-gold full-width" onclick="openPilotCase()">Открыть за 50 $AERO</button>
+            </div>
+
+            <div id="game-dice" class="sub-game" style="display:none;">
+                <div class="radar-box" style="height:110px;">
+                    <div class="mult-big" id="diceRes">🎲 00</div>
+                    <div class="radar-status">Выбей число больше 55 для победы x2</div>
+                </div>
+                <div class="bet-controls">
+                    <input type="number" id="diceBet" value="20" min="5" max="300">
+                    <button class="action-btn btn-green" onclick="rollDice()">БРОСОК</button>
+                </div>
+            </div>
+
+            <div id="game-tower" class="sub-game" style="display:none;">
+                <div class="radar-box" style="height:110px;">
+                    <div class="mult-big" id="towerRes">Этаж 0 • 1.00x</div>
+                    <div class="radar-status" id="towerStatus">Угадай чистый канал связи</div>
+                </div>
+                <div class="bet-controls">
+                    <input type="number" id="towerBet" value="20" min="5" max="300">
+                    <button class="action-btn btn-blue" id="towerStartBtn" onclick="startTower()">СТАРТ</button>
+                </div>
+                <div class="bet-controls" id="towerActions" style="display:none; margin-top:8px;">
+                    <button class="action-btn btn-green" style="flex:1;" onclick="stepTower()">⬆️ Выше</button>
+                    <button class="action-btn btn-gold" style="flex:1;" onclick="cashoutTower()">💰 Забрать</button>
                 </div>
             </div>
 
@@ -193,7 +260,7 @@
                     <div class="mult-big" id="coinResult" style="font-size:24px;">ВЫБЕРИ СТОРОНУ</div>
                 </div>
                 <div class="bet-controls">
-                    <input type="number" id="coinBet" value="25" min="5" max="500">
+                    <input type="number" id="coinBet" value="20" min="5" max="300">
                 </div>
                 <div class="bet-controls" style="margin-top:8px;">
                     <button class="action-btn btn-gold" style="flex:1;" onclick="playCoin('ОРЕЛ')">🦅 ОРЕЛ (x2)</button>
@@ -202,30 +269,52 @@
             </div>
         </div>
     </section>
+    <!-- ЕЖЕДНЕВНАЯ МИНИ-ИГРА 24Ч (СЕЙФ) -->
+    <section id="screen-daily24" class="screen">
+        <div class="screen-header">
+            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
+            <h2>Сейф 24 часа</h2>
+        </div>
+        <div class="glass-card" style="text-align:center;">
+            <h3>🔐 Ежедневный взлом борта</h3>
+            <p class="muted-text">Нажми кнопки в правильной последовательности, чтобы открыть сейф и забрать <strong>+300 $AERO</strong> (раз в 24 часа).</p>
+            <div class="radar-box" style="height:85px; margin:12px 0;">
+                <div class="mult-big" id="safeDisplay" style="font-size:26px; letter-spacing:6px;">_ _ _ _</div>
+                <div class="radar-status" id="safeHint">Подсказка: Взлет → Курс → Радар → Топливо</div>
+            </div>
+            <div class="bet-controls">
+                <button class="action-btn btn-blue" style="flex:1;" onclick="pressSafeBtn('🚀')">🚀</button>
+                <button class="action-btn btn-blue" style="flex:1;" onclick="pressSafeBtn('🧭')">🧭</button>
+                <button class="action-btn btn-blue" style="flex:1;" onclick="pressSafeBtn('📡')">📡</button>
+                <button class="action-btn btn-blue" style="flex:1;" onclick="pressSafeBtn('⚡')">⚡</button>
+            </div>
+        </div>
+    </section>
 
+    <!-- AEROBANK -->
     <section id="screen-bank" class="screen">
         <div class="screen-header">
             <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
             <h2>AeroBank TON</h2>
         </div>
         <div class="glass-card bank-card">
-            <div class="card-chip">TON BLOCKCHAIN</div>
+            <div class="card-chip">TON NETWORK • 1 ДЕКАБРЯ</div>
             <div class="card-bal"><span id="bankBalance">50</span> $AERO</div>
             <div class="card-holder" id="cardHolderName">PILOT #01</div>
         </div>
         <div class="glass-card">
             <h4>Привязка кошелька TON</h4>
-            <p class="muted-text">Укажи адрес Tonkeeper или Telegram Wallet для получения дропа 1 декабря.</p>
+            <p class="muted-text">Укажи адрес Tonkeeper или Telegram Wallet для дропа 1 декабря.</p>
             <input type="text" id="tonAddressInput" placeholder="UQ... или EQ..." class="text-input">
             <button class="action-btn btn-blue full-width" style="margin-top:10px;" onclick="saveTonWallet()">Сохранить кошелек</button>
         </div>
         <div class="glass-card">
-            <h4>Ежедневный груз</h4>
-            <p class="muted-text">Небольшой паек раз в 24 часа.</p>
-            <button class="action-btn btn-green full-width" onclick="claimDaily()">🎁 Получить +150 $AERO</button>
+            <h4>Ежедневный паек</h4>
+            <button class="action-btn btn-green full-width" onclick="claimDaily()">🎁 Забрать +120 $AERO (24ч)</button>
         </div>
     </section>
 
+    <!-- ЭКИПАЖ И РАБОЧИЕ ССЫЛКИ -->
     <section id="screen-friends" class="screen">
         <div class="screen-header">
             <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
@@ -233,27 +322,28 @@
         </div>
         <div class="glass-card">
             <h3>Пригласи друзей</h3>
-            <p class="muted-text">Бонус +250 $AERO за приглашение (доступно раз в 12 часов).</p>
+            <p class="muted-text">Бонус +200 $AERO за приглашение (доступно раз в 12 часов).</p>
             <input type="text" id="refLinkInput" readonly class="text-input">
             <div class="bet-controls" style="margin-top:10px;">
-                <button class="action-btn btn-blue" style="flex:1;" onclick="shareRefLink()">📲 Отправить в ТГ</button>
+                <a id="tgShareAnchor" href="https://t.me" target="_blank" rel="noopener" class="action-btn btn-blue" style="flex:1; text-align:center;">📲 Поделиться в ТГ</a>
                 <button class="action-btn btn-gold" onclick="copyRefLink()">📋 Копия</button>
             </div>
-            <button class="action-btn btn-green full-width" style="margin-top:10px;" id="refBonusBtn" onclick="claimRefBonus()">Забрать бонус (+250 $AERO)</button>
+            <button class="action-btn btn-green full-width" style="margin-top:10px;" onclick="claimRefBonus()">Забрать бонус (+200 $AERO)</button>
         </div>
         <div class="glass-card">
-            <h4>Официальные ресурсы</h4>
+            <h4>Официальные ссылки</h4>
             <a href="https://t.me" target="_blank" rel="noopener" class="link-row">
                 <span>📢 Канал @aerotap</span>
                 <span>Открыть ›</span>
             </a>
-            <a href="https://t.me_bot" target="_blank" rel="noopener" class="link-row">
+            <a href="https://t.me" target="_blank" rel="noopener" class="link-row">
                 <span>🤖 Бот @aerotap_bot</span>
                 <span>Запуск ›</span>
             </a>
         </div>
     </section>
 
+    <!-- ЧЕРНЫЙ ЯЩИК -->
     <section id="screen-secret" class="screen">
         <div class="screen-header">
             <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
@@ -265,36 +355,13 @@
             <input type="text" id="secretCodeInput" placeholder="Введи шифр..." class="text-input">
             <button class="action-btn btn-purple full-width" style="margin-top:10px;" onclick="activateSecretCode()">Расшифровать</button>
         </div>
-        <div class="glass-card">
-            <h3>🛰️ Спутниковый сканер</h3>
-            <p class="muted-text">Удерживай 3 секунды для перехвата сигнала (+100 $AERO раз в 6 часов).</p>
-            <button class="action-btn btn-gold full-width" id="scannerBtn" onpointerdown="startScan()" onpointerup="stopScan()">📡 Сканировать эфир</button>
-            <div id="scanStatus" class="muted-text" style="margin-top:8px; text-align:center;">Ожидание сигнала...</div>
-        </div>
-    </section>
-
-    <section id="screen-listing" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Листинг $AERO</h2>
-        </div>
-        <div class="glass-card">
-            <h3>🗓️ Дата: 1 Декабря</h3>
-            <p class="muted-text">Общая эмиссия монеты $AERO — 1 000 000 000 токенов в сети TON. Награды распределяются честно по активности:</p>
-            <ul class="roadmap-list">
-                <li>✅ Баланс $AERO и прибыль в час</li>
-                <li>✅ Привязанный TON-кошелек в AeroBank</li>
-                <li>✅ Подписка на канал <a href="https://t.me" target="_blank" rel="noopener" style="color:#38bdf8;">@aerotap</a></li>
-            </ul>
-            <a href="https://t.me" target="_blank" rel="noopener" class="action-btn btn-blue full-width" style="display:block; text-align:center; text-decoration:none; margin-top:12px;">Перейти в @aerotap</a>
-        </div>
     </section>
 
     <nav class="bottom-dock">
         <button class="dock-btn active" onclick="openApp('screen-home')">🏠<span>Меню</span></button>
         <button class="dock-btn" onclick="openApp('screen-tap')">🕹️<span>Штурвал</span></button>
-        <button class="dock-btn" onclick="openApp('screen-games')">🎰<span>Игры</span></button>
-        <button class="dock-btn" onclick="openApp('screen-friends')">📡<span>Экипаж</span></button>
+        <button class="dock-btn" onclick="openApp('screen-games')">🎰<span>Аркада</span></button>
+        <button class="dock-btn" onclick="openApp('screen-daily24')">🔐<span>Сейф 24ч</span></button>
     </nav>
 </div>
 
