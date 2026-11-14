@@ -65,9 +65,9 @@ class EmpireManager {
     }
 
     getCurrentRank() {
-        let current = HOBO_RANKS;
+        let current = HOBO_RANKS.at(0);
         for (let i = 0; i < HOBO_RANKS.length; i++) {
-            if ((this.state.totalEarned || 0) >= HOBO_RANKS[i].minEarned) current = HOBO_RANKS[i];
+            if ((this.state.totalEarned || 0) >= HOBO_RANKS.at(i).minEarned) current = HOBO_RANKS.at(i);
         }
         return current;
     }
