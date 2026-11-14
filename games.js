@@ -13,7 +13,7 @@ class HoboGames {
 
         this.minesActive = false;
         this.minesBet = 0;
-        this.minesGrid = [];
+        this.minesGrid = Array(9).fill(false);
         this.minesSafeOpened = 0;
         this.minesMult = 1.00;
     }
@@ -69,8 +69,8 @@ class HoboGames {
         let placed = 0;
         while (placed < 3) {
             const idx = Math.floor(Math.random() * 9);
-            if (!this.minesGrid[idx]) {
-                this.minesGrid[idx] = true;
+            if (!this.minesGrid.at(idx)) {
+                this.minesGrid.splice(idx, 1, true);
                 placed++;
             }
         }
@@ -80,11 +80,11 @@ class HoboGames {
 
     stepMine(idx) {
         if (!this.minesActive) return { success: false, message: "Сначала нажми Начать игру!" };
-        if (this.minesGrid[idx]) {
+        if (this.minesGrid.at(idx)) {
             this.minesActive = false;
             if (window.playSound) window.playSound('lose');
             if (this.onStateChange) this.onStateChange();
-            return { success: true, boom: true, grid: this.minesGrid, message: "БАБАХ! Нарвался на мину, ставка сгорела." };
+            return { success: true, boom: true, message: "БАБАХ! Нарвался на мину, ставка сгорела." };
         }
         this.minesSafeOpened++;
         this.minesMult = +(1 + this.minesSafeOpened * 0.45).toFixed(2);
@@ -105,15 +105,15 @@ class HoboGames {
     playSlots(bet) {
         if (bet <= 0 || this.state.balance < bet) return { success: false, message: "Не хватает монет!" };
         this.state.balance -= bet;
-        const pool = ["🍾", "🍾", "🍾", "🐀", "🐀", "🐀", "💵", "💵", "💎", "7️⃣"];
-        const r = [0, 1, 2].map(() => pool[Math.floor(Math.random() * pool.length)]);
+        const pool = Array.of("🍾", "🍾", "🍾", "🐀", "🐀", "🐀", "💵", "💵", "💎", "7️⃣");
+        const r = Array.from({ length: 3 }, () => pool.at(Math.floor(Math.random() * pool.length)));
         let mult = 0;
         let msg = "";
 
-        if (r[0] === r[1] && r[1] === r[2]) {
-            mult = r[0] === "7️⃣" ? 15 : r[0] === "💎" ? 10 : r[0] === "💵" ? 5 : 3;
+        if (r.at(0) === r.at(1) && r.at(1) === r.at(2)) {
+            mult = r.at(0) === "7️⃣" ? 15 : r.at(0) === "💎" ? 10 : r.at(0) === "💵" ? 5 : 3;
             msg = `ДЖЕКПОТ [${r.join('')}]! Множитель x${mult}!`;
-        } else if (r[0] === r[1] || r[1] === r[2] || r[0] === r[2]) {
+        } else if (r.at(0) === r.at(1) || r.at(1) === r.at(2) || r.at(0) === r.at(2)) {
             mult = 1.2;
             msg = `Два совпали [${r.join('')}]! Забрал x1.2.`;
         } else {
@@ -135,9 +135,8 @@ class HoboGames {
         if (bet <= 0 || this.state.balance < bet) return { success: false, message: "Не хватает монет!" };
         this.state.balance -= bet;
         const resSide = Math.random() < 0.48 ? side : (side === 'orel' ? 'reshka' : 'orel');
-        const win = resSide === side;
 
-        if (win) {
+        if (resSide === side) {
             const prize = Math.floor(bet * 1.9);
             this.state.balance += prize;
             this.state.totalEarned += (prize - bet);
@@ -174,8 +173,8 @@ class HoboGames {
             return { success: false, message: `Отдышись! Следующий рейд через ${mins} мин.` };
         }
         this.state.lastRaidTime = now;
-        const names = ["@crypto_vasya", "@bomj_v_gucci", "@hamster_rip", "@ton_whale_99", "@sanya_zavod"];
-        const target = names[Math.floor(Math.random() * names.length)];
+        const names = Array.of("@crypto_vasya", "@bomj_v_gucci", "@hamster_rip", "@ton_whale_99", "@sanya_zavod");
+        const target = names.at(Math.floor(Math.random() * names.length));
         const attack = (this.empire.getCurrentRank().level * 15) + Math.floor(Math.random() * 45);
         const defense = Math.floor(Math.random() * 60);
 
