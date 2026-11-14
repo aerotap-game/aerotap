@@ -264,3 +264,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
+function openTgChannel() {
+    if (window.Telegram?.WebApp?.openTelegramLink) {
+        window.Telegram.WebApp.openTelegramLink("https://t.me/aerotap_bot");
+    } else {
+        window.open("https://t.me/aerotap_bot", "_blank");
+    }
+}
+
+function claimTimedCrate() {
+    const cd = 4 * 3600 * 1000;
+    const now = Date.now();
+    if (now - (state.lastCrateTime || 0) < cd) {
+        const mins = Math.ceil((cd - (now - state.lastCrateTime)) / 60000);
+        return notifyDynamicIsland(`Тайный кейс заряжается! Осталось ${mins} мин.`, 3000);
+    }
+    state.lastCrateTime = now;
+    const prizes = Array.of(500, 1000, 1500, 2500, 5000);
+    const win = prizes.at(Math.floor(Math.random() * prizes.length));
+    state.balance += win;
+    state.totalEarned += win;
+    if (window.playSound) playSound('win');
+    saveState(); updateUI();
+    notifyDynamicIsland(`Тайный кейс открыт! Выпало +${win.toLocaleString()} монет!`, 4000);
+}
+
+setInterval(() => {
+    const wb = document.getElementById('home-widget-bal');
+    if (wb && typeof state !== 'undefined') wb.innerText = Math.floor(state.balance).toLocaleString();
+    const cs = document.getElementById('crate-status');
+    if (cs && typeof state !== 'undefined') {
+        const ready = (Date.now() - (state.lastCrateTime || 0)) >= 4 * 3600 * 1000;
+        cs.innerText = ready ? "ГОТОВ!" : "ЖДЕМ...";
+    }
+}, 1000);
