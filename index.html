@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AeroTap — $AERO Tactical Cockpit</title>
+    <title>AeroEmpire — $AERO Business & Flight</title>
     <script src="https://telegram.org"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -13,7 +13,7 @@
         <div class="pilot-chip" onclick="changeCallsign()">
             <div class="pilot-ava" id="avatarLetter">A</div>
             <div>
-                <div class="pilot-nick" id="displayUsername">Пилот #01</div>
+                <div class="pilot-nick"><span id="displayUsername">Пилот #01</span> <span id="vipBadgeHeader"></span></div>
                 <div class="pilot-sub" id="pilotRank">Курсант • Сменить ник</div>
             </div>
         </div>
@@ -24,34 +24,31 @@
     </header>
 
     <main class="viewport">
+        <!-- Банковская карта баланса -->
         <div class="score-panel">
-            <div class="score-label">БОРТОВОЙ БАЛАНС $AERO</div>
+            <div class="score-label">КАПИТАЛ ИМПЕРИИ • $AERO</div>
             <div class="score-value">✈️ <span id="balanceText">0</span></div>
-            <div class="combo-strip" id="boostStatusText">Режим: Стандартная тяга</div>
+            <div class="combo-strip" id="boostStatusText">Статус: Базовый аккаунт • Листинг 1 дек</div>
         </div>
 
-        <!-- ВКЛАДКА 1: ПОЛЕТ (ТАПАЛКА + 4 КНОПКИ БЫСТРЫХ БУСТОВ) -->
+        <!-- ЭКРАН 1: ГЛАВНАЯ (ШТУРВАЛ + 4 КРУПНЫЕ КНОПКИ) -->
         <section id="tab-tap" class="screen active">
-            <div class="quick-grid">
-                <button class="q-btn q-orange" onclick="activateTurbo()">
-                    <span>🔥</span>
-                    <b>Форсаж x2</b>
-                    <small id="turboTimer">Готов</small>
+            <div class="bento-2x2">
+                <button class="bento-tile" onclick="activateTurbo()">
+                    <span class="tile-ico">🔥</span>
+                    <div><b>Форсаж x2</b><small id="turboTimer">Готов к запуску</small></div>
                 </button>
-                <button class="q-btn q-cyan" onclick="refillFuel()">
-                    <span>⛽</span>
-                    <b>Полный бак</b>
-                    <small id="refillCount">3/3</small>
+                <button class="bento-tile" onclick="refillFuel()">
+                    <span class="tile-ico">⛽</span>
+                    <div><b>Полный бак</b><small id="refillCount">Доступно: 3/3</small></div>
                 </button>
-                <button class="q-btn q-gold" onclick="claimDailySupply()">
-                    <span>🪂</span>
-                    <b>Груз дня</b>
-                    <small>+1 500</small>
+                <button class="bento-tile" onclick="claimDailySupply()">
+                    <span class="tile-ico">🪂</span>
+                    <div><b>Сброс груза</b><small>+1 500 $AERO</small></div>
                 </button>
-                <button class="q-btn q-purple" onclick="openQuickSpin()">
-                    <span>🎡</span>
-                    <b>Фарт-слот</b>
-                    <small>Бесплатно</small>
+                <button class="bento-tile tile-vip" onclick="switchTab('tab-vip', document.getElementById('navVipBtn'))">
+                    <span class="tile-ico">👑</span>
+                    <div><b>VIP Статус</b><small>Буст x2 за Stars</small></div>
                 </button>
             </div>
 
@@ -65,356 +62,261 @@
 
             <div class="fuel-hud">
                 <div class="fuel-info">
-                    <span>⚡ ЗАПАС ТОПЛИВА</span>
+                    <span>⚡ ТОПЛИВО ТУРБИНЫ</span>
                     <span><b id="energyText">1000</b> / <span id="maxEnergyText">1000</span></span>
                 </div>
-                <div class="fuel-bar">
-                    <div class="fuel-progress" id="energyBar"></div>
-                </div>
+                <div class="fuel-bar"><div class="fuel-progress" id="energyBar"></div></div>
             </div>
         </section>
 
-                <!-- ВКЛАДКА 2: ИГРЫ (14 РЕЖИМОВ + РУЛЕТКИ) -->
-        <section id="tab-games" class="screen">
-            <div class="mode-tabs-scroll">
-                <button class="m-tab active" onclick="switchSubGame('crash', this)">🚀 Краш</button>
-                <button class="m-tab" onclick="switchSubGame('wheel', this)">🎡 Колесо</button>
-                <button class="m-tab" onclick="switchSubGame('case', this)">📦 Кейс-лента</button>
-                <button class="m-tab" onclick="switchSubGame('mines', this)">💣 Шахта</button>
-                <button class="m-tab" onclick="switchSubGame('slots', this)">🎰 Слоты</button>
-                <button class="m-tab" onclick="switchSubGame('roulette', this)">🔴 Рулетка</button>
-                <button class="m-tab" onclick="switchSubGame('tower', this)">🪜 Башня</button>
-                <button class="m-tab" onclick="switchSubGame('dice', this)">🎲 Кости</button>
-                <button class="m-tab" onclick="switchSubGame('coin', this)">🪙 Монетка</button>
-                <button class="m-tab" onclick="switchSubGame('hilo', this)">🃏 Карты</button>
-                <button class="m-tab" onclick="switchSubGame('darts', this)">🎯 Дартс</button>
-                <button class="m-tab" onclick="switchSubGame('blitz', this)">⚡ 3x3 Блиц</button>
-                <button class="m-tab" onclick="switchSubGame('plane', this)">✈️ Рейс</button>
-                <button class="m-tab" onclick="switchSubGame('flip50', this)">🔥 50/50</button>
-            </div>
-
-            <!-- 1. Краш Ракетка -->
-            <div id="sub-crash" class="game-box">
-                <div class="panel">
-                    <div class="panel-head"><b>🚀 РАКЕТА: ВЕНГАЛБИ СТАЙЛ</b><span class="tag-orange">MAX 100x</span></div>
-                    <div class="crash-arena">
-                        <div class="fly-obj" id="rocketIcon">🚀</div>
-                        <div class="crash-x" id="crashMultText">1.00x</div>
-                        <div class="crash-msg" id="crashQuoteText">Жми взлет, брат!</div>
-                    </div>
-                    <div class="bet-bar">
-                        <input type="number" id="crashBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('crashBet', 0.5)">1/2</button>
-                        <button class="b-chip" onclick="multBet('crashBet', 2)">2x</button>
-                        <button class="b-chip" onclick="maxBet('crashBet')">MAX</button>
-                    </div>
-                    <button class="big-btn btn-orange" id="crashActionBtn" onclick="handleCrashAction()">ЗАПУСТИТЬ РАКЕТУ</button>
-                </div>
-            </div>
-
-            <!-- 2. Колесо Фортуны (Анимация вращения) -->
-            <div id="sub-wheel" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🎡 КОЛЕСО ФОРТУНЫ</b><span class="tag-gold">ДО x10</span></div>
-                    <div class="wheel-stage">
-                        <div class="wheel-pointer">▼</div>
-                        <div class="wheel-disc" id="wheelDisc">
-                            <span style="transform:rotate(0deg)">x2</span>
-                            <span style="transform:rotate(60deg)">x0</span>
-                            <span style="transform:rotate(120deg)">x5</span>
-                            <span style="transform:rotate(180deg)">x1.5</span>
-                            <span style="transform:rotate(240deg)">x10</span>
-                            <span style="transform:rotate(300deg)">x0</span>
-                        </div>
-                    </div>
-                    <div class="bet-bar">
-                        <input type="number" id="wheelBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('wheelBet', 2)">2x</button>
-                        <button class="b-chip" onclick="maxBet('wheelBet')">MAX</button>
-                    </div>
-                    <button class="big-btn btn-gold" id="wheelBtn" onclick="spinWheel()">КРУТИТЬ КОЛЕСО</button>
-                    <div id="wheelLog" class="status-line">Сектора: x0, x1.5, x2, x5, x10</div>
-                </div>
-            </div>
-
-            <!-- 3. Кейс-рулетка (Анимация ленты) -->
-            <div id="sub-case" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>📦 КЕЙС «БРАТСКИЙ ПОДГОН»</b><span class="tag-orange">ДО 25 000</span></div>
-                    <div class="roulette-tape-wrap">
-                        <div class="tape-center-line"></div>
-                        <div class="roulette-tape" id="caseTape"></div>
-                    </div>
-                    <button class="big-btn btn-orange" id="caseBtn" onclick="spinCaseTape()">ОТКРЫТЬ КЕЙС (500 ✈️)</button>
-                    <div id="caseLog" class="status-line">Прокрутка с замедлением как в CS</div>
-                </div>
-            </div>
-
-            <!-- 4. Шахта -->
-            <div id="sub-mines" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>💣 МИННОЕ ПОЛЕ</b><span class="tag-cyan" id="minesMultBadge">1.00x</span></div>
-                    <div class="mines-board" id="minesGrid"></div>
-                    <div class="bet-bar">
-                        <input type="number" id="minesBet" class="bet-field" value="100" min="10">
-                        <select id="minesCount" class="bet-field" style="max-width: 110px;">
-                            <option value="3">3 мины</option>
-                            <option value="5" selected>5 мин</option>
-                            <option value="10">10 мин</option>
-                        </select>
-                        <button class="b-chip" onclick="multBet('minesBet', 2)">2x</button>
-                    </div>
-                    <button class="big-btn btn-cyan" id="minesBtn" onclick="startOrCashoutMines()">НАЧАТЬ ИГРУ</button>
-                </div>
-            </div>
-
-            <!-- 5. Слоты -->
-            <div id="sub-slots" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🎰 АВТОМАТ «ТУЗЕМУН»</b><span class="tag-gold">ДЖЕКПОТ x15</span></div>
-                    <div class="slots-window">
-                        <div class="slot-reel" id="reel1">✈️</div>
-                        <div class="slot-reel" id="reel2">💎</div>
-                        <div class="slot-reel" id="reel3">🚀</div>
-                    </div>
-                    <div class="bet-bar">
-                        <input type="number" id="slotBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('slotBet', 2)">2x</button>
-                        <button class="b-chip" onclick="maxBet('slotBet')">MAX</button>
-                    </div>
-                    <button class="big-btn btn-gold" onclick="spinSlots()">КРУТИТЬ БАРАБАН</button>
-                    <div id="slotStatus" class="status-line">3 одинаковых = x15 • 2 одинаковых = x2</div>
-                </div>
-            </div>
-            <!-- 6. Рулетка Красное / Черное / Зеро -->
-            <div id="sub-roulette" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🔴 РУЛЕТКА: ЦВЕТ ИЛИ ЗЕРО</b><span class="tag-gold">ЗЕРО x14</span></div>
-                    <div class="roulette-ball-box" id="roulDisplay">0</div>
-                    <div class="bet-bar">
-                        <input type="number" id="roulBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('roulBet', 2)">2x</button>
-                    </div>
-                    <div class="risk-buttons">
-                        <button class="big-btn btn-red" onclick="playColorRoul('red')">Красное<br><small>x2</small></button>
-                        <button class="big-btn btn-cyan" onclick="playColorRoul('zero')">Зеро 0<br><small>x14</small></button>
-                        <button class="big-btn" style="background:#262d42; color:#fff;" onclick="playColorRoul('black')">Черное<br><small>x2</small></button>
-                    </div>
-                    <div id="roulLog" class="status-line">Выбери сектор для ставки</div>
-                </div>
-            </div>
-
-            <!-- 7. Башня (Tower) -->
-            <div id="sub-tower" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🪜 БАШНЯ НЕБОСКРЕБА</b><span class="tag-cyan" id="towerMult">1.00x</span></div>
-                    <div class="tower-grid" id="towerGrid"></div>
-                    <div class="bet-bar">
-                        <input type="number" id="towerBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('towerBet', 2)">2x</button>
-                    </div>
-                    <button class="big-btn btn-cyan" id="towerBtn" onclick="startOrCashoutTower()">НАЧАТЬ ПОДЪЕМ</button>
-                </div>
-            </div>
-
-            <!-- 8. Кости (Больше / Меньше) -->
-            <div id="sub-dice" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🎲 КОСТИ (1 — 100)</b><span class="tag-orange">ШАНС 48% • x2</span></div>
-                    <div class="dice-screen" id="diceVal">50</div>
-                    <div class="bet-bar">
-                        <input type="number" id="diceBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('diceBet', 2)">2x</button>
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                        <button class="big-btn btn-cyan" onclick="playDice('low')">Меньше 49 (x2)</button>
-                        <button class="big-btn btn-orange" onclick="playDice('high')">Больше 52 (x2)</button>
-                    </div>
-                    <div id="diceLog" class="status-line">Выброси нужное число</div>
-                </div>
-            </div>
-
-            <!-- 9. Монетка (Орел / Решка) -->
-            <div id="sub-coin" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🪙 МОНЕТА $AERO</b><span class="tag-gold">МНОЖИТЕЛЬ x1.95</span></div>
-                    <div class="coin-stage"><div class="coin-disc" id="coinDisc">✈️</div></div>
-                    <div class="bet-bar">
-                        <input type="number" id="coinBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('coinBet', 2)">2x</button>
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                        <button class="big-btn btn-gold" onclick="flipCoin('eagle')">Орел ✈️</button>
-                        <button class="big-btn btn-cyan" onclick="flipCoin('tails')">Решка 🚀</button>
-                    </div>
-                    <div id="coinLog" class="status-line">Подбрось монету</div>
-                </div>
-            </div>
-
-            <!-- 10. Карты Выше / Ниже (Hi-Lo) -->
-            <div id="sub-hilo" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🃏 КАРТЫ: ВЫШЕ ИЛИ НИЖЕ</b><span class="tag-cyan">x1.90</span></div>
-                    <div class="card-table" id="hiloCard">7</div>
-                    <div class="bet-bar">
-                        <input type="number" id="hiloBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('hiloBet', 2)">2x</button>
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                        <button class="big-btn btn-red" onclick="playHiLo('lower')">Ниже ▼</button>
-                        <button class="big-btn btn-cyan" onclick="playHiLo('higher')">Выше ▲</button>
-                    </div>
-                    <div id="hiloLog" class="status-line">Карты от 2 до 14 (Туз)</div>
-                </div>
-            </div>
-
-            <!-- 11. Дартс -->
-            <div id="sub-darts" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🎯 ДАРТС: ТОЧНЫЙ БРОСОК</b><span class="tag-orange">ЯБЛОЧКО x8</span></div>
-                    <div class="dice-screen" id="dartsRes">🎯</div>
-                    <div class="bet-bar">
-                        <input type="number" id="dartsBet" class="bet-field" value="100" min="10">
-                        <button class="b-chip" onclick="multBet('dartsBet', 2)">2x</button>
-                    </div>
-                    <button class="big-btn btn-orange" onclick="playDarts()">БРОСИТЬ ДРОТИК</button>
-                    <div id="dartsLog" class="status-line">Сектора: x0, x1.2, x2, x4, x8</div>
-                </div>
-            </div>
-
-            <!-- 12. Блиц-шахта 3x3 -->
-            <div id="sub-blitz" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>⚡ БЛИЦ-ШАХТА 3x3</b><span class="tag-gold">1 МИНУТА • x1.4 ЗА ХОД</span></div>
-                    <div class="blitz-grid" id="blitzGrid"></div>
-                    <div class="bet-bar">
-                        <input type="number" id="blitzBet" class="bet-field" value="100" min="10">
-                    </div>
-                    <button class="big-btn btn-gold" id="blitzBtn" onclick="startBlitz()">СТАРТ БЛИЦ (2 БОМБЫ)</button>
-                </div>
-            </div>
-
-            <!-- 13. Высотный рейс -->
-            <div id="sub-plane" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>✈️ ВЫСОТНЫЙ РЕЙС</b><span class="tag-cyan">ЭШЕЛОН</span></div>
-                    <div class="bet-bar">
-                        <input type="number" id="planeBet" class="bet-field" value="150" min="10">
-                        <button class="b-chip" onclick="multBet('planeBet', 2)">2x</button>
-                    </div>
-                    <div class="risk-buttons">
-                        <button class="big-btn btn-cyan" onclick="playPlane(1.5, 0.65)">3 000 м<br><small>1.5x (65%)</small></button>
-                        <button class="big-btn btn-gold" onclick="playPlane(2.6, 0.38)">7 000 м<br><small>2.6x (38%)</small></button>
-                        <button class="big-btn btn-red" onclick="playPlane(5.5, 0.18)">Космос<br><small>5.5x (18%)</small></button>
-                    </div>
-                    <div id="planeResult" class="status-line">Выбери высоту полета</div>
-                </div>
-            </div>
-
-            <!-- 14. Кнопка риска 50/50 -->
-            <div id="sub-flip50" class="game-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>🔥 УДВОЕНИЕ 50 / 50</b><span class="tag-orange">МГНОВЕННЫЙ ИКС</span></div>
-                    <div class="bet-bar">
-                        <input type="number" id="flipBet" class="bet-field" value="200" min="10">
-                        <button class="b-chip" onclick="maxBet('flipBet')">ALL-IN</button>
-                    </div>
-                    <button class="big-btn btn-orange" onclick="playFlip50()">УДВОИТЬ СТАВКУ (x2)</button>
-                    <div id="flipLog" class="status-line">Шанс ровно 50%</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ВКЛАДКА 3: АНГАР (ПРОКАЧКА) -->
-        <section id="tab-upgrade" class="screen">
-            <div class="panel upg-item">
-                <div>
-                    <b>🔥 Форсаж турбины (Ур. <span id="lvlTap">1</span>)</b>
-                    <div class="sub-txt">+1 $AERO к базовому клику</div>
-                </div>
-                <button class="big-btn btn-orange sm-btn" onclick="buyUpgrade('tap')" id="btnBuyTap">150 ✈️</button>
-            </div>
-            <div class="panel upg-item">
-                <div>
-                    <b>🛢️ Дополнительный бак (Ур. <span id="lvlEnergy">1</span>)</b>
-                    <div class="sub-txt">+500 к запасу топлива</div>
-                </div>
-                <button class="big-btn btn-cyan sm-btn" onclick="buyUpgrade('energy')" id="btnBuyEnergy">200 ✈️</button>
-            </div>
-                        <div class="panel upg-item">
-                <div>
-                    <b>🤖 Автопилот флота (Ур. <span id="lvlAuto">0</span>)</b>
-                    <div class="sub-txt">+400 $AERO каждый час</div>
-                </div>
-
-            <div class="panel upg-item">
-                <div>
-                    <b>🤖 Автопилот флота (Ур. <span id="lvlAuto">0</span>)</b>
-                    <div class="sub-txt">+400 $AERO каждый час</div>
-                </div>
-                <button class="big-btn btn-gold sm-btn" onclick="buyUpgrade('auto')" id="btnBuyAuto">300 ✈️</button>
-            </div>
-        </section>
-
-
-                        <!-- ВКЛАДКА 4: ИМПЕРИЯ (БИЗНЕСЫ + 50 АВТО + ПЕРЕКУПЫ + 1 ДЕКАБРЯ) -->
+        <!-- ЭКРАН 2: ИМПЕРИЯ (СЕТКА 2x2: ТАКСОПАРК, БИЗНЕСЫ, АВТОСАЛОН 50, ПЕРЕКУПЫ) -->
         <section id="tab-tasks" class="screen">
-            <div class="mode-tabs-scroll">
-                <button class="m-tab active" onclick="switchEmpireTab('biz', this)">🏢 Бизнесы</button>
-                <button class="m-tab" onclick="switchEmpireTab('cars', this)">🚘 Автосалон (50)</button>
-                <button class="m-tab" onclick="switchEmpireTab('market', this)">🤝 Перекупы</button>
-                <button class="m-tab" onclick="switchEmpireTab('airdrop', this)">💎 1 Декабря</button>
+            <div class="bento-2x2" style="margin-bottom:12px;">
+                <button class="bento-tile active-tile" onclick="switchEmpireTab('biz', this)">
+                    <span class="tile-ico">🚕</span>
+                    <div><b>Таксопарк и Бизнес</b><small id="bizIncomeBadge">+0/ч</small></div>
+                </button>
+                <button class="bento-tile" onclick="switchEmpireTab('cars', this)">
+                    <span class="tile-ico">🚘</span>
+                    <div><b>Автосалон (50)</b><small id="respectBadge">Влияние: 0</small></div>
+                </button>
+                <button class="bento-tile" onclick="switchEmpireTab('market', this)">
+                    <span class="tile-ico">🤝</span>
+                    <div><b>Биржа Перекупов</b><small>Скупка и продажа</small></div>
+                </button>
+                <button class="bento-tile" onclick="switchEmpireTab('upgrade_hangar', this)">
+                    <span class="tile-ico">🔧</span>
+                    <div><b>Тюнинг Ангара</b><small>Клик и Автопилот</small></div>
+                </button>
             </div>
 
-            <!-- Подраздел 1: Бизнесы -->
             <div id="emp-biz" class="emp-box">
                 <div class="panel">
-                    <div class="panel-head"><b>🏢 БИЗНЕС-ИМПЕРИЯ</b><span class="tag-cyan" id="bizIncomeBadge">+0/ч</span></div>
+                    <div class="panel-head"><b>🚕 ТАКСОПАРК И КОМПАНИИ</b><span class="tag-cyan">ДОХОД В ЧАС</span></div>
                     <div id="bizList"></div>
                 </div>
             </div>
 
-            <!-- Подраздел 2: Автосалон (50 машин) -->
             <div id="emp-cars" class="emp-box" style="display:none;">
                 <div class="panel">
-                    <div class="panel-head"><b>🚘 АВТОСАЛОН И ГАРАЖ</b><span class="tag-gold" id="respectBadge">Влияние: 0</span></div>
-                    <div class="mode-tabs-scroll" style="margin-bottom:8px;">
-                        <button class="m-tab active" onclick="filterCars('all', this)">Все (50)</button>
-                        <button class="m-tab" onclick="filterCars('low', this)">🚗 Тазы</button>
-                        <button class="m-tab" onclick="filterCars('mid', this)">🚙 Средний</button>
-                        <button class="m-tab" onclick="filterCars('prem', this)">🏎️ Мерсы/Бэхи</button>
-                        <button class="m-tab" onclick="filterCars('lux', this)">👑 Люкс/Ройс</button>
+                    <div class="panel-head"><b>🚘 АВТОСАЛОН (50 МОДЕЛЕЙ)</b><span class="tag-gold">ВЫБОР КЛАССА</span></div>
+                    <div class="bento-2x2" style="margin-bottom:10px;">
+                        <button class="m-tab active" onclick="filterCars('all', this)">Все авто (50)</button>
+                        <button class="m-tab" onclick="filterCars('low', this)">🚗 Тазы (12)</button>
+                        <button class="m-tab" onclick="filterCars('mid', this)">🚙 Средний (14)</button>
+                        <button class="m-tab" onclick="filterCars('prem', this)">🏎️ Мерсы/Бэхи (14)</button>
+                        <button class="m-tab" style="grid-column: span 2;" onclick="filterCars('lux', this)">👑 Элитный Люкс и Ройсы (10)</button>
                     </div>
                     <div id="carList"></div>
                 </div>
             </div>
 
-            <!-- Подраздел 3: Биржа перекупов -->
             <div id="emp-market" class="emp-box" style="display:none;">
                 <div class="panel">
-                    <div class="panel-head"><b>🤝 БИРЖА ПЕРЕПРОДАЖИ</b><span class="tag-orange">КОМИССИЯ 5%</span></div>
-                    <p class="sub-txt" style="margin-bottom:8px;">Скупай тачки по низу рынка или выставляй свои с наценкой!</p>
+                    <div class="panel-head"><b>🤝 БИРЖА ПЕРЕПРОДАЖИ</b><span class="tag-orange">P2P РЫНОК</span></div>
                     <div id="marketList"></div>
                 </div>
             </div>
 
-            <!-- Подраздел 4: Листинг 1 декабря -->
-            <div id="emp-airdrop" class="emp-box" style="display:none;">
-                <div class="panel">
-                    <div class="panel-head"><b>💎 ДРОП МЕМ-КОИНА $AERO</b><span class="tag-gold">1 ДЕКАБРЯ</span></div>
-                    <p class="sub-txt" style="margin:6px 0 10px;">Размер дропа 1 декабря зависит от твоего баланса, бизнесов и автопарка.</p>
-                    <input type="text" id="tonWalletInput" class="bet-field" style="width:100%; margin-bottom:8px;" placeholder="Адрес TON-кошелька (UQ...)">
-                    <button class="big-btn btn-cyan" onclick="saveTonWallet()" id="walletBtn">ПРИВЯЗАТЬ КОШЕЛЕК</button>
-                    <div id="walletStatus" class="status-line">Кошелек не привязан</div>
+            <div id="emp-upgrade_hangar" class="emp-box" style="display:none;">
+                <div class="panel upg-item">
+                    <div><b>🔥 Турбина клика (Ур. <span id="lvlTap">1</span>)</b><div class="sub-txt">+1 $AERO за нажатие</div></div>
+                    <button class="big-btn btn-orange sm-btn" onclick="buyUpgrade('tap')" id="btnBuyTap">150 ✈️</button>
+                </div>
+                <div class="panel upg-item">
+                    <div><b>🛢️ Топливный бак (Ур. <span id="lvlEnergy">1</span>)</b><div class="sub-txt">+500 к запасу энергии</div></div>
+                    <button class="big-btn btn-cyan sm-btn" onclick="buyUpgrade('energy')" id="btnBuyEnergy">200 ✈️</button>
+                </div>
+                <div class="panel upg-item">
+                    <div><b>🤖 Автопилот ИИ (Ур. <span id="lvlAuto">0</span>)</b><div class="sub-txt">+400 $AERO каждый час</div></div>
+                    <button class="big-btn btn-gold sm-btn" onclick="buyUpgrade('auto')" id="btnBuyAuto">300 ✈️</button>
+                </div>
+            </div>
+        </section>
+        <!-- ЭКРАН 3: ИГРЫ (УДОБНОЕ ЛОББИ 2 КОЛОНКИ + 14 РЕЖИМОВ) -->
+        <section id="tab-games" class="screen">
+            <div id="gamesLobbyGrid" class="bento-2x2">
+                <button class="bento-tile" onclick="openGameFromLobby('crash')"><span class="tile-ico">🚀</span><div><b>Краш Ракета</b><small>До x100</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('wheel')"><span class="tile-ico">🎡</span><div><b>Колесо Фортуны</b><small>До x10</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('case')"><span class="tile-ico">📦</span><div><b>Кейс-рулетка</b><small>До 25 000 ✈️</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('mines')"><span class="tile-ico">💣</span><div><b>Минное поле</b><small>Классика 5x5</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('slots')"><span class="tile-ico">🎰</span><div><b>Слоты Туземун</b><small>Джекпот x15</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('roulette')"><span class="tile-ico">🔴</span><div><b>Рулетка 0–14</b><small>Зеро x14</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('tower')"><span class="tile-ico">🪜</span><div><b>Башня</b><small>5 этажей риска</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('dice')"><span class="tile-ico">🎲</span><div><b>Кости 1–100</b><small>Шанс 48% • x2</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('coin')"><span class="tile-ico">🪙</span><div><b>Орел / Решка</b><small>Множитель x1.95</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('hilo')"><span class="tile-ico">🃏</span><div><b>Карты Hi-Lo</b><small>Выше или ниже</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('darts')"><span class="tile-ico">🎯</span><div><b>Дартс</b><small>Яблочко x8</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('blitz')"><span class="tile-ico">⚡</span><div><b>Блиц-шахта 3x3</b><small>Быстрые иксы</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('plane')"><span class="tile-ico">✈️</span><div><b>Высотный рейс</b><small>Выбор эшелона</small></div></button>
+                <button class="bento-tile" onclick="openGameFromLobby('flip50')"><span class="tile-ico">🔥</span><div><b>Риск 50 / 50</b><small>Мгновенно x2</small></div></button>
+            </div>
+
+            <div id="activeGameContainer" style="display:none;">
+                <button class="big-btn" style="background:var(--surface-2); color:#fff; margin-bottom:10px; border:1px solid var(--border);" onclick="backToGamesLobby()">← НАЗАД В КАТАЛОГ ИГР</button>
+
+                <div id="sub-crash" class="game-box">
+                    <div class="panel">
+                        <div class="panel-head"><b>🚀 КРАШ РАКЕТА</b><span class="tag-orange">MAX 100x</span></div>
+                        <div class="crash-arena"><div class="fly-obj" id="rocketIcon">🚀</div><div class="crash-x" id="crashMultText">1.00x</div><div class="crash-msg" id="crashQuoteText">Нажми взлет, пилот!</div></div>
+                        <div class="bet-bar"><input type="number" id="crashBet" class="bet-field" value="100" min="10"><button class="b-chip" onclick="multBet('crashBet', 2)">2x</button><button class="b-chip" onclick="maxBet('crashBet')">MAX</button></div>
+                        <button class="big-btn btn-orange" id="crashActionBtn" onclick="handleCrashAction()">ЗАПУСТИТЬ РАКЕТУ</button>
+                    </div>
+                </div>
+
+                <div id="sub-wheel" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🎡 КОЛЕСО ФОРТУНЫ</b><span class="tag-gold">ДО x10</span></div>
+                        <div class="wheel-stage"><div class="wheel-pointer">▼</div><div class="wheel-disc" id="wheelDisc"><span style="transform:rotate(0deg)">x2</span><span style="transform:rotate(60deg)">x0</span><span style="transform:rotate(120deg)">x5</span><span style="transform:rotate(180deg)">x1.5</span><span style="transform:rotate(240deg)">x10</span><span style="transform:rotate(300deg)">x0</span></div></div>
+                        <div class="bet-bar"><input type="number" id="wheelBet" class="bet-field" value="100" min="10"><button class="b-chip" onclick="multBet('wheelBet', 2)">2x</button></div>
+                        <button class="big-btn btn-gold" id="wheelBtn" onclick="spinWheel()">КРУТИТЬ КОЛЕСО</button>
+                        <div id="wheelLog" class="status-line">Сектора: x0, x1.5, x2, x5, x10</div>
+                    </div>
+                </div>
+
+                <div id="sub-case" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>📦 КЕЙС-РУЛЕТКА</b><span class="tag-orange">ДО 25 000</span></div>
+                        <div class="roulette-tape-wrap"><div class="tape-center-line"></div><div class="roulette-tape" id="caseTape"></div></div>
+                        <button class="big-btn btn-orange" id="caseBtn" onclick="spinCaseTape()">ОТКРЫТЬ КЕЙС (500 ✈️)</button>
+                        <div id="caseLog" class="status-line">Прокрутка с замедлением</div>
+                    </div>
+                </div>
+
+                <div id="sub-mines" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>💣 МИННОЕ ПОЛЕ</b><span class="tag-cyan" id="minesMultBadge">1.00x</span></div>
+                        <div class="mines-board" id="minesGrid"></div>
+                        <div class="bet-bar"><input type="number" id="minesBet" class="bet-field" value="100" min="10"><select id="minesCount" class="bet-field" style="max-width:110px;"><option value="3">3 мины</option><option value="5" selected>5 мин</option><option value="10">10 мин</option></select></div>
+                        <button class="big-btn btn-cyan" id="minesBtn" onclick="startOrCashoutMines()">НАЧАТЬ ИГРУ</button>
+                    </div>
+                </div>
+
+                <div id="sub-slots" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🎰 СЛОТЫ «ТУЗЕМУН»</b><span class="tag-gold">x15</span></div>
+                        <div class="slots-window"><div class="slot-reel" id="reel1">✈️</div><div class="slot-reel" id="reel2">💎</div><div class="slot-reel" id="reel3">🚀</div></div>
+                        <div class="bet-bar"><input type="number" id="slotBet" class="bet-field" value="100" min="10"><button class="b-chip" onclick="multBet('slotBet', 2)">2x</button></div>
+                        <button class="big-btn btn-gold" onclick="spinSlots()">КРУТИТЬ БАРАБАН</button>
+                        <div id="slotStatus" class="status-line">3 одинаковых = x15 • 2 одинаковых = x2</div>
+                    </div>
+                </div>
+
+                <div id="sub-roulette" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🔴 РУЛЕТКА 0–14</b><span class="tag-gold">ЗЕРО x14</span></div>
+                        <div class="roulette-ball-box" id="roulDisplay">0</div>
+                        <div class="bet-bar"><input type="number" id="roulBet" class="bet-field" value="100" min="10"></div>
+                        <div class="risk-buttons"><button class="big-btn btn-red" onclick="playColorRoul('red')">Красное x2</button><button class="big-btn btn-cyan" onclick="playColorRoul('zero')">Зеро x14</button><button class="big-btn" style="background:#262d42;color:#fff;" onclick="playColorRoul('black')">Черное x2</button></div>
+                        <div id="roulLog" class="status-line">Выбери цвет или 0</div>
+                    </div>
+                </div>
+
+                <div id="sub-tower" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🪜 БАШНЯ</b><span class="tag-cyan" id="towerMult">1.00x</span></div>
+                        <div class="tower-grid" id="towerGrid"></div>
+                        <div class="bet-bar"><input type="number" id="towerBet" class="bet-field" value="100" min="10"></div>
+                        <button class="big-btn btn-cyan" id="towerBtn" onclick="startOrCashoutTower()">НАЧАТЬ ПОДЪЕМ</button>
+                    </div>
+                </div>
+
+                <div id="sub-dice" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🎲 КОСТИ</b><span class="tag-orange">x2</span></div>
+                        <div class="dice-screen" id="diceVal">50</div>
+                        <div class="bet-bar"><input type="number" id="diceBet" class="bet-field" value="100" min="10"></div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"><button class="big-btn btn-cyan" onclick="playDice('low')">Меньше 49</button><button class="big-btn btn-orange" onclick="playDice('high')">Больше 52</button></div>
+                        <div id="diceLog" class="status-line">Выброси число</div>
+                    </div>
+                </div>
+
+                                <div id="sub-coin" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🪙 МОНЕТА</b><span class="tag-gold">x1.95</span></div>
+                        <div class="coin-stage"><div class="coin-disc" id="coinDisc">✈️</div></div>
+                        <div class="bet-bar"><input type="number" id="coinBet" class="bet-field" value="100" min="10"></div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"><button class="big-btn btn-gold" onclick="flipCoin('eagle')">Орел ✈️</button><button class="big-btn btn-cyan" onclick="flipCoin('tails')">Решка 🚀</button></div>
+                        <div id="coinLog" class="status-line">Выбери сторону</div>
+                    </div>
+                </div>
+
+                <div id="sub-hilo" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🃏 КАРТЫ HI-LO</b><span class="tag-cyan">x1.90</span></div>
+                        <div class="card-table" id="hiloCard">7</div>
+                        <div class="bet-bar"><input type="number" id="hiloBet" class="bet-field" value="100" min="10"></div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"><button class="big-btn btn-red" onclick="playHiLo('lower')">Ниже ▼</button><button class="big-btn btn-cyan" onclick="playHiLo('higher')">Выше ▲</button></div>
+                        <div id="hiloLog" class="status-line">Карты от 2 до Туза</div>
+                    </div>
+                </div>
+
+                <div id="sub-darts" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🎯 ДАРТС</b><span class="tag-orange">ДО x8</span></div>
+                        <div class="dice-screen" id="dartsRes">🎯</div>
+                        <div class="bet-bar"><input type="number" id="dartsBet" class="bet-field" value="100" min="10"></div>
+                        <button class="big-btn btn-orange" onclick="playDarts()">БРОСИТЬ ДРОТИК</button>
+                        <div id="dartsLog" class="status-line">Сектора: x0, x1.2, x2, x4, x8</div>
+                    </div>
+                </div>
+
+                <div id="sub-blitz" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>⚡ БЛИЦ 3x3</b><span class="tag-gold">x1.4 ЗА ХОД</span></div>
+                        <div class="blitz-grid" id="blitzGrid"></div>
+                        <div class="bet-bar"><input type="number" id="blitzBet" class="bet-field" value="100" min="10"></div>
+                        <button class="big-btn btn-gold" id="blitzBtn" onclick="startBlitz()">СТАРТ БЛИЦ</button>
+                    </div>
+                </div>
+
+                <div id="sub-plane" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>✈️ ВЫСОТНЫЙ РЕЙС</b><span class="tag-cyan">ЭШЕЛОН</span></div>
+                        <div class="bet-bar"><input type="number" id="planeBet" class="bet-field" value="150" min="10"></div>
+                        <div class="risk-buttons"><button class="big-btn btn-cyan" onclick="playPlane(1.5, 0.65)">3 000 м<br><small>1.5x</small></button><button class="big-btn btn-gold" onclick="playPlane(2.6, 0.38)">7 000 м<br><small>2.6x</small></button><button class="big-btn btn-red" onclick="playPlane(5.5, 0.18)">Космос<br><small>5.5x</small></button></div>
+                        <div id="planeResult" class="status-line">Выбери высоту</div>
+                    </div>
+                </div>
+
+                <div id="sub-flip50" class="game-box" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-head"><b>🔥 УДВОЕНИЕ 50/50</b><span class="tag-orange">x2</span></div>
+                        <div class="bet-bar"><input type="number" id="flipBet" class="bet-field" value="200" min="10"><button class="b-chip" onclick="maxBet('flipBet')">ALL-IN</button></div>
+                        <button class="big-btn btn-orange" onclick="playFlip50()">УДВОИТЬ СТАВКУ</button>
+                        <div id="flipLog" class="status-line">Шанс ровно 50%</div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- ВКЛАДКА 5: ДРУЗЬЯ -->
-        <section id="tab-friends" class="screen">
+        <!-- ЭКРАН 4: VIP (TELEGRAM STARS) И ЛИСТИНГ 1 ДЕКАБРЯ -->
+        <section id="tab-vip" class="screen">
+            <div class="panel" style="border-color: rgba(245, 158, 11, 0.5);">
+                <div class="panel-head"><b>👑 VIP-КЛУБ (TELEGRAM STARS)</b><span class="tag-gold">БУСТ ИМПЕРИИ</span></div>
+                <div class="task-row">
+                    <div><b>⭐ VIP Старт (50 Stars)</b><div class="sub-txt">+100 000 $AERO + x1.5 к доходу бизнеса</div></div>
+                    <button class="big-btn btn-gold sm-btn" onclick="buyVipStars('start', 50, 100000, 1.5)">50 ⭐</button>
+                </div>
+                <div class="task-row">
+                    <div><b>🔥 VIP Магнат (150 Stars)</b><div class="sub-txt">+500 000 $AERO + x2 доход + Бесплатное ТО</div></div>
+                    <button class="big-btn btn-gold sm-btn" onclick="buyVipStars('magnat', 150, 500000, 2)">150 ⭐</button>
+                </div>
+                <div class="task-row">
+                    <div><b>👑 VIP Олигарх (350 Stars)</b><div class="sub-txt">+2 000 000 $AERO + x3 доход + Приоритетный Дроп 1 дек</div></div>
+                    <button class="big-btn btn-orange sm-btn" onclick="buyVipStars('oligarch', 350, 2000000, 3)">350 ⭐</button>
+                </div>
+            </div>
+
             <div class="panel">
-                <b>🎖️ ПРИГЛАСИ ДРУЗЕЙ В ЭСКАДРИЛЬЮ</b>
-                <p class="sub-txt" style="margin: 8px 0;">Копируй ссылку и забирай +2 500 $AERO каждые 12 часов!</p>
+                <div class="panel-head"><b>💎 ЛИСТИНГ $AERO — 1 ДЕКАБРЯ</b><span class="tag-cyan">AIRDROP</span></div>
+                <input type="text" id="tonWalletInput" class="bet-field" style="width:100%; margin-bottom:8px;" placeholder="Адрес TON-кошелька (UQ...)">
+                <button class="big-btn btn-cyan" onclick="saveTonWallet()" id="walletBtn">ПРИВЯЗАТЬ TON-КОШЕЛЕК</button>
+                <div id="walletStatus" class="status-line">Кошелек не привязан</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head"><b>🎖️ ЭСКАДРИЛЬЯ ДРУЗЕЙ</b><span class="tag-gold">+2 500 / 12Ч</span></div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                     <button class="big-btn btn-cyan" onclick="copyRefLink()">📋 Ссылка</button>
                     <button class="big-btn btn-gold" id="claimRefBtn" onclick="claimRefBonus()">🎁 +2 500</button>
@@ -424,19 +326,16 @@
         </section>
     </main>
 
-    <nav class="floating-dock">
-        <button class="dock-btn active" onclick="switchTab('tab-tap', this)">🛩️<span>Полет</span></button>
-        <button class="dock-btn" onclick="switchTab('tab-games', this)">🎰<span>Игры</span></button>
-        <button class="dock-btn" onclick="switchTab('tab-upgrade', this)">🔧<span>Ангар</span></button>
-                <button class="dock-btn" onclick="switchTab('tab-tasks', this)">🏢<span>Империя</span></button>
-        <button class="dock-btn" onclick="switchTab('tab-friends', this)">👥<span>Друзья</span></button>
+    <nav class="floating-dock" style="grid-template-columns: repeat(4, 1fr);">
+        <button class="dock-btn active" onclick="switchTab('tab-tap', this)">🛩️<span>Штаб</span></button>
+        <button class="dock-btn" onclick="switchTab('tab-tasks', this); if(window.renderEmpireAll) renderEmpireAll();">🏢<span>Империя</span></button>
+        <button class="dock-btn" onclick="switchTab('tab-games', this); backToGamesLobby();">🎰<span>Игры</span></button>
+        <button class="dock-btn" id="navVipBtn" onclick="switchTab('tab-vip', this)">👑<span>VIP и 1 дек</span></button>
     </nav>
 
-       <script src="script.js"></script>
+    <script src="script.js"></script>
     <script src="games.js"></script>
     <script src="empire.js"></script>
+    <script src="vip.js"></script>
 </body>
 </html>
-
-
-
