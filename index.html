@@ -285,8 +285,10 @@
             <a href="https://t.me/aerotap" target="_blank" rel="noopener" class="ios-link-item" style="text-decoration:none; color:#fff;" onclick="claimChannelReward()">
                 <span>📢 https://t.me/aerotap</span><span style="color:#0a84ff;">Открыть ›</span>
             </a>
-            <a href="https://t.me" target="_blank" rel="noopener" class="ios-link-item" style="text-decoration:none; color:#fff;">
+                       <a href="https://t.me" target="_blank" rel="noopener" class="ios-link-item" style="text-decoration:none; color:#fff;">
                 <span>🤖 https://t.me</span><span style="color:#0a84ff;">Запуск ›</span>
+            </a>
+
             </a>
         </div>
     </section>
@@ -317,6 +319,142 @@
     <div class="home-indicator"></div>
 </div>
 
-<script src="app.js"></script>
+<script>
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.expand(); tg.ready(); }
+
+let soundOn = true;
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+const audioCtx = AudioCtx ? new AudioCtx() : null;
+
+function toggleSound() {
+    soundOn = !soundOn;
+    document.getElementById('soundBtn').innerText = soundOn ? '🔊' : '🔇';
+}
+
+function playSound(type) {
+    if (!soundOn || !audioCtx) return;
+    try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+        osc.type = type === 'boom' ? 'sawtooth' : 'sine';
+        osc.frequency.setValueAtTime(type === 'boom' ? 140 : 480, now);
+        osc.frequency.exponentialRampToValueAtTime(type === 'boom' ? 35 : 780, now + 0.12);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+        osc.start(now); osc.stop(now + 0.12);
+    } catch (e) {}
+}
+
+function showIslandNotice(text) {
+    const di = document.getElementById('diText');
+    if (!di) return;
+    di.innerText = text;
+    setTimeout(() => { di.innerText = 'AeroOS • TON'; }, 2800);
+}
+
+const STORAGE_KEY = 'aerotap_ios_final_v1';
+const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+const userId = (tgUser && tgUser.id) ? tgUser.id : Math.floor(10000 + Math.random() * 90000);
+
+let state = Object.assign({
+    username: (tgUser && tgUser.first_name) ? tgUser.first_name : 'Пилот #' + String(userId).slice(-3),
+    balance: 50, energy: 500, maxEnergy: 500, tapPower: 1, passiveHour: 0,
+    refills: 2, lastDaily: 0, lastRefBonus: 0, lastSafe24: 0, lastAtcTime: 0,
+    channelClaimed: false, usedCodes: [], tonWallet: '', bizLevels: {}, hangarLevels: {}
+}, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
+
+let turboMult = 1, heatLevel = 0;
+
+function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    updateUI();
+}
+
+function getRefLink() {
+    return 'https://t.me_' + userId;
+}
+
+function claimChannelReward() {
+    if (!state.channelClaimed) {
+        state.channelClaimed = true;
+        state.balance += 150;
+        playSound('win');
+        showIslandNotice('+150 $AERO за @aerotap');
+        saveState();
+    }
+}
+
+function updateUI() {
+    const now = new Date();
+    const clockEl = document.getElementById('iosClock');
+    if (clockEl) clockEl.innerText = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('displayUsername').innerText = state.username;
+    document.getElementById('avatarInitial').innerText = state.username.charAt(0).toUpperCase();
+    document.getElementById('balanceText').innerText = Math.floor(state.balance).toLocaleString('ru-RU');
+    document.getElementById('passiveRate').innerText = state.passiveHour.toLocaleString('ru-RU');
+    const comboMult = heatLevel >= 80 ? 3 : (heatLevel >= 40 ? 2 : 1);
+    document.getElementById('tapPowerText').innerText = state.tapPower * turboMult * comboMult;
+    document.getElementById('heatBar').style.width = heatLevel + '%';
+    document.getElementById('energyText').innerText = Math.floor(state.energy);
+    document.getElementById('maxEnergyText').innerText = state.maxEnergy;
+    document.getElementById('refillCount').innerText = state.refills + '/2';
+    document.getElementById('energyBar').style.width = Math.min(100, (state.energy / state.maxEnergy) * 100) + '%';
+
+    const refInput = document.getElementById('refLinkInput');
+    if (refInput) refInput.value = getRefLink();
+    const shareBtn = document.getElementById('tgShareLink');
+    if (shareBtn) {
+        const txt = encodeURIComponent('Залетай в AeroTap ($AERO) в сети TON! Лови бонус на старт:');
+        shareBtn.href = 'https://t.me' + encodeURIComponent(getRefLink()) + '&text=' + txt;
+    }
+}
+
+function openApp(screenId) {
+    document.querySelectorAll('.ios-screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(screenId);
+    if (target) target.classList.add('active');
+}
+
+function changePilotName() {
+    const name = prompt('Новый позывной:', state.username);
+    if (name && name.trim()) { state.username = name.trim().slice(0, 16); saveState(); }
+}
+
+const tapBtn = document.getElementById('mainTapBtn');
+if (tapBtn) {
+    tapBtn.addEventListener('pointerdown', (e) => {
+        if (state.energy < state.tapPower) return;
+        heatLevel = Math.min(100, heatLevel + 6);
+        const gain = state.tapPower * turboMult * (heatLevel >= 80 ? 3 : (heatLevel >= 40 ? 2 : 1));
+        state.balance += gain;
+        state.energy -= state.tapPower;
+        playSound('tap');
+        const el = document.createElement('div');
+        el.className = 'float-plus';
+        el.innerText = '+' + gain;
+        el.style.left = (e.clientX - 15) + 'px';
+        el.style.top = (e.clientY - 25) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 700);
+        saveState();
+    });
+}
+
+function activateTurbo() {
+    if (turboMult > 1) return showIslandNotice('Форсаж уже активен!');
+    turboMult = 2; playSound('win'); showIslandNotice('🔥 Турбо x2 на 15 сек'); updateUI();
+    setTimeout(() => { turboMult = 1; updateUI(); }, 15000);
+}
+
+function refillFuel() {
+    if (state.refills <= 0) return showIslandNotice('Баки пусты на сегодня');
+    state.refills--; state.energy = state.maxEnergy; playSound('win'); saveState();
+}
+</script>
+
 </body>
 </html>
