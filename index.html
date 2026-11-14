@@ -128,6 +128,36 @@
                     </div>
                 </div>
             </section>
+<!-- Блок 3: Крипто-Ракетка (Crash) -->
+<div class="game-box crash-box">
+    <h3>🚀 Крипто-Ракетка (Crash)</h3>
+    <p>Успей слить монету до того, как разраб сделает Rug Pull!</p>
+    <div class="crash-screen" id="crash-screen">
+        <span class="crash-rocket" id="crash-rocket">🚀</span>
+        <div class="crash-mult" id="crash-mult">1.00x</div>
+    </div>
+    <div class="bet-controls">
+        <input type="number" id="crash-bet" value="200" min="10" placeholder="Ставка">
+        <button onclick="setBetMax('crash-bet')">MAX</button>
+    </div>
+    <button class="action-btn neon-btn" id="crash-btn" onclick="handleCrashButton()">Запустить ракету</button>
+</div>
+
+<!-- Блок 4: Однорукий Бомж (Слоты) -->
+<div class="game-box slots-box">
+    <h3>🎰 Однорукий Бомж (777)</h3>
+    <p>Три в ряд: 🍾 x3 | 💵 x5 | 💎 x10 | 7️⃣ <b>x15</b></p>
+    <div class="slots-display">
+        <div class="slot-reel" id="reel-1">🍾</div>
+        <div class="slot-reel" id="reel-2">💎</div>
+        <div class="slot-reel" id="reel-3">7️⃣</div>
+    </div>
+    <div class="bet-controls">
+        <input type="number" id="slots-bet" value="100" min="10" placeholder="Ставка">
+        <button onclick="setBetMax('slots-bet')">MAX</button>
+    </div>
+    <button class="action-btn gold-btn" onclick="handleSlotsSpin()">Крутить барабан</button>
+</div>
 
             <!-- ВКЛАДКА 4: AIRDROP / ТОКЕНОМИКА -->
             <section id="tab-airdrop" class="tab-content">
