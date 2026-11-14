@@ -427,6 +427,28 @@
         </div>
     </div>
 
-    <script src="macos-app.js"></script>
+        <script src="macos-app.js"></script>
+    <script>
+        // Гарантированный запуск навигации iPhone и карты Mastercard
+        window.openIosApp = function(appId) {
+            var home = document.getElementById('ios-homescreen');
+            if (home) home.classList.remove('active');
+            document.querySelectorAll('.ios-app-window').forEach(function(w) {
+                w.classList.remove('active');
+            });
+            var target = document.getElementById(appId);
+            if (target) target.classList.add('active');
+            if (typeof window.renderEmpireAll === 'function') window.renderEmpireAll();
+        };
+
+        window.goHomeIos = function() {
+            document.querySelectorAll('.ios-app-window').forEach(function(w) {
+                w.classList.remove('active');
+            });
+            var home = document.getElementById('ios-homescreen');
+            if (home) home.classList.add('active');
+        };
+    </script>
 </body>
 </html>
+
