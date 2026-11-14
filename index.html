@@ -38,6 +38,10 @@
 
             <!-- Сетка иконок приложений на рабочем столе iPhone -->
             <div class="ios-app-grid">
+                                <button class="ios-app-icon" onclick="openIosApp('app-bank')">
+                    <div class="app-squircle grad-dark">💳</div>
+                    <span>Банк</span>
+                </button>
                 <button class="ios-app-icon" onclick="openIosApp('app-tap')">
                     <div class="app-squircle grad-blue">🛩️</div>
                     <span>Штурвал</span>
@@ -81,7 +85,42 @@
             </div>
         </main>
 
-        <!-- ПРИЛОЖЕНИЕ 1: ШТУРВАЛ -->
+                <!-- ПРИЛОЖЕНИЕ 0: БАНК (КАРТА MASTERCARD) -->
+        <section id="app-bank" class="ios-app-window">
+            <div class="app-navbar">
+                <button class="ios-back-btn" onclick="goHomeIos()">‹ Домой</button>
+                <b>AeroBank</b>
+                <span class="mac-tag tag-gold">WORLD ELITE</span>
+            </div>
+            <div class="app-content">
+                <div class="mc-card">
+                    <div class="mc-top">
+                        <span class="mc-bank-name">AERO PRIVATE BANK</span>
+                        <span class="mc-chip"></span>
+                    </div>
+                    <div class="mc-balance-label">ДОСТУПНЫЙ БАЛАНС</div>
+                    <div class="mc-balance-val">✈️ <span id="balanceText">0</span></div>
+                    <div class="mc-bottom">
+                        <div>
+                            <div class="mc-num">5536  9138  ••••  1600</div>
+                            <div class="mc-holder" id="mcHolderName">PILOT #01</div>
+                        </div>
+                        <div class="mc-circles">
+                            <span class="mc-c1"></span>
+                            <span class="mc-c2"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mac-card mac-row-between">
+                    <div><b>Пассивный доход</b><div class="mac-sub">От бизнесов и таксопарка</div></div>
+                    <span class="mac-tag tag-green">+<span id="bankPassiveRate">0</span>/ч</span>
+                </div>
+                <button class="mac-btn btn-gold" style="width:100%;" onclick="openIosApp('app-airdrop')">💎 Привязать TON к 1 Декабря</button>
+            </div>
+        </section>
+
+    <!-- ПРИЛОЖЕНИЕ 1: ШТУРВАЛ -->
         <section id="app-tap" class="ios-app-window">
             <div class="app-navbar">
                 <button class="ios-back-btn" onclick="goHomeIos()">‹ Домой</button>
