@@ -1,4 +1,4 @@
-// app.js — Главный движок "Бомж Инвестор" ($HOBO) [Pure Frontend]
+// app.js — Главный движок "Бомж Инвестор" ($HOBO) [Полная сборка с Казино]
 
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) {
@@ -56,7 +56,7 @@ function playSound(type) {
     } catch (e) {}
 }
 
-// Состояние игрока (хранится локально на устройстве)
+// Состояние игрока
 let state = JSON.parse(localStorage.getItem('hobo_state_v1')) || {
     balance: 0,
     totalEarned: 0,
@@ -126,7 +126,7 @@ function updateClock() {
     if (clockEl) clockEl.innerText = `${h}:${m}`;
 }
 
-// Обработка Тапа (с базовой защитой от автокликера — не быстрее 1 клика в 35 мс)
+// Обработка Тапа
 function handleTap(e) {
     const now = Date.now();
     if (now - lastTapTimestamp < 35) return;
@@ -149,7 +149,7 @@ function handleTap(e) {
         tg.HapticFeedback.impactOccurred('light');
     }
 
-    const touch = e.touches ? e.touches[0] : e;
+    const touch = e.touches ? e.touches : e;
     if (touch) {
         spawnFloatingText(touch.clientX, touch.clientY, `+${power}`);
     }
@@ -229,7 +229,8 @@ function switchCategory(cat, btnEl) {
     renderCurrentCards();
 }
 
-// Мини-игры
+// === МИНИ-ИГРЫ И КАЗИНО ===
+
 function handleRaidClick() {
     const res = games.executeRaid();
     notifyDynamicIsland(res.message, 4500);
@@ -240,50 +241,120 @@ function setMaxBet() {
     document.getElementById('thimble-bet').value = maxBet;
 }
 
+function setBetMax(inputId) {
+    const maxBet = Math.min(Math.floor(state.balance), 50000);
+    const input = document.getElementById(inputId);
+    if (input) input.value = maxBet;
+}
+
 function handleCupClick(cupIndex) {
     const bet = parseInt(document.getElementById('thimble-bet').value, 10);
     const res = games.playThimbles(bet, cupIndex);
     notifyDynamicIsland(res.message, 4000);
 }
 
-function connectWalletStub() {
-    notifyDynamicIsland("TON Connect подключится перед TGE (листингом)!", 3500);
-}
+// Обработчик Крипто-Ракетки (Старт / Забрать выигрыш)
+function handleCrashButton() {
+    const btn = document.getElementById('crash-btn');
+    const screen = document.getElementById('crash-screen');
+    const multEl = document.getElementById('crash-mult');
+    const rocketEl = document.getElementById('crash-rocket');
 
-function saveState() {
-    state.lastSaveTime = Date.now();
-    localStorage.setItem('hobo_state_v1', JSON.stringify(state));
-}
-
-// Запуск приложения
-document.addEventListener('DOMContentLoaded', () => {
-    calculateOfflineProfit();
-    updateClock();
-    updateUI();
-
-    const tapBtn = document.getElementById('tap-button');
-    if (tapBtn) {
-        tapBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            handleTap(e);
-        }, { passive: false });
-        tapBtn.addEventListener('mousedown', handleTap);
+    if (games.crashActive) {
+        const res = games.cashoutCrash();
+        if (res.success) {
+            btn.innerText = "Запустить ракету";
+            btn.classList.remove('cashout-mode');
+            rocketEl.innerText = "💰";
+            notifyDynamicIsland(res.message, 4000);
+        }
+        return;
     }
 
-    // Игровой цикл (каждую секунду)
-    setInterval(() => {
-        const profitPerSec = empire.getTotalProfitPerHour() / 3600;
-        if (profitPerSec > 0) {
-            state.balance += profitPerSec;
-            state.totalEarned += profitPerSec;
-        }
-        if (state.energy < state.maxEnergy) {
-            state.energy = Math.min(state.maxEnergy, state.energy + 2);
-        }
-        updateUI();
-    }, 1000);
+    const bet = parseInt(document.getElementById('crash-bet').value, 10);
+    screen.classList.remove('crashed');
+    rocketEl.innerText = "🚀";
+    multEl.innerText = "1.00x";
 
-    // Автосохранение каждые 5 секунд
-    setInterval(saveState, 5000);
-    setInterval(updateClock, 15000);
+    const startRes = games.startCrash(
+        bet,
+        (currentMult) => {
+            multEl.innerText = `${currentMult.toFixed(2)}x`;
+            const potentialWin = Math.floor(bet * currentMult);
+            btn.innerText = `Забрать ${potentialWin.toLocaleString()} $HOBO`;
+        },
+        (crashedAt) => {
+            screen.classList.add('crashed');
+            rocketEl.innerText = "💥";
+            multEl.innerText = `СКАМ на ${crashedAt.toFixed(2)}x`;
+            btn.innerText = "Запустить ракету";
+            btn.classList.remove('cashout-mode');
+            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+notifyDynamicIsland(Разраб соскамил токен на ${crashedAt.toFixed(2)}x! Ставка сгорела., 4000);
+}
+);
+if (!startRes.success) {
+notifyDynamicIsland(startRes.message, 3000);
+} else {
+btn.classList.add('cashout-mode');
+btn.innerText = Забрать ${bet} $HOBO;
+}
+}
+// Обработчик Слотов (Однорукий Бомж)
+function handleSlotsSpin() {
+const bet = parseInt(document.getElementById('slots-bet').value, 10);
+const reels = [
+document.getElementById('reel-1'),
+document.getElementById('reel-2'),
+document.getElementById('reel-3')
+];
+const res = games.playSlots(bet);
+if (!res.success) {
+notifyDynamicIsland(res.message, 3000);
+return;
+}
+reels.forEach(r => r.classList.add('spinning'));
+setTimeout(() => {
+reels.forEach((r, idx) => {
+r.classList.remove('spinning');
+r.innerText = res.reels[idx];
+});
+notifyDynamicIsland(res.message, 4000);
+}, 500);
+}
+function connectWalletStub() {
+notifyDynamicIsland("TON Connect подключится перед TGE (листингом)!", 3500);
+}
+function saveState() {
+state.lastSaveTime = Date.now();
+localStorage.setItem('hobo_state_v1', JSON.stringify(state));
+}
+// Запуск приложения
+document.addEventListener('DOMContentLoaded', () => {
+calculateOfflineProfit();
+updateClock();
+updateUI();
+const tapBtn = document.getElementById('tap-button');
+if (tapBtn) {
+tapBtn.addEventListener('touchstart', (e) => {
+e.preventDefault();
+handleTap(e);
+}, { passive: false });
+tapBtn.addEventListener('mousedown', handleTap);
+}
+// Игровой цикл (каждую секунду)
+setInterval(() => {
+const profitPerSec = empire.getTotalProfitPerHour() / 3600;
+if (profitPerSec > 0) {
+state.balance += profitPerSec;
+state.totalEarned += profitPerSec;
+}
+if (state.energy < state.maxEnergy) {
+state.energy = Math.min(state.maxEnergy, state.energy + 2);
+}
+updateUI();
+}, 1000);
+// Автосохранение каждые 5 секунд
+setInterval(saveState, 5000);
+setInterval(updateClock, 15000);
 });
