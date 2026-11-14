@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HoboOS | $HOBO</title>
     <script src="https://telegram.org"></script>
-    <script src="https://adsgram.ai"></script>
+<script src="https://adsgram.ai"></script>
+
     <link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
@@ -18,16 +19,20 @@
 
         <div id="toast-banner" class="ios-toast"></div>
 
-        <div id="lock-screen" class="lock-screen active">
+                <div id="lock-screen" class="lock-screen active">
             <div class="lock-top">
                 <div class="lock-padlock">🔒</div>
-                <div class="lock-big-time" id="lock-clock">00:47</div>
+                <div class="lock-big-time" id="lock-clock">00:54</div>
                 <div class="lock-date">Воскресенье, 15 ноября</div>
             </div>
             <div class="lock-notifications">
                 <div class="ios-notif-card">
                     <div class="notif-header"><span>💳 HOBO BANK</span><span>сейчас</span></div>
                     <div class="notif-body">Залетай в приложение <b>Банк</b> — там тебя ждет секретная информация!</div>
+                </div>
+                <div class="ios-notif-card" onclick="openTgChannel()" style="cursor:pointer;">
+                    <div class="notif-header"><span>📢 TELEGRAM КАНАЛ</span><span>1 мин назад</span></div>
+                    <div class="notif-body">Залетай в наш ТГ-канал — там будет много промокодов и инфы об листинге! <b>Нажми, чтобы открыть ›</b></div>
                 </div>
             </div>
             <div class="unlock-shelf" id="unlock-shelf" onclick="unlockPhone()">
@@ -37,15 +42,32 @@
         </div>
 
         <div id="home-screen" class="home-screen">
-            <div class="app-grid-clean">
-                <button type="button" class="app-icon-item" onclick="openApp('app-bank')"><div class="app-squircle grad-dark">💳</div><span>Банк</span></button>
-                <button type="button" class="app-icon-item" onclick="openApp('app-tap')"><div class="app-squircle grad-green">🍾</div><span>HoboTap</span></button>
-                <button type="button" class="app-icon-item" onclick="openApp('app-empire')"><div class="app-squircle grad-blue">💼</div><span>Темки</span></button>
-                <button type="button" class="app-icon-item" onclick="openApp('app-casino')"><div class="app-squircle grad-gold">🎰</div><span>Подполье</span></button>
-                <button type="button" class="app-icon-item" onclick="openApp('app-logic')"><div class="app-squircle grad-indigo">🧠</div><span>Мозги</span></button>
-                <button type="button" class="app-icon-item" onclick="openApp('app-boosts')"><div class="app-squircle grad-orange">⚡</div><span>Бусты</span></button>
-                <button type="button" class="app-icon-item" onclick="openApp('app-tasks')"><div class="app-squircle grad-pink">🎁</div><span>Халява</span></button>
-                <button type="button" class="app-icon-item" onclick="openApp('app-raid')"><div class="app-squircle grad-red">🥷</div><span>Гоп-стоп</span></button>
+            <div class="ios-top-row">
+                <div class="ios-widget-chart" onclick="openApp('app-bank')">
+                    <div class="w-chart-head"><span>$HOBO / TON</span><span class="neon-green">+142%</span></div>
+                    <div class="w-chart-val">🪙 <span id="home-widget-bal">0</span></div>
+                    <svg viewBox="0 0 100 32" class="w-svg"><polyline fill="none" stroke="#00ff88" stroke-width="2.5" points="0,28 20,22 40,25 60,12 80,15 100,3"/></svg>
+                    <div class="w-chart-sub">Карта Mastercard ›</div>
+                </div>
+
+                <div class="ios-mini-grid">
+                    <button type="button" class="app-icon-item" onclick="openApp('app-bank')"><div class="app-squircle-sm grad-dark">💳</div><span>Банк</span></button>
+                    <button type="button" class="app-icon-item" onclick="openApp('app-tap')"><div class="app-squircle-sm grad-green">🍾</div><span>Тап</span></button>
+                    <button type="button" class="app-icon-item" onclick="openApp('app-empire')"><div class="app-squircle-sm grad-blue">💼</div><span>Темки</span></button>
+                    <button type="button" class="app-icon-item" onclick="openApp('app-casino')"><div class="app-squircle-sm grad-gold">🎰</div><span>Казино</span></button>
+                </div>
+            </div>
+
+            <div class="ios-row-4">
+                <button type="button" class="app-icon-item" onclick="openApp('app-logic')"><div class="app-squircle-sm grad-indigo">🧠</div><span>Мозги</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-boosts')"><div class="app-squircle-sm grad-orange">⚡</div><span>Бусты</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-tasks')"><div class="app-squircle-sm grad-pink">🎁</div><span>Халява</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-raid')"><div class="app-squircle-sm grad-red">🥷</div><span>Рейд</span></button>
+            </div>
+
+            <div class="ios-live-ticker" onclick="claimTimedCrate()">
+                <div class="ticker-top"><span>🎁 ТАЙНЫЙ КЕЙС РАЙОНА</span><span class="neon-green" id="crate-status">ГОТОВ!</span></div>
+                <div class="ticker-sub">Нажми сюда, чтобы открыть бесплатный кейс (каждые 4 часа)</div>
             </div>
 
             <div class="ios-dock-bar">
@@ -55,7 +77,7 @@
                 <button type="button" class="dock-btn" onclick="openApp('app-top')">🏆<span>Топ</span></button>
             </div>
         </div>
-        <div id="app-bank" class="ios-app-window">
+
             <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">Hobo Bank</span><button type="button" class="sound-btn" id="soundBtn" onclick="toggleSound()">🔊</button></div>
             <div class="app-body">
                 <div class="mc-card">
