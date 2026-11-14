@@ -1,513 +1,509 @@
 :root {
-    --mac-bg: #141416;
-    --mac-window: rgba(28, 28, 30, 0.85);
-    --mac-card: rgba(44, 44, 46, 0.72);
-    --mac-border: rgba(255, 255, 255, 0.12);
-    --blue: #0A84FF;
-    --green: #30D158;
-    --orange: #FF9F0A;
-    --gold: #FFD60A;
-    --red: #FF453A;
-    --text: #FFFFFF;
-    --muted: #98989D;
+    --bg-deep: #070b14;
+    --bg-card: rgba(19, 28, 46, 0.72);
+    --border-glass: rgba(255, 255, 255, 0.1);
+    --accent: #00f59b;
+    --blue: #38bdf8;
+    --gold: #fbbf24;
+    --purple: #a855f7;
+    --danger: #f43f5e;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
 }
 
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', sans-serif;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-    background: radial-gradient(circle at 20% 0%, #1c2841 0%, #0d0d0f 60%, #000000 100%);
-    color: var(--text);
+    margin: 0;
+    background: radial-gradient(circle at 50% 0%, #132240 0%, #070b14 65%);
+    color: var(--text-main);
     height: 100vh;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
+    display: flex;
+    justify-content: center;
 }
 
-/* Верхняя панель окна macOS со светофором */
-.mac-titlebar {
+.app-shell {
+    width: 100%;
+    max-width: 460px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 14px;
-    background: rgba(36, 36, 38, 0.92);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--mac-border);
+    padding: 12px 16px;
+    background: rgba(10, 15, 28, 0.8);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-glass);
+    z-index: 10;
 }
 
-.traffic-lights { display: flex; gap: 6px; }
-.tl-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
-.tl-red { background: #FF5F56; }
-.tl-yellow { background: #FFBD2E; }
-.tl-green { background: #27C93F; }
-
-.mac-window-title { font-size: 12px; font-weight: 700; color: #e5e5ea; }
-.mac-right-tools { display: flex; gap: 6px; }
-.mac-icon-btn {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid var(--mac-border);
-    color: #fff;
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.mac-workspace {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 14px 96px;
-}
-
-.mac-balance-card {
-    background: linear-gradient(145deg, rgba(44, 44, 48, 0.85) 0%, rgba(24, 24, 26, 0.95) 100%);
-    border: 1px solid var(--mac-border);
-    border-radius: 18px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.45);
-}
-
-.mac-bal-row { display: flex; justify-content: space-between; align-items: center; }
-.mac-caption { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: 0.6px; }
-.mac-big-num { font-size: 30px; font-weight: 800; margin-top: 2px; }
-.mac-income-pill {
-    background: rgba(48, 209, 88, 0.16);
-    border: 1px solid rgba(48, 209, 88, 0.35);
-    padding: 6px 10px;
-    border-radius: 12px;
-    text-align: right;
-}
-.mac-income-pill small { display: block; font-size: 9px; color: var(--green); font-weight: 700; }
-.mac-income-pill b { font-size: 13px; color: #fff; }
-.mac-status-bar { font-size: 11px; color: var(--gold); margin-top: 8px; font-weight: 600; }
-
-.screen { display: none; animation: macFade 0.18s ease; }
-.screen.active { display: block; }
-@keyframes macFade { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: scale(1); } }
-
-/* Сетка виджетов macOS 2x2 */
-.mac-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
-.mac-widget-btn {
-    background: var(--mac-card);
-    border: 1px solid var(--mac-border);
-    border-radius: 14px;
-    padding: 10px;
-    color: #fff;
+.pilot-pill {
     display: flex;
     align-items: center;
     gap: 10px;
-    text-align: left;
-    cursor: pointer;
-    transition: transform 0.1s, background 0.15s;
-}
-.mac-widget-btn:active { transform: scale(0.96); background: rgba(65, 65, 70, 0.9); }
-.mw-ico { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.bg-blue { background: var(--blue); }
-.bg-green { background: var(--green); }
-.bg-orange { background: var(--orange); }
-.bg-gold { background: linear-gradient(135deg, #FFD60A, #FF9F0A); color: #000; }
-.bg-red { background: var(--red); }
-
-.mw-info b { display: block; font-size: 12px; font-weight: 700; }
-.mw-info span { display: block; font-size: 10px; color: var(--muted); }
-/* Штурвал и прогресс-бар */
-.mac-stage { position: relative; height: 195px; display: flex; align-items: center; justify-content: center; margin: 4px 0 10px; }
-.mac-orbit { position: absolute; width: 185px; height: 185px; border-radius: 50%; border: 1px dashed rgba(10, 132, 255, 0.4); animation: spinOrbit 20s linear infinite; pointer-events: none; }
-@keyframes spinOrbit { to { transform: rotate(360deg); } }
-
-.mac-yoke {
-    width: 148px; height: 148px; border-radius: 50%;
-    background: radial-gradient(circle at 30% 25%, #3a3a3e 0%, #1c1c1e 80%);
-    border: 2px solid var(--blue);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(10, 132, 255, 0.25);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 2; transition: transform 0.07s;
-}
-.mac-yoke:active { transform: scale(0.92); }
-.yoke-plane { font-size: 56px; }
-.yoke-lbl { font-size: 11px; font-weight: 800; color: var(--blue); margin-top: 4px; }
-
-.mac-card { background: var(--mac-card); backdrop-filter: blur(16px); border: 1px solid var(--mac-border); border-radius: 16px; padding: 13px; margin-bottom: 10px; }
-.mac-row-between { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.mac-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.mac-progress-bg { height: 8px; background: rgba(0,0,0,0.45); border-radius: 8px; overflow: hidden; }
-.mac-progress-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width 0.2s; }
-
-/* macOS Segmented Control */
-.mac-segmented { display: flex; background: rgba(0, 0, 0, 0.4); padding: 3px; border-radius: 11px; border: 1px solid var(--mac-border); margin-bottom: 10px; gap: 2px; }
-.seg-btn { flex: 1; background: transparent; border: none; color: var(--muted); padding: 7px 4px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.15s; }
-.seg-btn.active { background: #3a3a3c; color: #fff; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
-
-/* Цветные кнопки macOS */
-.mac-btn { padding: 9px 13px; border: none; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform 0.08s, opacity 0.15s; color: #fff; }
-.mac-btn:active { transform: scale(0.96); }
-.mac-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-blue { background: var(--blue); color: #fff; }
-.btn-green { background: var(--green); color: #000; }
-.btn-gold { background: var(--gold); color: #000; }
-.btn-red { background: var(--red); color: #fff; }
-.btn-glass { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid var(--mac-border); }
-
-.mac-tag { padding: 3px 8px; border-radius: 7px; font-size: 10px; font-weight: 800; }
-.tag-green { background: rgba(48, 209, 88, 0.18); color: var(--green); }
-.tag-gold { background: rgba(255, 214, 10, 0.18); color: var(--gold); }
-.tag-blue { background: rgba(10, 132, 255, 0.18); color: var(--blue); }
-
-.mac-list-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--mac-border); }
-.mac-list-row:first-child { border-top: none; padding-top: 0; }
-
-/* Карточки авто с кузовами */
-.car-showcase { background: rgba(24, 24, 28, 0.9); border: 1px solid var(--mac-border); border-radius: 14px; padding: 10px; margin-bottom: 8px; }
-.car-visual-banner { height: 64px; border-radius: 10px; background: linear-gradient(135deg, #242429 0%, #141416 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; margin-bottom: 8px; }
-.car-class-pill { font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 6px; background: rgba(255, 214, 10, 0.16); color: var(--gold); }
-.hp-track { height: 6px; background: #000; border-radius: 6px; overflow: hidden; margin: 5px 0; }
-.hp-fill { height: 100%; background: var(--green); }
-
-/* Игровые экраны и рулетки */
-.crash-arena { height: 155px; background: #101014; border: 1px solid var(--mac-border); border-radius: 12px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 10px; }
-.crash-x { font-size: 38px; font-weight: 900; z-index: 2; }
-.crash-msg { font-size: 11px; color: var(--gold); background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 12px; margin-top: 4px; z-index: 2; }
-.fly-obj { position: absolute; font-size: 34px; bottom: 12px; left: 16px; transition: transform 0.1s linear; }
-
-.bet-bar { display: flex; gap: 6px; margin-bottom: 8px; }
-.mac-input { flex: 1; min-width: 60px; background: #0d0d10; border: 1px solid var(--mac-border); color: #fff; padding: 9px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none; }
-.mac-chip { background: rgba(255,255,255,0.1); border: 1px solid var(--mac-border); color: #fff; padding: 0 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
-.mac-status { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; font-weight: 600; }
-
-.mines-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 8px; }
-.mine-cell { aspect-ratio: 1; background: #1c1c20; border: 1px solid var(--mac-border); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
-.mine-cell.safe { background: rgba(48, 209, 88, 0.22); border-color: var(--green); }
-.mine-cell.boom { background: rgba(255, 69, 58, 0.28); border-color: var(--red); }
-
-.slots-window { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
-.slot-reel { background: #0d0d10; border: 1px solid var(--gold); border-radius: 12px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 34px; }
-.risk-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-
-.wheel-stage { position: relative; height: 180px; display: flex; align-items: center; justify-content: center; margin: 8px 0; }
-.wheel-pointer { position: absolute; top: 0; font-size: 22px; color: var(--gold); z-index: 5; }
-.wheel-disc { width: 155px; height: 155px; border-radius: 50%; border: 3px solid var(--gold); background: conic-gradient(#FF9F0A 0deg 60deg, #2c2c2e 60deg 120deg, #30D158 120deg 180deg, #0A84FF 180deg 240deg, #FFD60A 240deg 300deg, #FF453A 300deg 360deg); position: relative; display: flex; align-items: center; justify-content: center; transition: transform 3.5s cubic-bezier(0.15, 0.85, 0.25, 1); }
-.wheel-disc span { position: absolute; font-size: 12px; font-weight: 900; color: #fff; text-shadow: 0 1px 4px #000; height: 120px; }
-
-.roulette-tape-wrap { position: relative; height: 80px; background: #0d0d10; border: 1px solid var(--blue); border-radius: 12px; overflow: hidden; margin: 10px 0; display: flex; align-items: center; }
-.tape-center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--gold); z-index: 5; }
-.roulette-tape { display: flex; gap: 8px; padding-left: 50%; transition: transform 3.8s cubic-bezier(0.12, 0.88, 0.2, 1); }
-.tape-item { flex: 0 0 74px; height: 64px; background: #1c1c20; border: 1px solid var(--mac-border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
-
-.roulette-ball-box, .dice-screen, .card-table { height: 86px; background: #0d0d10; border: 1px solid var(--mac-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 900; margin: 8px 0; }
-.coin-stage { height: 96px; display: flex; align-items: center; justify-content: center; margin: 6px 0; }
-.coin-disc { width: 76px; height: 76px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #FFD60A, #FF9F0A); display: flex; align-items: center; justify-content: center; font-size: 34px; transition: transform 0.8s ease; }
-.coin-flip-anim { transform: rotateY(1080deg) scale(1.15); }
-
-.tower-grid { display: flex; flex-direction: column; gap: 5px; margin: 8px 0; }
-.tower-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-.tower-cell { height: 34px; background: #1c1c20; border: 1px solid var(--mac-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; }
-.tower-cell.safe { background: rgba(48, 209, 88, 0.22); border-color: var(--green); }
-.tower-cell.boom { background: rgba(255, 69, 58, 0.28); border-color: var(--red); }
-
-.blitz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
-.blitz-cell { height: 58px; background: #1c1c20; border: 1px solid var(--mac-border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; }
-
-.floating-text { position: fixed; font-size: 20px; font-weight: 900; color: var(--blue); pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 999; }
-@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-75px); } }
-
-/* Нижний стеклянный Dock как в macOS */
-.mac-dock {
-    position: fixed; bottom: 10px; left: 16px; right: 16px; height: 66px;
-    background: rgba(44, 44, 48, 0.78);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 22px;
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    padding: 5px; z-index: 100;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75);
-}
-.dock-item { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; transition: transform 0.12s; }
-.dock-item:active { transform: scale(0.9); }
-.dock-ico { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 3px 8px rgba(0,0,0,0.4); }
-.dock-item span { font-size: 10px; font-weight: 600; }
-.dock-item.active span { color: #fff; font-weight: 800; }
-/* === IPHONE 16 PRO / IOS INTERFACE === */
-.iphone-frame {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: radial-gradient(circle at 50% 0%, #1d2b4a 0%, #0d111a 55%, #050608 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-/* Статус-бар и Dynamic Island (Челка) */
-.ios-statusbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px 8px;
-    z-index: 50;
-}
-
-.ios-time {
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    width: 48px;
-}
-
-.dynamic-island {
-    background: #000000;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 22px;
-    padding: 6px 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
-    cursor: pointer;
-    transition: transform 0.2s, padding 0.2s;
-}
-
-.dynamic-island:active {
-    transform: scale(0.95);
-}
-
-.di-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #30D158;
-    box-shadow: 0 0 8px #30D158;
-}
-
-.di-text {
-    font-size: 11px;
-    font-weight: 700;
-    color: #fff;
-}
-
-.ios-icons {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-/* Рабочий стол iPhone (Home Screen) */
-.ios-home {
-    flex: 1;
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 10px 18px 34px;
-    overflow-y: auto;
-    animation: iosZoomIn 0.22s ease;
-}
-
-.ios-home.active {
-    display: flex;
-}
-
-@keyframes iosZoomIn {
-    from { opacity: 0; transform: scale(1.04); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.ios-widget-large {
-    background: linear-gradient(135deg, rgba(38, 46, 68, 0.85) 0%, rgba(18, 22, 32, 0.95) 100%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 24px;
-    padding: 16px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
     cursor: pointer;
 }
 
-.w-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-}
-
-.w-badge {
-    font-size: 9px;
-    font-weight: 800;
-    color: #FFD60A;
-    letter-spacing: 0.8px;
-}
-
-.w-income {
-    font-size: 11px;
-    font-weight: 800;
-    color: #30D158;
-    background: rgba(48, 209, 88, 0.16);
-    padding: 3px 8px;
-    border-radius: 8px;
-}
-
-.w-balance {
-    font-size: 32px;
+.pilot-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--blue), var(--accent));
+    color: #050811;
     font-weight: 900;
-    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
 }
 
-.w-sub {
+.pilot-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.pilot-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.pilot-sub {
     font-size: 11px;
-    color: #98989D;
-    margin-top: 4px;
+    color: var(--blue);
     font-weight: 600;
 }
 
-/* Сетка иконок iOS (4 в ряд) */
-.ios-app-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px 10px;
-    margin: 14px 0;
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.ios-app-icon {
-    background: none;
-    border: none;
+.income-pill {
+    background: rgba(0, 245, 155, 0.12);
+    border: 1px solid rgba(0, 245, 155, 0.3);
+    color: var(--accent);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.icon-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.balance-hero {
+    text-align: center;
+    padding: 14px 16px 8px;
+}
+
+.network-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--blue);
+    background: rgba(56, 189, 248, 0.12);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+}
+
+.balance-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.coin-symbol {
+    font-size: 28px;
+}
+
+.balance-value {
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+}
+
+.ticker-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+.screen {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px 90px;
+}
+
+.screen.active {
+    display: block;
+    animation: slideUp 0.22s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.apps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px 10px;
+    margin-top: 10px;
+}
+
+.app-tile {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    color: #fff;
     cursor: pointer;
     transition: transform 0.12s;
 }
 
-.ios-app-icon:active {
-    transform: scale(0.88);
+.app-tile:active {
+    transform: scale(0.92);
 }
 
-.app-squircle {
+.app-icon {
     width: 58px;
     height: 58px;
-    border-radius: 15px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+    font-size: 26px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.ios-app-icon span {
+.app-tile span {
     font-size: 11px;
     font-weight: 600;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    color: var(--text-main);
+    text-align: center;
 }
 
-.grad-blue { background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%); }
-.grad-green { background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%); }
-.grad-orange { background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%); }
-.grad-purple { background: linear-gradient(180deg, #c084fc 0%, #7e22ce 100%); }
-.grad-red { background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%); }
-.grad-dark { background: linear-gradient(180deg, #475569 0%, #1e293b 100%); }
-.grad-gold { background: linear-gradient(180deg, #fde047 0%, #d97706 100%); }
-.grad-cyan { background: linear-gradient(180deg, #22d3ee 0%, #0891b2 100%); }
+.grad-blue { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+.grad-green { background: linear-gradient(135deg, #059669, #10b981); }
+.grad-orange { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.grad-purple { background: linear-gradient(135deg, #7c3aed, #c084fc); }
+.grad-gold { background: linear-gradient(135deg, #b45309, #fbbf24); }
+.grad-cyan { background: linear-gradient(135deg, #0891b2, #22d3ee); }
+.grad-dark { background: linear-gradient(135deg, #1e293b, #475569); }
+.grad-red { background: linear-gradient(135deg, #be123c, #fb7185); }
 
-/* Нижний стеклянный iOS Dock */
-.ios-dock {
-    background: rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 26px;
-    padding: 10px 12px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 12px;
 }
 
-/* Открытое приложение iOS */
-.ios-app-window {
-    flex: 1;
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    animation: appOpen 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.ios-app-window.active {
-    display: flex;
-}
-
-@keyframes appOpen {
-    from { opacity: 0; transform: scale(0.92); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.app-navbar {
+.links-banner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 14px 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    font-size: 14px;
+    margin-top: 20px;
+    gap: 10px;
 }
 
-.ios-back-btn {
-    background: none;
+.banner-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.banner-info strong {
+    font-size: 13px;
+}
+
+.banner-info span {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.screen-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.screen-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.08);
     border: none;
-    color: #0A84FF;
-    font-size: 14px;
+    color: var(--blue);
+    padding: 6px 12px;
+    border-radius: 10px;
     font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+}
+.tap-zone {
+    display: flex;
+    justify-content: center;
+    margin: 14px 0 20px;
+}
+
+.turbine-btn {
+    width: 195px;
+    height: 195px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #1e3a8a, #090d16);
+    border: 5px solid var(--blue);
+    box-shadow: 0 0 35px rgba(56, 189, 248, 0.35), inset 0 0 20px rgba(56, 189, 248, 0.25);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.07s;
+}
+
+.turbine-btn:active {
+    transform: scale(0.93);
+}
+
+.turbine-core {
+    font-size: 62px;
+}
+
+.turbine-btn span {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-top: 4px;
+}
+
+.energy-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.progress-track {
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--accent));
+    width: 100%;
+    transition: width 0.2s;
+}
+
+.boosters-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.mini-boost {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-glass);
+    color: #fff;
+    padding: 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 12px;
     cursor: pointer;
 }
 
-.app-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 14px 36px;
+.action-btn {
+    border: none;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    color: #050811;
+    text-decoration: none;
 }
 
-/* Нижняя полоска iPhone Home Bar (выход на главный экран) */
-.ios-home-indicator-zone {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 24px;
+.btn-blue { background: var(--blue); }
+.btn-green { background: var(--accent); }
+.btn-gold { background: var(--gold); }
+.btn-purple { background: var(--purple); color: #fff; }
+.full-width { width: 100%; }
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.game-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.g-ico { font-size: 32px; }
+.game-card small { color: var(--text-muted); font-size: 11px; }
+
+.radar-box {
+    height: 140px;
+    background: rgba(5, 8, 17, 0.85);
+    border: 1px solid var(--border-glass);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.mult-big { font-size: 38px; font-weight: 900; color: var(--accent); }
+.radar-status { font-size: 12px; color: var(--gold); margin-top: 4px; font-weight: 700; }
+
+.bet-controls { display: flex; gap: 8px; }
+input[type="number"], .text-input {
+    background: rgba(5, 8, 17, 0.85);
+    border: 1px solid var(--border-glass);
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 12px;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.mines-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; }
+.mines-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 10px; }
+.mine-tile {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 200;
+    font-size: 20px;
+    cursor: pointer;
+}
+.mine-tile.safe { background: rgba(0, 245, 155, 0.2); border: 1px solid var(--accent); }
+.mine-tile.bomb { background: rgba(244, 63, 94, 0.25); border: 1px solid var(--danger); }
+
+.bank-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(56, 189, 248, 0.35); }
+.card-chip { font-size: 10px; color: var(--blue); font-weight: 800; }
+.card-bal { font-size: 26px; font-weight: 900; margin: 10px 0; color: var(--gold); }
+.card-holder { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
+.muted-text { font-size: 12px; color: var(--text-muted); margin: 4px 0 10px; line-height: 1.4; }
+
+.link-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-glass);
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.roadmap-list { padding-left: 18px; font-size: 13px; color: var(--text-main); line-height: 1.7; }
+
+.bonus-drone {
+    position: fixed;
+    top: 115px;
+    left: -120px;
+    background: linear-gradient(90deg, var(--gold), #f59e0b);
+    color: #000;
+    font-weight: 900;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    z-index: 50;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+    transition: left 6s linear;
+}
+
+.bottom-dock {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 460px;
+    background: rgba(10, 15, 28, 0.88);
+    backdrop-filter: blur(18px);
+    border-top: 1px solid var(--border-glass);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0 14px;
+    z-index: 20;
+}
+
+.dock-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 18px;
     cursor: pointer;
 }
 
-.ios-home-pill {
-    width: 128px;
-    height: 5px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.75);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+.dock-btn span { font-size: 10px; font-weight: 700; }
+.dock-btn.active { color: var(--blue); }
+
+.float-plus {
+    position: fixed;
+    color: var(--accent);
+    font-weight: 900;
+    font-size: 20px;
+    pointer-events: none;
+    animation: riseUp 0.7s ease-out forwards;
+    z-index: 99;
 }
-/* === ОБОИ IPHONE 16 PRO MAX (DESERT TITANIUM) + КАРТА MASTERCARD + ФИКС КЛИКОВ === */
-/* Фирменные обои iPhone 16 Pro Max со световыми полосками (Titanium Beams) */
-body, .iphone-frame {
-    background:
-        repeating-linear-gradient(
-            125deg,
-            rgba(226, 184, 135, 0.14) 0px,
-            rgba(226, 184, 135, 0.28) 18px,
-            rgba(20, 15, 12, 0.65) 36px,
-            rgba(168, 118, 72, 0.22) 54px,
-            rgba(10, 8, 7, 0.85) 72px
-        ),
-        radial-gradient(circle at 30% 25%, rgba(235, 190, 135, 0.45) 0%, transparent 55%),
-        radial-gradient(circle at 75% 75%, rgba(145, 95, 55, 0.5) 0%, transparent 60%),
-        linear-gradient(145deg, #2b1f17 0%, #0d0a08 100%) !important;
+
+@keyframes riseUp {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-50px); }
 }
