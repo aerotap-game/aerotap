@@ -1,224 +1,219 @@
 :root {
-    --bg-carbon: #070a10;
-    --card-glass: rgba(17, 24, 39, 0.86);
-    --border-neon: rgba(56, 189, 248, 0.28);
-    --accent: #00f59b;
-    --blue: #38bdf8;
-    --gold: #fbbf24;
-    --purple: #a855f7;
-    --danger: #f43f5e;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
+    --ios-bg: #000000;
+    --ios-glass: rgba(28, 28, 30, 0.78);
+    --ios-glass-light: rgba(44, 44, 46, 0.72);
+    --ios-border: rgba(255, 255, 255, 0.14);
+    --ios-blue: #0a84ff;
+    --ios-green: #30d158;
+    --ios-orange: #ff9f0a;
+    --ios-red: #ff453a;
+    --ios-purple: #bf5af2;
+    --ios-teal: #64d2ff;
+    --ios-text: #ffffff;
+    --ios-gray: #8e8e93;
 }
 
 * {
     box-sizing: border-box;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
 }
 
 body {
     margin: 0;
-    background-color: var(--bg-carbon);
-    color: var(--text-main);
+    background: #000;
+    color: var(--ios-text);
     height: 100vh;
     overflow: hidden;
     display: flex;
     justify-content: center;
 }
 
-.app-shell {
+.iphone-frame {
     width: 100%;
-    max-width: 460px;
+    max-width: 440px;
     height: 100%;
+    background:
+        radial-gradient(circle at 20% 15%, rgba(10, 132, 255, 0.32) 0%, transparent 45%),
+        radial-gradient(circle at 85% 30%, rgba(191, 90, 242, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(48, 209, 88, 0.18) 0%, transparent 55%),
+        #050507;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
 }
 
-/* Живой фон с радаром и пролетающим самолетом */
-.sky-bg {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 0;
-}
-
-.radar-circle {
-    position: absolute;
-    top: -120px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 420px;
-    height: 420px;
-    border-radius: 50%;
-    border: 1px dashed rgba(56, 189, 248, 0.18);
-    box-shadow: inset 0 0 60px rgba(56, 189, 248, 0.12);
-    animation: spinRadar 24s linear infinite;
-}
-
-@keyframes spinRadar {
-    from { transform: translateX(-50%) rotate(0deg); }
-    to { transform: translateX(-50%) rotate(360deg); }
-}
-
-.flying-jet {
-    position: absolute;
-    top: 16%;
-    left: -60px;
-    font-size: 22px;
-    opacity: 0.35;
-    filter: drop-shadow(0 0 8px var(--blue));
-    animation: jetFly 14s linear infinite;
-}
-
-@keyframes jetFly {
-    0% { transform: translate(-60px, 20px) rotate(12deg); }
-    100% { transform: translate(520px, -40px) rotate(12deg); }
-}
-
-.island-bar {
-    margin: 8px auto 4px;
-    background: #000;
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    border-radius: 20px;
-    padding: 4px 14px;
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--blue);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    z-index: 2;
-}
-
-.island-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-    animation: pulseDot 1.5s infinite;
-}
-
-@keyframes pulseDot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-.top-bar {
+/* Статус-бар и Dynamic Island */
+.ios-statusbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 16px;
-    z-index: 2;
+    padding: 8px 18px 6px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 10;
 }
 
-.pilot-pill {
+.dynamic-island {
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 5px 14px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: var(--card-glass);
-    border: 1px solid var(--border-neon);
-    padding: 5px 12px 5px 6px;
-    border-radius: 16px;
-    cursor: pointer;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+    transition: all 0.25s ease;
 }
 
-.pilot-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--blue), var(--accent));
-    color: #050811;
-    font-weight: 900;
+.di-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ios-green);
+    box-shadow: 0 0 8px var(--ios-green);
+}
+
+.ios-signals {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+}
+
+.battery-pill {
+    background: rgba(48, 209, 88, 0.25);
+    color: var(--ios-green);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+/* Виджет баланса iOS */
+.ios-widget-balance {
+    margin: 6px 16px 10px;
+    background: var(--ios-glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--ios-border);
+    border-radius: 24px;
+    padding: 12px 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.widget-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.chip-ava {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--ios-blue);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
-}
-
-.pilot-meta { display: flex; flex-direction: column; }
-.pilot-name { font-size: 13px; font-weight: 800; }
-.pilot-sub { font-size: 10px; color: var(--blue); font-weight: 700; }
-
-.top-actions { display: flex; align-items: center; gap: 8px; }
-.income-pill {
-    background: rgba(0, 245, 155, 0.14);
-    border: 1px solid rgba(0, 245, 155, 0.35);
-    color: var(--accent);
-    padding: 6px 10px;
-    border-radius: 14px;
+    font-weight: 800;
     font-size: 12px;
-    font-weight: 800;
 }
 
-.icon-btn {
-    background: var(--card-glass);
-    border: 1px solid var(--border-neon);
-    color: #fff;
-    width: 34px;
-    height: 34px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 15px;
-}
-
-.balance-hero { text-align: center; padding: 6px 16px 8px; z-index: 2; }
-.balance-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
-.coin-symbol { font-size: 28px; }
-.balance-value {
-    font-size: 40px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    text-shadow: 0 0 24px rgba(56, 189, 248, 0.45);
-}
-
-.combo-badge {
-    display: inline-block;
-    margin-top: 4px;
-    padding: 3px 12px;
-    border-radius: 12px;
+.rank-tag {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--ios-teal);
+    padding: 2px 8px;
+    border-radius: 10px;
     font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.8px;
-    background: rgba(56, 189, 248, 0.14);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    color: var(--blue);
-    transition: all 0.2s;
 }
 
-.combo-badge.hot {
-    background: rgba(251, 191, 36, 0.2);
-    border-color: var(--gold);
-    color: var(--gold);
-    box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);
+.widget-controls { display: flex; align-items: center; gap: 6px; }
+.pph-chip {
+    background: rgba(48, 209, 88, 0.16);
+    color: var(--ios-green);
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
 }
 
-.screen {
+.mute-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.main-balance {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    margin: 8px 0 6px;
+}
+
+.plane-ico { font-size: 24px; }
+.main-balance span:nth-child(2) { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+.currency-tag { font-size: 13px; font-weight: 700; color: var(--ios-gray); }
+
+.heat-bar-wrap {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.heat-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--ios-blue), var(--ios-orange));
+    transition: width 0.2s;
+}
+/* Экраны iOS с плавной анимацией открытия приложений */
+.ios-screen {
     display: none;
     flex: 1;
     overflow-y: auto;
-    padding: 8px 16px 90px;
-    z-index: 2;
+    padding: 4px 16px 96px;
 }
 
-.screen.active { display: block; animation: slideUp 0.2s ease-out; }
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+.ios-screen.active {
+    display: block;
+    animation: iosAppOpen 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
-.apps-grid {
+@keyframes iosAppOpen {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.ios-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 14px 10px;
+    gap: 16px 12px;
     margin-top: 8px;
 }
 
-.app-tile {
+.ios-app {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -227,205 +222,232 @@ body {
     transition: transform 0.12s;
 }
 
-.app-tile:active { transform: scale(0.92); }
-.app-icon {
-    width: 58px;
-    height: 58px;
-    border-radius: 17px;
+.ios-app:active { transform: scale(0.88); }
+
+.ios-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 28px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
-.app-tile span { font-size: 11px; font-weight: 700; color: var(--text-main); text-align: center; }
+.ios-app span {
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    text-align: center;
+}
 
-.grad-blue { background: linear-gradient(135deg, #0284c7, #38bdf8); }
-.grad-green { background: linear-gradient(135deg, #059669, #10b981); }
-.grad-orange { background: linear-gradient(135deg, #d97706, #f59e0b); }
-.grad-purple { background: linear-gradient(135deg, #7c3aed, #c084fc); }
-.grad-gold { background: linear-gradient(135deg, #b45309, #fbbf24); }
-.grad-cyan { background: linear-gradient(135deg, #0891b2, #22d3ee); }
-.grad-dark { background: linear-gradient(135deg, #1e293b, #475569); }
-.grad-red { background: linear-gradient(135deg, #be123c, #fb7185); }
-.glass-card {
-    background: var(--card-glass);
-    backdrop-filter: blur(18px);
-    border: 1px solid var(--border-neon);
-    border-radius: 18px;
+.bg-blue { background: linear-gradient(180deg, #38bdf8, #007aff); }
+.bg-teal { background: linear-gradient(180deg, #5ac8fa, #00a8e8); }
+.bg-green { background: linear-gradient(180deg, #34c759, #248a3d); }
+.bg-orange { background: linear-gradient(180deg, #ff9f0a, #ff6b00); }
+.bg-purple { background: linear-gradient(180deg, #bf5af2, #8944ab); }
+.bg-red { background: linear-gradient(180deg, #ff453a, #c92a2a); }
+.bg-cyan { background: linear-gradient(180deg, #32ade6, #0a84ff); }
+.bg-dark { background: linear-gradient(180deg, #3a3a3c, #1c1c1e); border: 1px solid rgba(255,255,255,0.15); }
+
+/* Уведомление iOS на главном экране */
+.ios-notification {
+    margin-top: 22px;
+    background: var(--ios-glass-light);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid var(--ios-border);
+    border-radius: 20px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.notif-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--ios-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.notif-body { flex: 1; }
+.notif-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--ios-gray); margin-bottom: 2px; }
+.notif-head strong { color: #fff; font-weight: 700; }
+.notif-body p { margin: 0; font-size: 12px; color: #e5e5ea; line-height: 1.3; }
+
+/* Навигация и карточки iOS */
+.ios-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.ios-nav h3 { margin: 0; font-size: 17px; font-weight: 700; }
+.ios-back { background: none; border: none; color: var(--ios-blue); font-size: 16px; font-weight: 500; cursor: pointer; padding: 4px 0; }
+.ios-badge { background: rgba(10, 132, 255, 0.2); color: var(--ios-blue); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+
+.ios-card {
+    background: var(--ios-glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--ios-border);
+    border-radius: 20px;
     padding: 14px;
     margin-bottom: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-.links-banner { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; gap: 10px; }
-.banner-info { display: flex; flex-direction: column; gap: 3px; }
-.banner-info strong { font-size: 13px; }
-.banner-info span { font-size: 11px; color: var(--text-muted); }
-
-.screen-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.screen-header h2 { margin: 0; font-size: 18px; }
-
-.back-btn {
-    background: rgba(56, 189, 248, 0.14);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    color: var(--blue);
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-weight: 800;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.tap-zone { display: flex; justify-content: center; margin: 12px 0 18px; }
-
-.turbine-btn {
+.ios-btn { border: none; padding: 11px 14px; border-radius: 13px; font-weight: 600; font-size: 14px; cursor: pointer; color: #fff; flex: 1; }
+.btn-blue { background: var(--ios-blue); }
+.btn-green { background: var(--ios-green); color: #000; font-weight: 700; }
+.btn-orange { background: var(--ios-orange); color: #000; font-weight: 700; }
+.btn-purple { background: var(--ios-purple); }
+.full-w { width: 100%; }
+.btn-row { display: flex; gap: 8px; }
+.row-between { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+/* Штурвал и прогресс-бар */
+.tap-center { display: flex; justify-content: center; margin: 12px 0 18px; }
+.ios-turbine {
     position: relative;
-    width: 195px;
-    height: 195px;
+    width: 190px;
+    height: 190px;
     border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #1e3a8a, #070a12);
-    border: 5px solid var(--blue);
-    box-shadow: 0 0 40px rgba(56, 189, 248, 0.4), inset 0 0 22px rgba(0, 245, 155, 0.25);
+    background: radial-gradient(circle at 30% 30%, #1c1c1e, #000);
+    border: 4px solid var(--ios-blue);
+    box-shadow: 0 0 35px rgba(10, 132, 255, 0.35);
     color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.07s, box-shadow 0.2s;
+    transition: transform 0.08s;
 }
+.ios-turbine:active { transform: scale(0.92); }
+.t-plane { font-size: 60px; }
+.t-sub { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--ios-teal); margin-top: 4px; }
 
-.turbine-ring {
-    position: absolute;
-    inset: -12px;
-    border-radius: 50%;
-    border: 2px dashed rgba(0, 245, 155, 0.45);
-    animation: spinRing 8s linear infinite;
-    pointer-events: none;
-}
+.ios-progress { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.12); border-radius: 6px; overflow: hidden; }
+.ios-progress-bar { height: 100%; background: var(--ios-green); width: 100%; transition: width 0.2s; }
 
-@keyframes spinRing {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.turbine-btn:active { transform: scale(0.92); box-shadow: 0 0 55px rgba(0, 245, 155, 0.7); }
-.turbine-core { font-size: 62px; }
-.turbine-btn span { font-size: 12px; font-weight: 900; letter-spacing: 2px; color: var(--accent); margin-top: 4px; }
-
-.energy-head { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
-.progress-track { width: 100%; height: 10px; background: rgba(0, 0, 0, 0.55); border-radius: 6px; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--accent)); width: 100%; transition: width 0.2s; }
-
-.boosters-row { display: flex; gap: 8px; margin-top: 12px; }
-.mini-boost {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid var(--border-neon);
-    color: #fff;
-    padding: 9px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 12px;
+/* Игры и Аркада */
+.arcade-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.arcade-tile {
+    background: var(--ios-glass);
+    border: 1px solid var(--ios-border);
+    border-radius: 18px;
+    padding: 16px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
     cursor: pointer;
 }
+.arcade-tile span { font-size: 30px; }
+.arcade-tile small { color: var(--ios-gray); font-size: 11px; }
 
-.action-btn { border: none; padding: 10px 14px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; color: #050811; }
-.btn-blue { background: var(--blue); }
-.btn-green { background: var(--accent); }
-.btn-gold { background: var(--gold); }
-.btn-purple { background: var(--purple); color: #fff; }
-.full-width { width: 100%; }
-
-.games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.game-card {
-    background: var(--card-glass);
-    border: 1px solid var(--border-neon);
+.atc-screen {
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid var(--ios-border);
     border-radius: 16px;
-    padding: 15px 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-}
-
-.g-ico { font-size: 30px; }
-.game-card small { color: var(--text-muted); font-size: 11px; }
-
-.radar-box {
-    height: 130px;
-    background: rgba(5, 8, 15, 0.9);
-    border: 1px solid var(--border-neon);
-    border-radius: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    padding: 18px 12px;
+    text-align: center;
     margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 700;
 }
 
-.mult-big { font-size: 34px; font-weight: 900; color: var(--accent); }
-.radar-status { font-size: 12px; color: var(--gold); margin-top: 4px; font-weight: 700; }
+.big-mult { font-size: 34px; font-weight: 800; color: var(--ios-green); }
+.ios-muted { font-size: 12px; color: var(--ios-gray); margin: 4px 0 8px; line-height: 1.35; }
 
-.bet-controls { display: flex; gap: 8px; }
-input[type="number"], .text-input {
-    background: rgba(5, 8, 15, 0.9);
-    border: 1px solid var(--border-neon);
+.ios-input {
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid var(--ios-border);
     color: #fff;
     padding: 10px 12px;
     border-radius: 12px;
     width: 100%;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
-.mines-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; }
-.mines-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 10px; }
-.mine-tile { aspect-ratio: 1; background: rgba(255, 255, 255, 0.08); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
-.mine-tile.safe { background: rgba(0, 245, 155, 0.2); border: 1px solid var(--accent); }
-.mine-tile.bomb { background: rgba(244, 63, 94, 0.25); border: 1px solid var(--danger); }
-
-.muted-text { font-size: 12px; color: var(--text-muted); margin: 4px 0 10px; line-height: 1.4; }
-.link-row { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--border-neon); font-size: 13px; font-weight: 700; }
-
-.bonus-drone {
-    position: fixed;
-    top: 125px;
-    left: -130px;
-    background: linear-gradient(90deg, var(--gold), #f59e0b);
-    color: #000;
-    font-weight: 900;
-    font-size: 12px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    z-index: 50;
+.mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 10px; }
+.mine-cell {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
     cursor: pointer;
-    box-shadow: 0 0 16px rgba(251, 191, 36, 0.7);
 }
+.mine-cell.safe { background: rgba(48, 209, 88, 0.25); border: 1px solid var(--ios-green); }
+.mine-cell.bomb { background: rgba(255, 69, 58, 0.3); border: 1px solid var(--ios-red); }
 
-.bottom-dock {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    max-width: 460px;
-    background: rgba(7, 10, 16, 0.92);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border-neon);
+.ios-link-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--ios-border);
+    font-size: 14px;
+    cursor: pointer;
+}
+.ios-link-item:last-child { border-bottom: none; }
+
+/* Плавающий док iPhone */
+.ios-dock {
+    position: absolute;
+    bottom: 18px;
+    left: 16px;
+    right: 16px;
+    background: rgba(36, 36, 40, 0.82);
+    backdrop-filter: blur(26px);
+    -webkit-backdrop-filter: blur(26px);
+    border: 1px solid var(--ios-border);
+    border-radius: 26px;
     display: flex;
     justify-content: space-around;
-    padding: 8px 0 14px;
+    padding: 8px 6px;
     z-index: 20;
 }
 
-.dock-btn { background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 18px; cursor: pointer; }
-.dock-btn span { font-size: 10px; font-weight: 800; }
-.dock-btn.active { color: var(--blue); }
+.dock-item {
+    background: none;
+    border: none;
+    color: var(--ios-gray);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 20px;
+    cursor: pointer;
+}
+.dock-item span { font-size: 10px; font-weight: 600; }
+.dock-item.active { color: var(--ios-blue); }
 
-.float-plus { position: fixed; color: var(--accent); font-weight: 900; font-size: 20px; pointer-events: none; animation: riseUp 0.7s ease-out forwards; z-index: 99; }
+.home-indicator {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 4px;
+    z-index: 25;
+}
+
+.float-plus {
+    position: fixed;
+    color: var(--ios-green);
+    font-weight: 800;
+    font-size: 20px;
+    pointer-events: none;
+    animation: riseUp 0.7s ease-out forwards;
+    z-index: 99;
+}
 @keyframes riseUp {
     from { opacity: 1; transform: translateY(0); }
     to { opacity: 0; transform: translateY(-50px); }
