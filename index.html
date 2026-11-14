@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HoboOS | $HOBO</title>
+    <title>HoboOS 2.0 | $HOBO</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://adsgram.ai"></script>
+    <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
     <div class="iphone-frame">
         <header class="ios-status-bar">
-            <span class="ios-time" id="ios-clock">00:15</span>
+            <span class="ios-time" id="ios-clock">00:36</span>
             <div class="dynamic-island" id="dynamic-island" onclick="toggleIslandExpand()">
                 <div class="island-compact">
                     <span class="island-dot"></span>
@@ -18,15 +19,9 @@
                     <span class="island-profit" id="island-profit-badge">+0/ч</span>
                 </div>
                 <div class="island-expanded-content">
-                    <div class="island-row">
-                        <span>Баланс:</span>
-                        <strong class="neon-green" id="island-balance">0</strong>
-                    </div>
-                    <div class="island-row">
-                        <span>Защита:</span>
-                        <strong id="island-defense">0 🛡️</strong>
-                    </div>
-                    <div class="island-alert" id="island-notification">Нажми на полоску снизу!</div>
+                    <div class="island-row"><span>Баланс:</span><strong class="neon-green" id="island-balance">0</strong></div>
+                    <div class="island-row"><span>Защита:</span><strong id="island-defense">0 🛡️</strong></div>
+                    <div class="island-alert" id="island-notification">Нажми на экран для входа!</div>
                 </div>
             </div>
             <div class="ios-icons"><span>5G</span> <span>🔋</span></div>
@@ -35,22 +30,21 @@
         <div id="lock-screen" class="lock-screen active">
             <div class="lock-top">
                 <div class="lock-padlock">🔒</div>
-                <div class="lock-big-time" id="lock-clock">00:15</div>
+                <div class="lock-big-time" id="lock-clock">00:36</div>
                 <div class="lock-date">Воскресенье, 15 ноября</div>
             </div>
             <div class="lock-notifications">
                 <div class="ios-notif-card">
                     <div class="notif-header"><span>📈 HOBO EXCHANGE</span><span>сейчас</span></div>
-                    <div class="notif-body">Разблокируй айфон и начни фармить монеты до листинга $HOBO!</div>
+                    <div class="notif-body">Твое имущество сохранено! Заходи фармить монеты и вводить промокоды.</div>
                 </div>
                 <div class="ios-notif-card">
-                    <div class="notif-header"><span>🎰 ПОДПОЛЬЕ 777</span><span>1 мин назад</span></div>
-                    <div class="notif-body">5 режимов игры уже внутри: Ракетка, Мины, Слоты, Монетка и Стаканы.</div>
+                    <div class="notif-header"><span>📺 СПОНСОР</span><span>1 мин назад</span></div>
+                    <div class="notif-body">Смотри короткие ролики и забирай +2 500 монет без ограничений!</div>
                 </div>
             </div>
-            <div class="unlock-zone" onclick="unlockPhone()">
-                <div class="unlock-hint">Нажми на полоску снизу, чтобы разблокировать</div>
-                <div class="unlock-pill"></div>
+            <div class="unlock-zone">
+                <button type="button" class="action-btn neon-btn" onclick="unlockPhone()">🔓 Разблокировать iPhone</button>
             </div>
         </div>
 
@@ -62,245 +56,185 @@
                         <div class="widget-subtitle">Статус инвестора</div>
                         <div class="widget-title" id="widget-rank-name">Коробка у Пятерочки</div>
                     </div>
-                    <button class="sound-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+                    <button type="button" class="sound-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
                 </div>
                 <div class="widget-money">🪙 <span id="home-balance">0</span></div>
-                <div class="widget-profit">Доход: <b class="neon-green" id="home-profit">+0 / ч</b></div>
+                <div class="widget-profit">Пассив: <b class="neon-green" id="home-profit">+0 / ч</b></div>
             </div>
+
             <div class="app-grid">
-                <div class="app-icon-item" onclick="openApp('app-tap')"><div class="app-squircle grad-green">🍾</div><span>HoboTap</span></div>
-                <div class="app-icon-item" onclick="openApp('app-empire')"><div class="app-squircle grad-blue">💼</div><span>Темки</span></div>
-                <div class="app-icon-item" onclick="openApp('app-casino')"><div class="app-squircle grad-gold">🎰</div><span>Подполье</span></div>
-                <div class="app-icon-item" onclick="openApp('app-raid')"><div class="app-squircle grad-red">🥷</div><span>Гоп-стоп</span></div>
-                <div class="app-icon-item" onclick="openApp('app-airdrop')"><div class="app-squircle grad-purple">🪂</div><span>AirDrop</span></div>
-                <div class="app-icon-item" onclick="lockPhone()"><div class="app-squircle grad-dark">🔒</div><span>Блок</span></div>
+                <button type="button" class="app-icon-item" onclick="openApp('app-tap')"><div class="app-squircle grad-green">🍾</div><span>HoboTap</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-empire')"><div class="app-squircle grad-blue">💼</div><span>Темки</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-casino')"><div class="app-squircle grad-gold">🎰</div><span>Подполье</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-logic')"><div class="app-squircle grad-indigo">🧠</div><span>Мозги</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-boosts')"><div class="app-squircle grad-orange">⚡</div><span>Бусты</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-tasks')"><div class="app-squircle grad-pink">🎁</div><span>Халява</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-raid')"><div class="app-squircle grad-red">🥷</div><span>Гоп-стоп</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-top')"><div class="app-squircle grad-teal">🏆</div><span>Топ</span></button>
+                <button type="button" class="app-icon-item" onclick="openApp('app-airdrop')"><div class="app-squircle grad-purple">🪂</div><span>AirDrop</span></button>
+            </div>
+
+            <div class="ios-dock-bar">
+                <button type="button" class="dock-btn" onclick="openApp('app-tap')">🍾<span>Тап</span></button>
+                <button type="button" class="dock-btn" onclick="openApp('app-tasks')">🎟️<span>Коды</span></button>
+                <button type="button" class="dock-btn" onclick="watchAdForBonus('coins')">📺<span>+2500</span></button>
+                <button type="button" class="dock-btn" onclick="lockPhone()">🔒<span>Блок</span></button>
             </div>
         </div>
         <div id="app-tap" class="ios-app-window">
-            <div class="app-topbar">
-                <button class="back-btn" onclick="goHome()">‹ Домой</button>
-                <span class="app-window-title">HoboTap</span>
-                <span style="width: 50px;"></span>
-            </div>
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">HoboTap</span><span style="width:50px;"></span></div>
             <div class="app-body center-col">
                 <div class="tap-balance-big">🪙 <span id="tap-balance">0</span></div>
-                <div class="progress-bar-bg" style="width: 85%; margin: 8px auto;">
-                    <div class="progress-bar-fill" id="rank-progress" style="width: 10%;"></div>
-                </div>
-                <div class="tap-zone">
-                    <div class="tap-circle" id="tap-button">
-                        <div class="tap-avatar" id="tap-avatar">📦</div>
-                        <div class="tap-hint">ТАПАЙ! +<span id="tap-power">1</span></div>
-                    </div>
-                </div>
-                <div class="energy-bar-container" style="width: 100%;">
-                    <div class="energy-text">
-                        <span>⚡ Энергия</span>
-                        <span><span id="energy-current">1000</span> / <span id="energy-max">1000</span></span>
-                    </div>
-                    <div class="energy-track">
-                        <div class="energy-fill" id="energy-fill" style="width: 100%;"></div>
-                    </div>
+                <div class="progress-bar-bg" style="width:85%;margin:8px auto;"><div class="progress-bar-fill" id="rank-progress" style="width:10%;"></div></div>
+                <div class="tap-zone"><div class="tap-circle" id="tap-button"><div class="tap-avatar" id="tap-avatar">📦</div><div class="tap-hint">ТАПАЙ! +<span id="tap-power">1</span></div></div></div>
+                <div class="energy-bar-container" style="width:100%;">
+                    <div class="energy-text"><span>⚡ Энергия</span><span><span id="energy-current">1000</span> / <span id="energy-max">1000</span></span></div>
+                    <div class="energy-track"><div class="energy-fill" id="energy-fill" style="width:100%;"></div></div>
                 </div>
             </div>
         </div>
 
         <div id="app-empire" class="ios-app-window">
-            <div class="app-topbar">
-                <button class="back-btn" onclick="goHome()">‹ Домой</button>
-                <span class="app-window-title">Темки</span>
-                <span class="neon-green" style="font-size:12px;" id="empire-bal-mini">0</span>
-            </div>
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">Темки</span><span class="neon-green" style="font-size:12px;" id="empire-bal-mini">0</span></div>
             <div class="app-body">
                 <div class="category-tabs">
-                    <button class="cat-btn active" onclick="switchCategory('street', this)">Улица</button>
-                    <button class="cat-btn" onclick="switchCategory('crypto', this)">Крипта</button>
-                    <button class="cat-btn" onclick="switchCategory('luxury', this)">Лакшери</button>
+                    <button type="button" class="cat-btn active" onclick="switchCategory('street', this)">Улица</button>
+                    <button type="button" class="cat-btn" onclick="switchCategory('crypto', this)">Крипта</button>
+                    <button type="button" class="cat-btn" onclick="switchCategory('luxury', this)">Лакшери</button>
                 </div>
                 <div id="cards-container"></div>
             </div>
         </div>
 
         <div id="app-casino" class="ios-app-window">
-            <div class="app-topbar">
-                <button class="back-btn" onclick="goHome()">‹ Домой</button>
-                <span class="app-window-title">Подполье 777</span>
-                <span class="neon-green" style="font-size:12px;" id="casino-bal-mini">0</span>
-            </div>
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">Подполье 777</span><span class="neon-green" style="font-size:12px;" id="casino-bal-mini">0</span></div>
             <div class="app-body">
                 <div class="casino-nav">
-                    <button class="c-tab active" onclick="switchCasinoGame('crash', this)">🚀 Ракетка</button>
-                    <button class="c-tab" onclick="switchCasinoGame('mines', this)">💣 Мины</button>
-                    <button class="c-tab" onclick="switchCasinoGame('slots', this)">🎰 Слоты</button>
-                    <button class="c-tab" onclick="switchCasinoGame('coin', this)">🪙 Монетка</button>
-                    <button class="c-tab" onclick="switchCasinoGame('cups', this)">🥤 Стаканы</button>
+                    <button type="button" class="c-tab active" onclick="switchCasinoGame('crash', this)">🚀 Ракетка</button>
+                    <button type="button" class="c-tab" onclick="switchCasinoGame('mines', this)">💣 Мины</button>
+                    <button type="button" class="c-tab" onclick="switchCasinoGame('slots', this)">🎰 Слоты</button>
+                    <button type="button" class="c-tab" onclick="switchCasinoGame('coin', this)">🪙 Монетка</button>
+                    <button type="button" class="c-tab" onclick="switchCasinoGame('cups', this)">🥤 Стаканы</button>
                 </div>
-                <div class="bet-panel">
-                    <span>Ставка:</span>
-                    <input type="number" id="global-bet" value="100" min="10">
-                    <button onclick="multBet(2)">x2</button>
-                    <button onclick="setMaxBet()">MAX</button>
-                </div>
-
+                <div class="bet-panel"><span>Ставка:</span><input type="number" id="global-bet" value="100" min="10"><button type="button" onclick="multBet(2)">x2</button><button type="button" onclick="setMaxBet()">MAX</button></div>
                 <div id="game-crash" class="casino-game-panel active">
-                    <div class="crash-screen" id="crash-screen">
-                        <span class="crash-rocket" id="crash-rocket">🚀</span>
-                        <div class="crash-mult" id="crash-mult">1.00x</div>
-                    </div>
-                    <button class="action-btn neon-btn" id="crash-btn" onclick="uiCrashAction()">Запустить ракету</button>
+                    <div class="crash-screen" id="crash-screen"><span class="crash-rocket" id="crash-rocket">🚀</span><div class="crash-mult" id="crash-mult">1.00x</div></div>
+                    <button type="button" class="action-btn neon-btn" id="crash-btn" onclick="uiCrashAction()">Запустить ракету</button>
                 </div>
-
                 <div id="game-mines" class="casino-game-panel">
-                    <div class="mines-info">
-                        <span>Множитель: <b class="neon-green" id="mines-mult">1.00x</b></span>
-                        <span>Выигрыш: <b id="mines-win">0</b></span>
-                    </div>
+                    <div class="mines-info"><span>Множитель: <b class="neon-green" id="mines-mult">1.00x</b></span><span>Выигрыш: <b id="mines-win">0</b></span></div>
                     <div class="mines-grid" id="mines-grid"></div>
-                    <button class="action-btn neon-btn" id="mines-btn" onclick="uiMinesAction()">Начать игру (3 мины)</button>
+                    <button type="button" class="action-btn neon-btn" id="mines-btn" onclick="uiMinesAction()">Начать игру (3 мины)</button>
                 </div>
-
                 <div id="game-slots" class="casino-game-panel">
                     <p class="game-hint">🍾 x3 | 💵 x5 | 💎 x10 | 7️⃣ x15</p>
-                    <div class="slots-display">
-                        <div class="slot-reel" id="reel-1">🍾</div>
-                        <div class="slot-reel" id="reel-2">💎</div>
-                        <div class="slot-reel" id="reel-3">7️⃣</div>
-                    </div>
-                    <button class="action-btn gold-btn" onclick="uiPlaySlots()">Крутить барабан</button>
+                    <div class="slots-display"><div class="slot-reel" id="reel-1">🍾</div><div class="slot-reel" id="reel-2">💎</div><div class="slot-reel" id="reel-3">7️⃣</div></div>
+                    <button type="button" class="action-btn gold-btn" onclick="uiPlaySlots()">Крутить барабан</button>
                 </div>
-
                 <div id="game-coin" class="casino-game-panel">
                     <p class="game-hint">Угадай сторону монеты — выигрыш <b>x1.9</b>!</p>
                     <div class="coin-visual" id="coin-visual">🪙</div>
-                    <div class="cups-row">
-                        <button class="action-btn neon-btn" onclick="uiPlayCoin('orel')">🦅 Орел</button>
-                        <button class="action-btn gold-btn" onclick="uiPlayCoin('reshka')">👑 Решка</button>
-                    </div>
+                    <div class="cups-row"><button type="button" class="action-btn neon-btn" onclick="uiPlayCoin('orel')">🦅 Орел</button><button type="button" class="action-btn gold-btn" onclick="uiPlayCoin('reshka')">👑 Решка</button></div>
                 </div>
-
                 <div id="game-cups" class="casino-game-panel">
                     <p class="game-hint">Выбери стакан с шариком — выигрыш <b>x2.5</b>!</p>
-                    <div class="cups-row">
-                        <button class="cup-btn" onclick="uiPlayCups(0)">🥤<br>№1</button>
-                        <button class="cup-btn" onclick="uiPlayCups(1)">🥤<br>№2</button>
-                        <button class="cup-btn" onclick="uiPlayCups(2)">🥤<br>№3</button>
+                    <div class="cups-row"><button type="button" class="cup-btn" onclick="uiPlayCups(0)">🥤<br>№1</button><button type="button" class="cup-btn" onclick="uiPlayCups(1)">🥤<br>№2</button><button type="button" class="cup-btn" onclick="uiPlayCups(2)">🥤<br>№3</button></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-logic" class="ios-app-window">
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">🧠 Мозги</span><span class="neon-green" style="font-size:12px;" id="logic-bal-mini">0</span></div>
+            <div class="app-body">
+                <div class="casino-nav">
+                    <button type="button" class="c-tab active" onclick="switchLogicGame('safe', this)">🔐 Взлом сейфа</button>
+                    <button type="button" class="c-tab" onclick="switchLogicGame('memory', this)">🃏 Крипто-Память</button>
+                </div>
+                <div id="logic-safe" class="logic-panel active">
+                    <div class="game-box">
+                        <h3>🔐 Шифр олигарха (3 цифры)</h3>
+                        <p>Угадай код за 5 попыток. Награда: <b>+1 500 монет</b>!</p>
+                        <div id="safe-history" class="safe-history"></div>
+                        <div class="bet-panel"><input type="text" id="safe-guess-input" maxlength="3" placeholder="Код (напр. 742)"><button type="button" class="buy-btn" onclick="uiGuessSafe()">Взломать</button></div>
+                        <button type="button" class="action-btn gold-btn" onclick="watchAdForBonus('safe_try')">📺 +2 попытки за рекламу</button>
                     </div>
+                </div>
+                <div id="logic-memory" class="logic-panel">
+                    <div class="game-box">
+                        <h3>🃏 Найди крипто-пары</h3>
+                        <p>Открой все 6 пар. Награда: <b>+1 000 монет</b>!</p>
+                        <div id="memory-grid" class="memory-grid"></div>
+                        <button type="button" class="action-btn neon-btn" onclick="initMemoryGame()">Перемешать карты</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-boosts" class="ios-app-window">
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">⚡ Бусты</span><span style="width:50px;"></span></div>
+            <div class="app-body">
+                <div class="game-box">
+                    <h3>📺 Рекламный спонсор</h3>
+                    <p>Посмотри короткий ролик и сразу забери монеты или заряд!</p>
+                    <button type="button" class="action-btn neon-btn" style="margin-bottom:8px;" onclick="watchAdForBonus('coins')">📺 +2 500 монет за ролик</button>
+                    <button type="button" class="action-btn gold-btn" onclick="watchAdForBonus('energy')">📺 Полная энергия за ролик</button>
+                </div>
+                <div class="game-box">
+                    <h3>🔋 Прокачка батареи iPhone</h3>
+                    <p>Увеличивает запас энергии на +500 навсегда.</p>
+                    <button type="button" class="action-btn ton-btn" onclick="buyMaxEnergy()">Улучшить за 🪙 <span id="battery-cost">2 000</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-tasks" class="ios-app-window">
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">🎁 Халява</span><span style="width:50px;"></span></div>
+            <div class="app-body">
+                <div class="game-box">
+                    <h3>🎟️ Секретный промокод</h3>
+                    <p>Вводи коды из канала и забирай жирные бонусы!</p>
+                    <div class="bet-panel"><input type="text" id="promo-code-input" placeholder="Введи код (напр. HOBO1)" style="text-transform:uppercase;"><button type="button" class="buy-btn" onclick="redeemPromoCode()">Забрать</button></div>
+                </div>
+                <div class="game-box">
+                    <h3>📅 Ежедневный паек</h3>
+                    <p>Заходи каждый день и забирай прогрессивный бонус!</p>
+                    <button type="button" class="action-btn neon-btn" onclick="claimDailyReward()">Забрать награду дня</button>
+                </div>
+                <div class="game-box">
+                    <h3>📢 Подписка на канал</h3>
+                    <p>Подпишись на наш Telegram-канал и забери <b>+5 000 монет</b>.</p>
+                    <button type="button" class="action-btn gold-btn" onclick="completeSubTask()">Перейти и забрать</button>
+                </div>
+            </div>
+        </div>
+
+                <div class="game-box">
+                    <h3>📢 Подписка на канал</h3>
+                    <p>Подпишись на наш Telegram-канал и забери <b>+5 000 монет</b>.</p>
+                    <button type="button" class="action-btn gold-btn" onclick="completeSubTask()">Перейти и забрать</button>
                 </div>
             </div>
         </div>
 
         <div id="app-raid" class="ios-app-window">
-            <div class="app-topbar">
-                <button class="back-btn" onclick="goHome()">‹ Домой</button>
-                <span class="app-window-title">Гоп-стоп</span>
-                <span style="width: 50px;"></span>
-            </div>
-            <div class="app-body">
-                <div class="game-box">
-                    <h3>🥷 Ночной налет</h3>
-                    <p>Отбери 15% заначки у другого игрока. Качай Пса Шарика в «Темках» для защиты!</p>
-                    <div class="raid-stats">Твоя защита: <b id="raid-def-val">0 🛡️</b></div>
-                    <button class="action-btn danger-btn" onclick="uiExecuteRaid()">Найти жертву на районе</button>
-                </div>
-            </div>
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">Гоп-стоп</span><span style="width:50px;"></span></div>
+            <div class="app-body"><div class="game-box"><h3>🥷 Ночной налет</h3><p>Отбери 15% заначки у другого игрока.</p><div class="raid-stats">Твоя защита: <b id="raid-def-val">0 🛡️</b></div><button type="button" class="action-btn danger-btn" onclick="uiExecuteRaid()">Найти жертву на районе</button></div></div>
+        </div>
+
+        <div id="app-top" class="ios-app-window">
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">🏆 Топ района</span><span style="width:50px;"></span></div>
+            <div class="app-body"><div id="leaderboard-list"></div><button type="button" class="action-btn neon-btn" style="margin-top:10px;" onclick="inviteFriend()">🤝 Позвать собутыльника (+3 000)</button></div>
         </div>
 
         <div id="app-airdrop" class="ios-app-window">
-            <div class="app-topbar">
-                <button class="back-btn" onclick="goHome()">‹ Домой</button>
-                <span class="app-window-title">AirDrop $HOBO</span>
-                <span style="width: 50px;"></span>
-            </div>
-            <div class="app-body">
-                <div class="game-box">
-                    <div class="token-badge">ЭМИССИЯ: 1 000 000 000 $HOBO</div>
-                    <h3>Листинг и конвертация</h3>
-                    <p>Копи монеты и качай доход в час. Финальный курс обмена на токены <b>$HOBO</b> объявим перед листингом!</p>
-                    <div class="airdrop-stats">
-                        <div>Накоплено монет: <b class="neon-green" id="drop-balance">0</b></div>
-                        <div>Доход в час: <b id="drop-profit">0/ч</b></div>
-                    </div>
-                    <button class="action-btn ton-btn" onclick="notifyDynamicIsland('Привязка TON-кошелька откроется перед дропом!', 3500)">💎 Привязать TON Кошелек</button>
-                </div>
-            </div>
-        </div>
-
-                <div class="ios-home-indicator-zone" style="z-index: 9999; height: 45px;" onclick="forceUnlock()">
-            <div class="ios-home-bar"></div>
+            <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">AirDrop $HOBO</span><span style="width:50px;"></span></div>
+            <div class="app-body"><div class="game-box"><div class="token-badge">ЭМИССИЯ: 1 000 000 000 $HOBO</div><h3>Листинг</h3><p>Копи монеты и качай доход в час. Финальный курс обмена объявим перед TGE!</p><div class="airdrop-stats"><div>Накоплено: <b class="neon-green" id="drop-balance">0</b></div><div>Доход: <b id="drop-profit">0/ч</b></div></div><button type="button" class="action-btn ton-btn" onclick="notifyDynamicIsland('Привязка TON откроется перед дропом!', 3500)">💎 Привязать TON</button></div></div>
         </div>
     </div>
 
-    <script>
-        function forceUnlock() {
-            var ls = document.getElementById('lock-screen');
-            if (ls && !ls.classList.contains('unlocked')) {
-                ls.classList.add('unlocked');
-                if (typeof isUnlocked !== 'undefined') isUnlocked = true;
-            } else if (typeof goHome === 'function') {
-                goHome();
-            }
-        }
-        document.addEventListener('DOMContentLoaded', function() {
-            var uz = document.querySelector('.unlock-zone');
-            if (uz) {
-                uz.style.position = 'relative';
-                uz.style.zIndex = '9999';
-                uz.onclick = forceUnlock;
-            }
-        });
-        <script>
-        // Резервный движок навигации — работает ВСЕГДА, даже если внешние .js файлы не загрузились!
-        window.unlockPhone = function() {
-            var ls = document.getElementById('lock-screen');
-            if (ls) {
-                ls.style.transform = 'translateY(-100%)';
-                ls.style.opacity = '0';
-                ls.style.pointerEvents = 'none';
-                ls.classList.add('unlocked');
-            }
-        };
-
-        window.lockPhone = function() {
-            window.goHome();
-            var ls = document.getElementById('lock-screen');
-            if (ls) {
-                ls.style.transform = 'translateY(0)';
-                ls.style.opacity = '1';
-                ls.style.pointerEvents = 'auto';
-                ls.classList.remove('unlocked');
-            }
-        };
-
-        window.openApp = function(appId) {
-            document.querySelectorAll('.ios-app-window').forEach(function(w) {
-                w.style.display = 'none';
-                w.classList.remove('open');
-            });
-            var target = document.getElementById(appId);
-            if (target) {
-                target.style.display = 'flex';
-                target.classList.add('open');
-            }
-            if (typeof renderCurrentCards === 'function' && appId === 'app-empire') renderCurrentCards();
-            if (typeof initMinesBoard === 'function' && appId === 'app-casino') initMinesBoard();
-        };
-
-        window.goHome = function() {
-            document.querySelectorAll('.ios-app-window').forEach(function(w) {
-                w.style.display = 'none';
-                w.classList.remove('open');
-            });
-        };
-
-        window.toggleIslandExpand = function() {
-            var di = document.getElementById('dynamic-island');
-            if (di) di.classList.toggle('expanded');
-        };
-    </script>
-    <script src="./empire.js?v=5"></script>
-    <script src="./games.js?v=5"></script>
-    <script src="./app.js?v=5"></script>
-</body>
-
+    <script src="./empire.js?v=10"></script>
+    <script src="./games.js?v=10"></script>
+    <script src="./app.js?v=10"></script>
+    <script src="./logic_ads.js?v=10"></script>
 </body>
 </html>
