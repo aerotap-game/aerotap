@@ -593,14 +593,21 @@ window.spinCaseTape = function() {
     if (state.balance < 500) return alert('Нужно 500 $AERO!');
     state.balance -= 500; caseSpinning = true; saveState();
     const tape = document.getElementById('caseTape');
-    const pool = new Array(200, 350, 500, 750, 1200, 2500, 5000, 10000, 25000);
+        const pool = new Array(100, 150, 200, 250, 400, 500, 1000, 2500, 5000, 25000);
     tape.style.transition = 'none'; tape.style.transform = 'translateX(0px)'; tape.innerHTML = '';
-    let winPrize = 350;
+    let winPrize = 150;
     for (let i = 0; i < 40; i++) {
         const val = pool.at(Math.floor(Math.random() * pool.length));
         if (i === 32) {
             const r = Math.random();
-            winPrize = r > 0.96 ? 25000 : r > 0.88 ? 5000 : r > 0.70 ? 2500 : r > 0.45 ? 1200 : 500;
+            if (r > 0.995) winPrize = 25000;
+            else if (r > 0.97) winPrize = 5000;
+            else if (r > 0.90) winPrize = 2500;
+            else if (r > 0.82) winPrize = 1000;
+            else if (r > 0.65) winPrize = 500;
+            else if (r > 0.45) winPrize = 250;
+            else if (r > 0.25) winPrize = 150;
+            else winPrize = 100;
         }
         const item = document.createElement('div');
         item.className = 'tape-item';
