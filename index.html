@@ -225,13 +225,32 @@
             </div>
         </div>
 
-        <div class="ios-home-indicator-zone" onclick="handleHomeBarClick()">
+                <div class="ios-home-indicator-zone" style="z-index: 9999; height: 45px;" onclick="forceUnlock()">
             <div class="ios-home-bar"></div>
         </div>
     </div>
 
-    <script src="empire.js"></script>
-    <script src="games.js"></script>
-    <script src="app.js"></script>
+    <script>
+        function forceUnlock() {
+            var ls = document.getElementById('lock-screen');
+            if (ls && !ls.classList.contains('unlocked')) {
+                ls.classList.add('unlocked');
+                if (typeof isUnlocked !== 'undefined') isUnlocked = true;
+            } else if (typeof goHome === 'function') {
+                goHome();
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var uz = document.querySelector('.unlock-zone');
+            if (uz) {
+                uz.style.position = 'relative';
+                uz.style.zIndex = '9999';
+                uz.onclick = forceUnlock;
+            }
+        });
+    </script>
+    <script src="empire.js?v=3"></script>
+    <script src="games.js?v=3"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
