@@ -248,9 +248,59 @@
                 uz.onclick = forceUnlock;
             }
         });
+        <script>
+        // Резервный движок навигации — работает ВСЕГДА, даже если внешние .js файлы не загрузились!
+        window.unlockPhone = function() {
+            var ls = document.getElementById('lock-screen');
+            if (ls) {
+                ls.style.transform = 'translateY(-100%)';
+                ls.style.opacity = '0';
+                ls.style.pointerEvents = 'none';
+                ls.classList.add('unlocked');
+            }
+        };
+
+        window.lockPhone = function() {
+            window.goHome();
+            var ls = document.getElementById('lock-screen');
+            if (ls) {
+                ls.style.transform = 'translateY(0)';
+                ls.style.opacity = '1';
+                ls.style.pointerEvents = 'auto';
+                ls.classList.remove('unlocked');
+            }
+        };
+
+        window.openApp = function(appId) {
+            document.querySelectorAll('.ios-app-window').forEach(function(w) {
+                w.style.display = 'none';
+                w.classList.remove('open');
+            });
+            var target = document.getElementById(appId);
+            if (target) {
+                target.style.display = 'flex';
+                target.classList.add('open');
+            }
+            if (typeof renderCurrentCards === 'function' && appId === 'app-empire') renderCurrentCards();
+            if (typeof initMinesBoard === 'function' && appId === 'app-casino') initMinesBoard();
+        };
+
+        window.goHome = function() {
+            document.querySelectorAll('.ios-app-window').forEach(function(w) {
+                w.style.display = 'none';
+                w.classList.remove('open');
+            });
+        };
+
+        window.toggleIslandExpand = function() {
+            var di = document.getElementById('dynamic-island');
+            if (di) di.classList.toggle('expanded');
+        };
     </script>
-    <script src="empire.js?v=3"></script>
-    <script src="games.js?v=3"></script>
-    <script src="app.js?v=3"></script>
+    <script src="./empire.js?v=5"></script>
+    <script src="./games.js?v=5"></script>
+    <script src="./app.js?v=5"></script>
+</body>
+
 </body>
 </html>
