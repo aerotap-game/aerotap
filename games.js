@@ -1,5 +1,3 @@
-// games.js — Уличное Казино и PvP-рейды ($HOBO)
-
 class HoboGames {
     constructor(state, empireManager, onStateChange) {
         this.state = state;
@@ -7,119 +5,33 @@ class HoboGames {
         this.onStateChange = onStateChange;
         this.raidCooldownMs = 30 * 60 * 1000;
 
-        // Состояние для игры Crash (Ракетка)
         this.crashActive = false;
         this.crashBet = 0;
         this.crashMultiplier = 1.00;
         this.crashPoint = 1.00;
         this.crashInterval = null;
+
+        this.minesActive = false;
+        this.minesBet = 0;
+        this.minesGrid = [];
+        this.minesSafeOpened = 0;
+        this.minesMult = 1.00;
     }
 
-    // 1. НАПЕРСТКИ У ВОКЗАЛА
-    playThimbles(betAmount, chosenCupIndex) {
-        if (betAmount <= 0 || this.state.balance < betAmount) {
-            return { success: false, message: "Недостаточно $HOBO для ставки!" };
-        }
-        this.state.balance -= betAmount;
-        const winningCup = Math.floor(Math.random() * 3);
-        const isWin = chosenCupIndex === winningCup;
-
-        if (isWin) {
-            const prize = Math.floor(betAmount * 2.5);
-            this.state.balance += prize;
-            this.state.totalEarned = (this.state.totalEarned || 0) + (prize - betAmount);
-            if (window.playSound) window.playSound('win');
-            if (this.onStateChange) this.onStateChange();
-            return {
-                success: true,
-                message: `Красава! Шарик был под №${winningCup + 1}. Выигрыш: +${prize.toLocaleString()} $HOBO!`
-            };
-        } else {
-            if (window.playSound) window.playSound('lose');
-            if (this.onStateChange) this.onStateChange();
-            return {
-                success: true,
-                message: `Катала обманул! Шарик был под №${winningCup + 1}. Минус ${betAmount.toLocaleString()} $HOBO.`
-            };
-        }
-    }
-
-    // 2. ОДНОРУКИЙ БОМЖ (СЛОТЫ)
-    playSlots(betAmount) {
-        if (betAmount <= 0 || this.state.balance < betAmount) {
-            return { success: false, message: "Пополни карманы для спина!" };
-        }
-        this.state.balance -= betAmount;
-
-        // Веса символов (чаще выпадают бутылки и крысы, реже алмазы и 777)
-        const pool = ["🍾", "🍾", "🍾", "🐀", "🐀", "🐀", "💵", "💵", "💎", "7️⃣"];
-        const r1 = pool[Math.floor(Math.random() * pool.length)];
-        const r2 = pool[Math.floor(Math.random() * pool.length)];
-        const r3 = pool[Math.floor(Math.random() * pool.length)];
-
-        let multiplier = 0;
-        let msg = "";
-
-        if (r1 === r2 && r2 === r3) {
-            // Три одинаковых символа
-            if (r1 === "7️⃣") multiplier = 15;
-            else if (r1 === "💎") multiplier = 10;
-            else if (r1 === "💵") multiplier = 5;
-            else multiplier = 3;
-            msg = `ДЖЕКПОТ [${r1}${r2}${r3}]! Множитель x${multiplier}!`;
-        } else if (r1 === r2 || r2 === r3 || r1 === r3) {
-            // Два совпадения (возврат ставки x1.2)
-            multiplier = 1.2;
-            msg = `Два совпали [${r1}${r2}${r3}]! Забрал x1.2.`;
-        } else {
-            msg = `Мимо [${r1}${r2}${r3}]. Автомат сожрал ${betAmount.toLocaleString()} $HOBO.`;
-        }
-
-        const prize = Math.floor(betAmount * multiplier);
-        if (prize > 0) {
-            this.state.balance += prize;
-            if (prize > betAmount) {
-                this.state.totalEarned = (this.state.totalEarned || 0) + (prize - betAmount);
-            }
-            if (window.playSound) window.playSound('win');
-        } else {
-            if (window.playSound) window.playSound('lose');
-        }
-
-        if (this.onStateChange) this.onStateChange();
-        return { success: true, reels: [r1, r2, r3], prize, message: msg };
-    }
-
-    // 3. КРИПТО-РАКЕТКА (CRASH: ТУЗЕМУН ИЛИ СКАМ)
-    startCrash(betAmount, onTick, onCrash) {
+    startCrash(bet, onTick, onCrash) {
         if (this.crashActive) return { success: false, message: "Ракета уже летит!" };
-        if (betAmount <= 0 || this.state.balance < betAmount) {
-            return { success: false, message: "Не хватает $HOBO на ставку!" };
-        }
+        if (bet <= 0 || this.state.balance < bet) return { success: false, message: "Не хватает монет!" };
 
-        this.state.balance -= betAmount;
-        this.crashBet = betAmount;
+        this.state.balance -= bet;
+        this.crashBet = bet;
         this.crashActive = true;
         this.crashMultiplier = 1.00;
-
-        // Генерация точки краша (математика с перевесом казино ~8%)
-        // 8% шанс мгновенного скама на 1.00x
-        if (Math.random() < 0.08) {
-            this.crashPoint = 1.00;
-        } else {
-            const r = Math.random();
-            this.crashPoint = Math.max(1.05, Math.min(25.0, (0.92 / (1 - r))));
-        }
-
+        this.crashPoint = Math.random() < 0.09 ? 1.00 : Math.max(1.05, Math.min(25.0, 0.92 / (1 - Math.random())));
         if (this.onStateChange) this.onStateChange();
 
         this.crashInterval = setInterval(() => {
-            // Ускорение роста коэффициента
-            const step = 0.02 + (this.crashMultiplier * 0.015);
-            this.crashMultiplier = +(this.crashMultiplier + step).toFixed(2);
-
+            this.crashMultiplier = +(this.crashMultiplier + 0.02 + this.crashMultiplier * 0.015).toFixed(2);
             if (this.crashMultiplier >= this.crashPoint) {
-                // СКАМ (RUG PULL)!
                 clearInterval(this.crashInterval);
                 this.crashActive = false;
                 if (window.playSound) window.playSound('lose');
@@ -128,76 +40,156 @@ class HoboGames {
                 if (onTick) onTick(this.crashMultiplier);
             }
         }, 100);
-
         return { success: true };
     }
 
     cashoutCrash() {
-        if (!this.crashActive) return { success: false, message: "Нечего забирать!" };
-
+        if (!this.crashActive) return { success: false };
         clearInterval(this.crashInterval);
         this.crashActive = false;
-
-        const winAmount = Math.floor(this.crashBet * this.crashMultiplier);
-        this.state.balance += winAmount;
-        this.state.totalEarned = (this.state.totalEarned || 0) + (winAmount - this.crashBet);
-
+        const win = Math.floor(this.crashBet * this.crashMultiplier);
+        this.state.balance += win;
+        this.state.totalEarned += Math.max(0, win - this.crashBet);
         if (window.playSound) window.playSound('win');
         if (this.onStateChange) this.onStateChange();
-
-        return {
-            success: true,
-            winAmount,
-            multiplier: this.crashMultiplier,
-            message: `Успел слить на x${this.crashMultiplier}! Профит: +${winAmount.toLocaleString()} $HOBO!`
-        };
+        return { success: true, message: `Слил на x${this.crashMultiplier}! Профит: +${win.toLocaleString()}!` };
     }
 
-    // 4. ГОП-СТОП (PvP-рейд)
+    startMines(bet) {
+        if (this.minesActive) return { success: false, message: "Игра уже идет!" };
+        if (bet <= 0 || this.state.balance < bet) return { success: false, message: "Не хватает монет!" };
+
+        this.state.balance -= bet;
+        this.minesBet = bet;
+        this.minesActive = true;
+        this.minesSafeOpened = 0;
+        this.minesMult = 1.00;
+        this.minesGrid = Array(9).fill(false);
+
+        let placed = 0;
+        while (placed < 3) {
+            const idx = Math.floor(Math.random() * 9);
+            if (!this.minesGrid[idx]) {
+                this.minesGrid[idx] = true;
+                placed++;
+            }
+        }
+        if (this.onStateChange) this.onStateChange();
+        return { success: true };
+    }
+
+    stepMine(idx) {
+        if (!this.minesActive) return { success: false, message: "Сначала нажми Начать игру!" };
+        if (this.minesGrid[idx]) {
+            this.minesActive = false;
+            if (window.playSound) window.playSound('lose');
+            if (this.onStateChange) this.onStateChange();
+            return { success: true, boom: true, grid: this.minesGrid, message: "БАБАХ! Нарвался на мину, ставка сгорела." };
+        }
+        this.minesSafeOpened++;
+        this.minesMult = +(1 + this.minesSafeOpened * 0.45).toFixed(2);
+        if (window.playSound) window.playSound('tap');
+        return { success: true, boom: false, mult: this.minesMult, win: Math.floor(this.minesBet * this.minesMult) };
+    }
+
+    cashoutMines() {
+        if (!this.minesActive || this.minesSafeOpened === 0) return { success: false, message: "Открой хотя бы 1 клетку!" };
+        this.minesActive = false;
+        const win = Math.floor(this.minesBet * this.minesMult);
+        this.state.balance += win;
+        this.state.totalEarned += Math.max(0, win - this.minesBet);
+        if (window.playSound) window.playSound('win');
+        if (this.onStateChange) this.onStateChange();
+        return { success: true, message: `Забрал с минного поля: +${win.toLocaleString()}!` };
+    }
+    playSlots(bet) {
+        if (bet <= 0 || this.state.balance < bet) return { success: false, message: "Не хватает монет!" };
+        this.state.balance -= bet;
+        const pool = ["🍾", "🍾", "🍾", "🐀", "🐀", "🐀", "💵", "💵", "💎", "7️⃣"];
+        const r = [0, 1, 2].map(() => pool[Math.floor(Math.random() * pool.length)]);
+        let mult = 0;
+        let msg = "";
+
+        if (r[0] === r[1] && r[1] === r[2]) {
+            mult = r[0] === "7️⃣" ? 15 : r[0] === "💎" ? 10 : r[0] === "💵" ? 5 : 3;
+            msg = `ДЖЕКПОТ [${r.join('')}]! Множитель x${mult}!`;
+        } else if (r[0] === r[1] || r[1] === r[2] || r[0] === r[2]) {
+            mult = 1.2;
+            msg = `Два совпали [${r.join('')}]! Забрал x1.2.`;
+        } else {
+            msg = `Мимо [${r.join('')}]. Автомат сожрал ${bet.toLocaleString()}.`;
+        }
+
+        const prize = Math.floor(bet * mult);
+        if (prize > 0) {
+            this.state.balance += prize;
+            this.state.totalEarned += Math.max(0, prize - bet);
+            if (window.playSound) window.playSound('win');
+        } else if (window.playSound) window.playSound('lose');
+
+        if (this.onStateChange) this.onStateChange();
+        return { success: true, reels: r, message: msg };
+    }
+
+    playCoin(bet, side) {
+        if (bet <= 0 || this.state.balance < bet) return { success: false, message: "Не хватает монет!" };
+        this.state.balance -= bet;
+        const resSide = Math.random() < 0.48 ? side : (side === 'orel' ? 'reshka' : 'orel');
+        const win = resSide === side;
+
+        if (win) {
+            const prize = Math.floor(bet * 1.9);
+            this.state.balance += prize;
+            this.state.totalEarned += (prize - bet);
+            if (window.playSound) window.playSound('win');
+            if (this.onStateChange) this.onStateChange();
+            return { success: true, side: resSide, message: `Выпал ${resSide === 'orel' ? 'Орел 🦅' : 'Решка 👑'}! Выигрыш: +${prize.toLocaleString()}!` };
+        }
+        if (window.playSound) window.playSound('lose');
+        if (this.onStateChange) this.onStateChange();
+        return { success: true, side: resSide, message: `Выпал ${resSide === 'orel' ? 'Орел 🦅' : 'Решка 👑'}. Ты проиграл ${bet.toLocaleString()}.` };
+    }
+
+    playThimbles(bet, chosen) {
+        if (bet <= 0 || this.state.balance < bet) return { success: false, message: "Не хватает монет!" };
+        this.state.balance -= bet;
+        const winCup = Math.floor(Math.random() * 3);
+        if (chosen === winCup) {
+            const prize = Math.floor(bet * 2.5);
+            this.state.balance += prize;
+            this.state.totalEarned += (prize - bet);
+            if (window.playSound) window.playSound('win');
+            if (this.onStateChange) this.onStateChange();
+            return { success: true, message: `Угадал стакан №${winCup + 1}! +${prize.toLocaleString()}!` };
+        }
+        if (window.playSound) window.playSound('lose');
+        if (this.onStateChange) this.onStateChange();
+        return { success: true, message: `Мимо! Шарик был под №${winCup + 1}.` };
+    }
+
     executeRaid() {
         const now = Date.now();
-        const lastRaid = this.state.lastRaidTime || 0;
-
-        if (now - lastRaid < this.raidCooldownMs) {
-            const minsLeft = Math.ceil((this.raidCooldownMs - (now - lastRaid)) / 60000);
-            return { success: false, message: `Отдышись! Следующий гоп-стоп через ${minsLeft} мин.` };
+        if (now - (this.state.lastRaidTime || 0) < this.raidCooldownMs) {
+            const mins = Math.ceil((this.raidCooldownMs - (now - this.state.lastRaidTime)) / 60000);
+            return { success: false, message: `Отдышись! Следующий рейд через ${mins} мин.` };
         }
-
-        const botNames = ["@crypto_vasya", "@bomj_v_gucci", "@hamster_rip", "@ton_whale_99", "@sanya_zavod"];
-        const target = {
-            username: botNames[Math.floor(Math.random() * botNames.length)],
-            stash: Math.floor((this.state.balance * 0.4) + 500),
-            defense: Math.floor(Math.random() * 60)
-        };
-
-        const playerRank = this.empire.getCurrentRank().level;
-        const playerAttack = (playerRank * 15) + Math.floor(Math.random() * 40);
         this.state.lastRaidTime = now;
+        const names = ["@crypto_vasya", "@bomj_v_gucci", "@hamster_rip", "@ton_whale_99", "@sanya_zavod"];
+        const target = names[Math.floor(Math.random() * names.length)];
+        const attack = (this.empire.getCurrentRank().level * 15) + Math.floor(Math.random() * 45);
+        const defense = Math.floor(Math.random() * 60);
 
-        if (playerAttack > target.defense) {
-            const loot = Math.max(100, Math.floor(target.stash * 0.15));
+        if (attack > defense) {
+            const loot = Math.max(150, Math.floor(this.state.balance * 0.12 + 300));
             this.state.balance += loot;
-            this.state.totalEarned = (this.state.totalEarned || 0) + loot;
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            }
+            this.state.totalEarned += loot;
             if (this.onStateChange) this.onStateChange();
-            return {
-                success: true,
-                message: `Успешный налет на ${target.username}! Отжато: +${loot.toLocaleString()} $HOBO.`
-            };
-        } else {
-            const penalty = Math.floor(this.state.balance * 0.05);
-            this.state.balance = Math.max(0, this.state.balance - penalty);
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-            }
-            if (this.onStateChange) this.onStateChange();
-            return {
-                success: true,
-                message: `Провал! Пес ${target.username} покусал тебя. Потеряно ${penalty.toLocaleString()} $HOBO.`
-            };
+            return { success: true, message: `Обчистил ${target}! Добыча: +${loot.toLocaleString()}!` };
         }
+        const loss = Math.floor(this.state.balance * 0.05);
+        this.state.balance = Math.max(0, this.state.balance - loss);
+        if (this.onStateChange) this.onStateChange();
+        return { success: true, message: `Пес ${target} покусал тебя! Потеряно ${loss.toLocaleString()}.` };
     }
 }
 
