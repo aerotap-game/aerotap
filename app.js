@@ -137,7 +137,7 @@ function handleTap(e) {
     playSound('tap');
     if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
-    const touch = e.touches ? e.touches : e;
+    const touch = e.touches ? e.touches.item(0) : e;
     if (touch) {
         const el = document.createElement('div');
         el.className = 'floating-plus';
@@ -264,7 +264,9 @@ function uiMinesAction() {
 function uiPlaySlots() {
     const res = games.playSlots(getGlobalBet());
     if (!res.success) return notifyDynamicIsland(res.message, 2500);
-    [1, 2, 3].forEach((n, idx) => document.getElementById(`reel-${n}`).innerText = res.reels[idx]);
+    document.getElementById('reel-1').innerText = res.reels.at(0);
+    document.getElementById('reel-2').innerText = res.reels.at(1);
+    document.getElementById('reel-3').innerText = res.reels.at(2);
     notifyDynamicIsland(res.message, 3500);
 }
 
@@ -275,11 +277,7 @@ function uiPlayCoin(side) {
     notifyDynamicIsland(res.message, 3500);
 }
 
-function uiPlayCups(idx) {
-    const res = games.playThimbles(getGlobalBet(), idx);
-    notifyDynamicIsland(res.message, 3500);
-}
-
+function uiPlayCups(idx) { notifyDynamicIsland(games.playThimbles(getGlobalBet(), idx).message, 3500); }
 function uiExecuteRaid() { notifyDynamicIsland(games.executeRaid().message, 4000); }
 function saveState() { state.lastSaveTime = Date.now(); localStorage.setItem('hobo_os_v2', JSON.stringify(state)); }
 
