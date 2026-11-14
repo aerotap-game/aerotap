@@ -291,4 +291,51 @@
                     </div>
                 </div>
             </div>
+             </section>
+                <!-- ВКЛАДКА 4: VIP (TELEGRAM STARS) И ЛИСТИНГ 1 ДЕКАБРЯ -->
+        <section id="tab-vip" class="screen">
+            <div class="mac-card" style="border-color: rgba(255, 214, 10, 0.45);">
+                <div class="mac-row-between" style="margin-bottom:10px;"><b>👑 VIP-КЛУБ (TELEGRAM STARS)</b><span class="mac-tag tag-gold">БУСТ ИМПЕРИИ</span></div>
+                <div class="mac-list-row">
+                    <div><b>⭐ VIP Старт (50 Stars)</b><div class="mac-sub">+100 000 $AERO + x1.5 к доходу</div></div>
+                    <button class="mac-btn btn-gold" onclick="buyVipStars('start', 50, 100000, 1.5)">50 ⭐</button>
+                </div>
+                <div class="mac-list-row">
+                    <div><b>🔥 VIP Магнат (150 Stars)</b><div class="mac-sub">+500 000 $AERO + x2 доход + Бесплатное ТО</div></div>
+                    <button class="mac-btn btn-gold" onclick="buyVipStars('magnat', 150, 500000, 2)">150 ⭐</button>
+                </div>
+                <div class="mac-list-row">
+                    <div><b>👑 VIP Олигарх (350 Stars)</b><div class="mac-sub">+2 000 000 $AERO + x3 доход + Дроп 1 дек</div></div>
+                    <button class="mac-btn btn-blue" onclick="buyVipStars('oligarch', 350, 2000000, 3)">350 ⭐</button>
+                </div>
+            </div>
+
+            <div class="mac-card">
+                <div class="mac-row-between" style="margin-bottom:8px;"><b>💎 ЛИСТИНГ $AERO — 1 ДЕКАБРЯ</b><span class="mac-tag tag-blue">AIRDROP</span></div>
+                <input type="text" id="tonWalletInput" class="mac-input" style="width:100%; margin-bottom:8px;" placeholder="Адрес TON-кошелька (UQ...)">
+                <button class="mac-btn btn-blue" style="width:100%;" onclick="saveTonWallet()" id="walletBtn">ПРИВЯЗАТЬ TON-КОШЕЛЕК</button>
+                <div id="walletStatus" class="status-line">Кошелек не привязан</div>
+            </div>
+
+            <div class="mac-card">
+                <div class="mac-row-between" style="margin-bottom:8px;"><b>🎖️ ЭСКАДРИЛЬЯ ДРУЗЕЙ</b><span class="mac-tag tag-green">+2 500 / 12Ч</span></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button class="mac-btn btn-glass" onclick="copyRefLink()">📋 Ссылка</button>
+                    <button class="mac-btn btn-gold" id="claimRefBtn" onclick="claimRefBonus()">🎁 +2 500</button>
+                </div>
+                <div id="refCooldownText" class="status-line"></div>
+            </div>
         </section>
+    </main>
+
+    <nav class="mac-dock">
+        <button class="dock-item active" onclick="switchTab('tab-tap', this)"><div class="dock-ico bg-blue">🛩️</div><span>Штаб</span></button>
+        <button class="dock-item" onclick="switchTab('tab-empire', this); renderEmpireAll();"><div class="dock-ico bg-green">🏢</div><span>Империя</span></button>
+        <button class="dock-item" onclick="switchTab('tab-games', this); backToGamesLobby();"><div class="dock-ico bg-orange">🎰</div><span>Игры</span></button>
+        <button class="dock-item" id="dockVip" onclick="switchTab('tab-vip', this)"><div class="dock-ico bg-gold">👑</div><span>VIP / 1 дек</span></button>
+    </nav>
+
+    <script src="macos-app.js"></script>
+</body>
+</html>
+
