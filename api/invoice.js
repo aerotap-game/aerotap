@@ -5,7 +5,17 @@ export default async function handler(req, res) {
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    const BOT_TOKEN = 'ВСТАВЬ_СЮДА_ТОКЕН_БОТА';
+        const BOT_TOKEN = 'ВСТАВЬ_СЮДА_СВОЙ_ТОКЕН_БОТА';
+
+    if (req.body && req.body.pre_checkout_query) {
+        await fetch(`https://telegram.org{BOT_TOKEN}/answerPreCheckoutQuery`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pre_checkout_query_id: req.body.pre_checkout_query.id, ok: true })
+        });
+        return res.status(200).json({ ok: true });
+    }
+
     const { stars = 50, tier = 'start' } = req.body || {};
 
     const titles = {
