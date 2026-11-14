@@ -495,3 +495,57 @@ body {
     background: rgba(255, 255, 255, 0.75);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
 }
+/* === ОБОИ IPHONE 16 PRO MAX (DESERT TITANIUM) + КАРТА MASTERCARD + ФИКС КЛИКОВ === */
+body, .iphone-frame {
+    background:
+        radial-gradient(circle at 20% 15%, rgba(212, 168, 118, 0.55) 0%, transparent 45%),
+        radial-gradient(circle at 85% 30%, rgba(138, 92, 58, 0.5) 0%, transparent 50%),
+        radial-gradient(circle at 45% 85%, rgba(184, 134, 88, 0.42) 0%, transparent 55%),
+        linear-gradient(160deg, #2c2119 0%, #140f0c 55%, #070605 100%) !important;
+}
+
+/* Железный фикс кликабельности всех кнопок и иконок */
+.ios-app-grid, .ios-dock, .app-content, .app-navbar, .ios-statusbar {
+    position: relative;
+    z-index: 20 !important;
+    pointer-events: auto !important;
+}
+
+.ios-app-icon, .app-squircle, .mac-yoke, .mac-widget-btn, .mac-btn, .seg-btn, .ios-back-btn, .dynamic-island {
+    position: relative;
+    z-index: 25 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+.mac-orbit, .radar-circle {
+    pointer-events: none !important;
+}
+
+.ios-home-indicator-zone {
+    height: 16px !important;
+    z-index: 30 !important;
+}
+
+/* Банковская карта Mastercard World Elite */
+.mc-card {
+    background: linear-gradient(135deg, #232328 0%, #0e0e11 60%, #33261a 100%);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    border-radius: 22px;
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.75);
+}
+
+.mc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.mc-bank-name { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #d4af37; }
+.mc-chip { width: 34px; height: 24px; border-radius: 6px; background: linear-gradient(135deg, #fde047, #b45309); display: inline-block; }
+.mc-balance-label { font-size: 9px; color: #98989D; letter-spacing: 1px; font-weight: 700; }
+.mc-balance-val { font-size: 30px; font-weight: 900; color: #fff; margin: 4px 0 18px; }
+.mc-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+.mc-num { font-size: 13px; letter-spacing: 2px; color: #e5e5ea; font-weight: 600; }
+.mc-holder { font-size: 10px; color: #98989D; margin-top: 4px; text-transform: uppercase; font-weight: 700; }
+.mc-circles { display: flex; align-items: center; }
+.mc-c1, .mc-c2 { width: 24px; height: 24px; border-radius: 50%; display: inline-block; }
+.mc-c1 { background: rgba(235, 0, 27, 0.9); }
+.mc-c2 { background: rgba(247, 158, 27, 0.9); margin-left: -10px; }
