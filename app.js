@@ -1,9 +1,13 @@
+// app.js — Главный движок "Бомж Инвестор" ($HOBO)
+
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) {
     tg.expand();
     tg.ready();
+    tg.setHeaderColor('#000000');
 }
 
+// Звуковой движок из твоей исходной сборки
 let soundOn = true;
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 const audioCtx = AudioCtx ? new AudioCtx() : null;
@@ -27,615 +31,281 @@ function playSound(type) {
         if (type === 'tap') {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(420, now);
-            osc.frequency.exponentialRampToValueAtTime(760, now + 0.04);
+            osc.frequency.exponentialRampToValueAtTime(760, now + 0.06);
             gain.gain.setValueAtTime(0.1, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
             osc.start(now);
-            osc.stop(now + 0.04);
-        } else if (type === 'win') {
+            osc.stop(now + 0.06);
+        } else if (type === 'upgrade' || type === 'win') {
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(523, now);
-            osc.frequency.setValueAtTime(784, now + 0.1);
-            gain.gain.setValueAtTime(0.16, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+            osc.frequency.setValueAtTime(520, now);
+            osc.frequency.exponentialRampToValueAtTime(1040, now + 0.18);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
             osc.start(now);
-            osc.stop(now + 0.28);
-        } else if (type === 'boom') {
+            osc.stop(now + 0.18);
+        } else if (type === 'lose') {
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(140, now);
-            osc.frequency.exponentialRampToValueAtTime(35, now + 0.32);
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
+            osc.frequency.setValueAtTime(220, now);
+            osc.frequency.exponentialRampToValueAtTime(90, now + 0.25);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
             osc.start(now);
-            osc.stop(now + 0.32);
+            osc.stop(now + 0.25);
         }
     } catch (e) {}
 }
 
-function showIslandNotice(text) {
-    const di = document.getElementById('diText');
-    if (!di) return;
-    di.innerText = text;
-    setTimeout(() => { di.innerText = 'AeroOS • TON'; }, 3000);
-}
-
-const STORAGE_KEY = 'aerotap_ios_save_v1';
-const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-const userId = (tgUser && tgUser.id) ? tgUser.id : Math.floor(10000 + Math.random() * 90000);
-
-const defaultData = {
-    username: (tgUser && tgUser.first_name) ? tgUser.first_name : 'Пилот #' + String(userId).slice(-3),
-    balance: 50,
-    energy: 500,
-    maxEnergy: 500,
-    tapPower: 1,
-    passiveHour: 0,
-    refills: 2,
-    lastDaily: 0,
-    lastRefBonus: 0,
-    lastSafe24: 0,
-    lastAtcTime: 0,
-    channelClaimed: false,
-    usedCodes: [],
-    tonWallet: '',
-    bizLevels: {},
-    hangarLevels: {}
+// Состояние игрока (загружается из localStorage или с бэкенда)
+let state = JSON.parse(localStorage.getItem('hobo_state_v1')) || {
+    balance: 0,
+    totalEarned: 0,
+    energy: 1000,
+    maxEnergy: 1000,
+    cards: {},
+    lastRaidTime: 0,
+    lastSaveTime: Date.now()
 };
 
-let state = Object.assign({}, defaultData, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
-let turboMult = 1;
-let heatLevel = 0;
+const empire = new EmpireManager(state);
+const games = new HoboGames(state, empire, () => {
+    saveState();
+    updateUI();
+});
 
-function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+let currentCategory = 'street';
+let islandTimer = null;
+
+// Расчет офлайн-заработка (максимум за 3 часа отсутствия, как в Хомяке)
+function calculateOfflineProfit() {
+    const now = Date.now();
+    const diffSec = Math.floor((now - (state.lastSaveTime || now)) / 1000);
+    if (diffSec > 10) {
+        const cappedSec = Math.min(diffSec, 3 * 3600);
+        const profitPerSec = empire.getTotalProfitPerHour() / 3600;
+        const offlineEarned = Math.floor(profitPerSec * cappedSec);
+
+        // Восстановление энергии за время отсутствия (+2 в сек)
+        state.energy = Math.min(state.maxEnergy, state.energy + cappedSec * 2);
+
+        if (offlineEarned > 0) {
+            state.balance += offlineEarned;
+            state.totalEarned += offlineEarned;
+            notifyDynamicIsland(`Пока тебя не было, накапало +${offlineEarned.toLocaleString()} $HOBO!`, 5000);
+        }
+    }
+    state.lastSaveTime = now;
+}
+
+// Управление Dynamic Island
+function toggleIslandExpand() {
+    const island = document.getElementById('dynamic-island');
+    if (island) island.classList.toggle('expanded');
+}
+
+function notifyDynamicIsland(text, duration = 3500) {
+    const island = document.getElementById('dynamic-island');
+    const alertBox = document.getElementById('island-notification');
+    if (!island || !alertBox) return;
+
+    alertBox.innerText = text;
+    island.classList.add('expanded');
+
+    if (islandTimer) clearTimeout(islandTimer);
+    islandTimer = setTimeout(() => {
+        island.classList.remove('expanded');
+    }, duration);
+}
+
+// Живые часы iOS в статус-баре
+function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const clockEl = document.getElementById('ios-clock');
+    if (clockEl) clockEl.innerText = `${h}:${m}`;
+}
+
+// Обработка Тапа
+function handleTap(e) {
+    const rank = empire.getCurrentRank();
+    const power = rank.tapPower;
+
+    if (state.energy < power) {
+        notifyDynamicIsland("Энергия на нуле! Подожди пару секунд.", 2000);
+        return;
+    }
+
+    state.energy -= power;
+    state.balance += power;
+    state.totalEarned += power;
+
+    playSound('tap');
+    if (tg?.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred('light');
+    }
+
+    // Всплывающая цифра +1
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    spawnFloatingText(clientX, clientY, `+${power}`);
+
     updateUI();
 }
 
-function getRefLink() {
-    return 'https://t.me_' + userId;
+function spawnFloatingText(x, y, text) {
+    const el = document.createElement('div');
+    el.className = 'floating-plus';
+    el.innerText = text;
+    el.style.left = `${x - 15}px`;
+    el.style.top = `${y - 25}px`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 800);
 }
 
-function claimChannelReward() {
-    if (!state.channelClaimed) {
-        state.channelClaimed = true;
-        state.balance += 150;
-        playSound('win');
-        showIslandNotice('+150 $AERO за @aerotap');
-        saveState();
-    }
-}
-
+// Обновление всего интерфейса
 function updateUI() {
-    const now = new Date();
-    const clockEl = document.getElementById('iosClock');
-    if (clockEl) clockEl.innerText = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    const rank = empire.getCurrentRank();
+    const nextRank = HOBO_RANKS.find(r => r.level === rank.level + 1);
+    const profitPerHour = empire.getTotalProfitPerHour();
+    const realTokens = empire.getEstimatedRealTokens();
 
-    document.getElementById('displayUsername').innerText = state.username;
-    document.getElementById('avatarInitial').innerText = state.username.charAt(0).toUpperCase();
-    document.getElementById('balanceText').innerText = Math.floor(state.balance).toLocaleString('ru-RU');
-    document.getElementById('passiveRate').innerText = state.passiveHour.toLocaleString('ru-RU');
+    // Баланс и AirDrop
+    document.getElementById('balance-display').innerText = Math.floor(state.balance).toLocaleString();
+    document.getElementById('real-token-display').innerText = realTokens;
+    document.getElementById('stat-balance').innerText = Math.floor(state.balance).toLocaleString();
+    document.getElementById('stat-real').innerText = `${realTokens} $HOBO`;
 
-    const comboMult = heatLevel >= 80 ? 3 : (heatLevel >= 40 ? 2 : 1);
-    document.getElementById('tapPowerText').innerText = state.tapPower * turboMult * comboMult;
-    document.getElementById('heatBar').style.width = heatLevel + '%';
+    // Ранг и прогресс
+    document.getElementById('rank-icon').innerText = rank.icon;
+    document.getElementById('rank-name').innerText = rank.name;
+    document.getElementById('tap-avatar').innerText = rank.icon;
+    document.getElementById('tap-power-display').innerText = rank.tapPower;
 
-    document.getElementById('energyText').innerText = Math.floor(state.energy);
-    document.getElementById('maxEnergyText').innerText = state.maxEnergy;
-    document.getElementById('refillCount').innerText = state.refills + '/2';
-    document.getElementById('energyBar').style.width = Math.min(100, (state.energy / state.maxEnergy) * 100) + '%';
-
-    let rank = 'Курсант';
-    if (state.balance >= 25000) rank = 'Капитан TON';
-    else if (state.balance >= 5000) rank = 'Командир';
-    else if (state.balance >= 1000) rank = 'Пилот';
-    document.getElementById('pilotRank').innerText = rank;
-
-    const refInput = document.getElementById('refLinkInput');
-    if (refInput) refInput.value = getRefLink();
-
-    const shareBtn = document.getElementById('tgShareLink');
-    if (shareBtn) {
-        const shareText = encodeURIComponent('Залетай в AeroTap ($AERO) в сети TON! Лови стартовый бонус по моей ссылке:');
-        shareBtn.href = 'https://t.me' + encodeURIComponent(getRefLink()) + '&text=' + shareText;
+    let progress = 100;
+    if (nextRank) {
+        const range = nextRank.minEarned - rank.minEarned;
+        const current = state.totalEarned - rank.minEarned;
+        progress = Math.min(100, Math.max(5, (current / range) * 100));
     }
+    document.getElementById('rank-progress').style.width = `${progress}%`;
 
-    const tonInput = document.getElementById('tonAddressInput');
-    if (tonInput && state.tonWallet && !tonInput.value) tonInput.value = state.tonWallet;
+    // Энергия
+    document.getElementById('energy-current').innerText = Math.floor(state.energy);
+    document.getElementById('energy-max').innerText = state.maxEnergy;
+    document.getElementById('energy-fill').style.width = `${(state.energy / state.maxEnergy) * 100}%`;
+
+    // Dynamic Island данные
+    document.getElementById('island-profit-badge').innerText = `+${profitPerHour.toLocaleString()}/ч`;
+    document.getElementById('island-real-tokens').innerText = `${realTokens} $HOBO`;
+    document.getElementById('island-defense').innerText = `${empire.getTotalDefense()} 🛡️`;
 }
 
-function changePilotName() {
-    const name = prompt('Введи новый позывной:', state.username);
-    if (name && name.trim()) {
-        state.username = name.trim().slice(0, 16);
-        saveState();
+// Навигация по вкладкам
+function switchTab(tabName, btnEl) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.dock-item').forEach(b => b.classList.remove('active'));
+
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    btnEl.classList.add('active');
+
+    if (tabName === 'empire') {
+        empire.renderCards(currentCategory, 'cards-container', () => {
+            saveState();
+            updateUI();
+            empire.renderCards(currentCategory, 'cards-container', updateUI);
+        });
     }
 }
 
-function openApp(screenId) {
-    document.querySelectorAll('.ios-screen').forEach(s => s.classList.remove('active'));
-    const target = document.getElementById(screenId);
-    if (target) target.classList.add('active');
-
-    const dock = document.querySelectorAll('.dock-item');
-    dock.forEach(b => b.classList.remove('active'));
-    if (screenId === 'screen-home' && dock[0]) dock[0].classList.add('active');
-    if (screenId === 'screen-tap' && dock[1]) dock[1].classList.add('active');
-    if (screenId === 'screen-radar' && dock[2]) dock[2].classList.add('active');
-    if (screenId === 'screen-games' && dock[3]) dock[3].classList.add('active');
-}
-
-const tapBtn = document.getElementById('mainTapBtn');
-if (tapBtn) {
-    tapBtn.addEventListener('pointerdown', (e) => {
-        if (state.energy < state.tapPower) return;
-        heatLevel = Math.min(100, heatLevel + 6);
-        const comboMult = heatLevel >= 80 ? 3 : (heatLevel >= 40 ? 2 : 1);
-        const gain = state.tapPower * turboMult * comboMult;
-        state.balance += gain;
-        state.energy -= state.tapPower;
-        playSound('tap');
-        if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-
-        const el = document.createElement('div');
-        el.className = 'float-plus';
-        el.innerText = '+' + gain;
-        el.style.left = (e.clientX - 15) + 'px';
-        el.style.top = (e.clientY - 25) + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 700);
+function switchCategory(cat, btnEl) {
+    currentCategory = cat;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    empire.renderCards(cat, 'cards-container', () => {
         saveState();
+        updateUI();
+        empire.renderCards(cat, 'cards-container', updateUI);
     });
 }
 
-function activateTurbo() {
-    if (turboMult > 1) return showIslandNotice('Форсаж уже активен!');
-    turboMult = 2;
-    playSound('win');
-    showIslandNotice('🔥 Турбо x2 на 15 сек');
+// Обработчики мини-игр
+function handleRaidClick() {
+    const res = games.executeRaid();
+    notifyDynamicIsland(res.message, 4500);
+}
+
+function setMaxBet() {
+    const maxBet = Math.min(Math.floor(state.balance), 50000);
+    document.getElementById('thimble-bet').value = maxBet;
+}
+
+function handleCupClick(cupIndex) {
+    const bet = parseInt(document.getElementById('thimble-bet').value, 10);
+    const res = games.playThimbles(bet, cupIndex);
+    notifyDynamicIsland(res.message, 4000);
+}
+
+function connectWalletStub() {
+    notifyDynamicIsland("TON Connect подключится перед TGE (листингом)!", 3500);
+}
+
+function saveState() {
+    state.lastSaveTime = Date.now();
+    localStorage.setItem('hobo_state_v1', JSON.stringify(state));
+}
+
+// Синхронизация с твоим Python-бэкендом в папке /api
+async function syncWithServer() {
+    const userId = tg?.initDataUnsafe?.user?.id || 'local_test_user';
+    try {
+        await fetch('/api/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: userId,
+                init_data: tg?.initData || '',
+                balance: Math.floor(state.balance),
+                total_earned: Math.floor(state.totalEarned),
+                cards: state.cards
+            })
+        });
+    } catch (e) {
+        // Если бэкенд еще не поднят, игра спокойно работает локально
+    }
+}
+
+// Инициализация при запуске
+document.addEventListener('DOMContentLoaded', () => {
+    calculateOfflineProfit();
+    updateClock();
     updateUI();
-    setTimeout(() => { turboMult = 1; updateUI(); }, 15000);
-}
 
-function refillFuel() {
-    if (state.refills <= 0) return showIslandNotice('Баки пусты на сегодня');
-    state.refills--;
-    state.energy = state.maxEnergy;
-    playSound('win');
-    showIslandNotice('⛽ Топливо восстановлено');
-    saveState();
-}
-// Авиадиспетчер (15 сек, раз в 10 мин)
-let atcActive = false, atcTarget = 'ЛЕВАЯ', atcScore = 0, atcSec = 15, atcTimer = null;
-
-function nextATCPlane() {
-    atcTarget = Math.random() < 0.5 ? 'ЛЕВАЯ' : 'ПРАВАЯ';
-    const label = atcTarget === 'ЛЕВАЯ' ? 'ПОЛОСА А (Левая)' : 'ПОЛОСА Б (Правая)';
-    document.getElementById('atcPrompt').innerText = '✈️ Борт запрашивает: ' + label;
-}
-
-function startATC() {
-    if (Date.now() - state.lastAtcTime < 10 * 60000) {
-        return showIslandNotice('Смена раз в 10 мин');
+    const tapBtn = document.getElementById('tap-button');
+    if (tapBtn) {
+        tapBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleTap(e);
+        }, { passive: false });
+        tapBtn.addEventListener('mousedown', handleTap);
     }
-    atcActive = true;
-    atcScore = 0;
-    atcSec = 15;
-    document.getElementById('atcStartBtn').style.display = 'none';
-    document.getElementById('atcControls').style.display = 'flex';
-    nextATCPlane();
 
-    atcTimer = setInterval(() => {
-        atcSec--;
-        document.getElementById('atcTimer').innerText = atcSec + 'с';
-        if (atcSec <= 0) {
-            clearInterval(atcTimer);
-            atcActive = false;
-            state.lastAtcTime = Date.now();
-            const reward = atcScore * 5;
-            state.balance += reward;
-            document.getElementById('atcStartBtn').style.display = 'block';
-            document.getElementById('atcControls').style.display = 'none';
-            document.getElementById('atcPrompt').innerText = 'Смена окончена! +' + reward + ' $AERO';
-            playSound('win');
-            saveState();
-        }
-    }, 1000);
-}
-
-function landPlane(side) {
-    if (!atcActive) return;
-    if (side === atcTarget) {
-        atcScore++;
-        playSound('tap');
-        nextATCPlane();
-    } else {
-        playSound('boom');
-        document.getElementById('atcPrompt').innerText = '⚠️ Ошибка полосы!';
-    }
-}
-
-// Империя и Гараж
-const businessItems = [
-    { id: 'b1', name: 'Диспетчерская вышка', baseCost: 120, income: 25 },
-    { id: 'b2', name: 'Топливный терминал', baseCost: 450, income: 85 },
-    { id: 'b3', name: 'Частный аэродром', baseCost: 1500, income: 260 },
-    { id: 'b4', name: 'Грузовые авиалинии', baseCost: 5000, income: 800 },
-    { id: 'b5', name: 'Международный хаб TON', baseCost: 18000, income: 2600 }
-];
-
-const hangarItems = [
-    { id: 'h1', name: 'Тюнинг штурвала', desc: '+1 $AERO за клик', baseCost: 150, type: 'tap', val: 1 },
-    { id: 'h2', name: 'Доп. топливный бак', desc: '+250 к энергии', baseCost: 200, type: 'energy', val: 250 },
-    { id: 'h3', name: 'Бизнес-джет Gulfstream', desc: '+450 $AERO/ч', baseCost: 2800, type: 'pph', val: 450 },
-    { id: 'h4', name: 'Сверхзвуковой лайнер', desc: '+1500 $AERO/ч', baseCost: 11000, type: 'pph', val: 1500 }
-];
-
-function renderShop() {
-    const bizEl = document.getElementById('businessList');
-    if (bizEl) {
-        bizEl.innerHTML = businessItems.map(item => {
-            const lvl = state.bizLevels[item.id] || 0;
-            const cost = Math.floor(item.baseCost * Math.pow(1.45, lvl));
-            return '<div class="ios-card row-between" style="align-items:center;">' +
-                '<div><strong>' + item.name + ' <span style="color:var(--ios-blue); font-size:12px;">Ур. ' + lvl + '</span></strong>' +
-                '<div class="ios-muted" style="margin:2px 0 0;">+' + item.income + ' $AERO/ч</div></div>' +
-                '<button class="ios-btn btn-green" style="flex:0 0 auto;" onclick="buyBusiness(\'' + item.id + '\')">' + cost + ' ✈️</button></div>';
-        }).join('');
-    }
-    const hanEl = document.getElementById('hangarList');
-    if (hanEl) {
-        hanEl.innerHTML = hangarItems.map(item => {
-            const lvl = state.hangarLevels[item.id] || 0;
-            const cost = Math.floor(item.baseCost * Math.pow(1.5, lvl));
-            return '<div class="ios-card row-between" style="align-items:center;">' +
-                '<div><strong>' + item.name + ' <span style="color:var(--ios-orange); font-size:12px;">Ур. ' + lvl + '</span></strong>' +
-                '<div class="ios-muted" style="margin:2px 0 0;">' + item.desc + '</div></div>' +
-                '<button class="ios-btn btn-blue" style="flex:0 0 auto;" onclick="buyHangar(\'' + item.id + '\')">' + cost + ' ✈️</button></div>';
-        }).join('');
-    }
-}
-
-function buyBusiness(id) {
-    const item = businessItems.find(x => x.id === id);
-    const lvl = state.bizLevels[id] || 0;
-    const cost = Math.floor(item.baseCost * Math.pow(1.45, lvl));
-    if (state.balance < cost) return showIslandNotice('Не хватает $AERO');
-    state.balance -= cost;
-    state.bizLevels[id] = lvl + 1;
-    state.passiveHour += item.income;
-    playSound('win');
-    renderShop();
-    saveState();
-}
-
-function buyHangar(id) {
-    const item = hangarItems.find(x => x.id === id);
-    const lvl = state.hangarLevels[id] || 0;
-    const cost = Math.floor(item.baseCost * Math.pow(1.5, lvl));
-    if (state.balance < cost) return showIslandNotice('Не хватает $AERO');
-    state.balance -= cost;
-    state.hangarLevels[id] = lvl + 1;
-    if (item.type === 'tap') state.tapPower += item.val;
-    if (item.type === 'energy') { state.maxEnergy += item.val; state.energy += item.val; }
-    if (item.type === 'pph') state.passiveHour += item.val;
-    playSound('win');
-    renderShop();
-    saveState();
-}
-
-// Аркада
-function selectGame(gameId) {
-    document.getElementById('gamesLobby').style.display = 'none';
-    document.getElementById('activeGameBox').style.display = 'block';
-    document.querySelectorAll('.sub-game').forEach(g => g.style.display = 'none');
-    const target = document.getElementById('game-' + gameId);
-    if (target) target.style.display = 'block';
-    if (gameId === 'mines') initMines();
-}
-
-function closeGame() {
-    document.getElementById('activeGameBox').style.display = 'none';
-    document.getElementById('gamesLobby').style.display = 'grid';
-}
-
-function getValidBet(inputId) {
-    const bet = parseInt(document.getElementById(inputId).value);
-    if (isNaN(bet) || bet < 5 || bet > 300) {
-        showIslandNotice('Ставка от 5 до 300 $AERO');
-        return null;
-    }
-    if (bet > state.balance) {
-        showIslandNotice('Недостаточно $AERO');
-        return null;
-    }
-    return bet;
-}
-
-// 1. Краш
-let crashOn = false, crashTimer = null, crashMult = 1.0, crashBetVal = 0;
-function toggleCrash() {
-    const btn = document.getElementById('crashBtn');
-    const multEl = document.getElementById('crashMult');
-    const stEl = document.getElementById('crashStatus');
-    if (!crashOn) {
-        const bet = getValidBet('crashBet');
-        if (!bet) return;
-        state.balance -= bet;
-        crashBetVal = bet;
-        crashMult = 1.0;
-        crashOn = true;
-        btn.innerText = 'ЗАБРАТЬ';
-        btn.className = 'ios-btn btn-orange';
-        multEl.style.color = 'var(--ios-green)';
-        stEl.innerText = '🚀 Набираем высоту...';
-        saveState();
-        const crashLimit = Math.random() < 0.35 ? 1.08 : Math.min(15, 1.15 + Math.random() * 4.5);
-        crashTimer = setInterval(() => {
-            crashMult += 0.03 + crashMult * 0.012;
-            multEl.innerText = crashMult.toFixed(2) + 'x';
-            if (crashMult >= crashLimit) {
-                clearInterval(crashTimer);
-                crashOn = false;
-                multEl.style.color = 'var(--ios-red)';
-                stEl.innerText = '💥 Ракетка улетела!';
-                btn.innerText = 'ПУСК';
-                btn.className = 'ios-btn btn-green';
-                playSound('boom');
-                saveState();
-            }
-        }, 100);
-    } else {
-        clearInterval(crashTimer);
-        crashOn = false;
-        const win = Math.floor(crashBetVal * crashMult);
-        state.balance += win;
-        stEl.innerText = '✅ Забрал +' + win + ' $AERO';
-        btn.innerText = 'ПУСК';
-        btn.className = 'ios-btn btn-green';
-        playSound('win');
-        saveState();
-    }
-}
-
-// 2. Высотный рейс
-let avOn = false, avTimer = null, avMult = 1.0, avBetVal = 0;
-function toggleAviator() {
-    const btn = document.getElementById('aviatorBtn');
-    const multEl = document.getElementById('aviatorMult');
-    const stEl = document.getElementById('aviatorStatus');
-    if (!avOn) {
-        const bet = getValidBet('aviatorBet');
-        if (!bet) return;
-        state.balance -= bet;
-        avBetVal = bet;
-        avMult = 1.0;
-        avOn = true;
-        btn.innerText = 'ПОСАДКА';
-        btn.className = 'ios-btn btn-orange';
-        multEl.style.color = 'var(--ios-blue)';
-        stEl.innerText = '✈️ Самолет в воздухе...';
-        saveState();
-        const limit = 1.1 + Math.random() * 3.5;
-        avTimer = setInterval(() => {
-            avMult += 0.04;
-            multEl.innerText = avMult.toFixed(2) + 'x';
-            if (avMult >= limit) {
-                clearInterval(avTimer);
-                avOn = false;
-                multEl.style.color = 'var(--ios-red)';
-                stEl.innerText = '💨 Борт пропал с радаров';
-                btn.innerText = 'ВЗЛЕТ';
-                btn.className = 'ios-btn btn-blue';
-                playSound('boom');
-                saveState();
-            }
-        }, 110);
-    } else {
-        clearInterval(avTimer);
-        avOn = false;
-        const win = Math.floor(avBetVal * avMult);
-        state.balance += win;
-        stEl.innerText = '✅ Успешная посадка: +' + win + ' $AERO';
-        btn.innerText = 'ВЗЛЕТ';
-        btn.className = 'ios-btn btn-blue';
-        playSound('win');
-        saveState();
-    }
-}
-
-// 3. Мины 5x5
-let minesOn = false, bombs = [], minesBet = 0, minesMult = 1.0;
-function initMines() {
-    const board = document.getElementById('minesGrid');
-    board.innerHTML = '';
-    for (let i = 0; i < 25; i++) {
-        const tile = document.createElement('div');
-        tile.className = 'mine-cell';
-        tile.innerText = '?';
-        tile.onclick = () => stepMine(i, tile);
-        board.appendChild(tile);
-    }
-}
-
-function toggleMines() {
-    const btn = document.getElementById('minesBtn');
-    if (!minesOn) {
-        const bet = getValidBet('minesBet');
-        if (!bet) return;
-state.balance -= bet;
-minesBet = bet;
-minesMult = 1.0;
-minesOn = true;
-bombs = [];
-while (bombs.length < 5) {
-const r = Math.floor(Math.random() * 25);
-if (!bombs.includes(r)) bombs.push(r);
-}
-initMines();
-btn.innerText = 'ЗАБРАТЬ';
-btn.className = 'ios-btn btn-green';
-document.getElementById('minesMultText').innerText = '1.00x';
-saveState();
-} else {
-minesOn = false;
-const win = Math.floor(minesBet * minesMult);
-state.balance += win;
-btn.innerText = 'ИГРАТЬ';
-btn.className = 'ios-btn btn-orange';
-playSound('win');
-showIslandNotice('Выигрыш: +' + win + ' $AERO');
-saveState();
-}
-}
-function stepMine(idx, tile) {
-if (!minesOn || tile.classList.contains('safe')) return;
-if (bombs.includes(idx)) {
-tile.className = 'mine-cell bomb';
-tile.innerText = '💣';
-minesOn = false;
-document.getElementById('minesBtn').innerText = 'ИГРАТЬ';
-document.getElementById('minesBtn').className = 'ios-btn btn-orange';
-playSound('boom');
-saveState();
-} else {
-tile.className = 'mine-cell safe';
-tile.innerText = '💎';
-minesMult = +(minesMult + 0.25).toFixed(2);
-document.getElementById('minesMultText').innerText = minesMult.toFixed(2) + 'x';
-playSound('tap');
-}
-}
-// 4. Колесо Фортуны
-function spinWheel() {
-const bet = getValidBet('wheelBet');
-if (!bet) return;
-state.balance -= bet;
-const r = Math.random();
-let mult = 0;
-if (r > 0.88) mult = 5;
-else if (r > 0.68) mult = 2;
-else if (r > 0.45) mult = 1.5;
-else if (r > 0.25) mult = 0.5;
-const win = Math.floor(bet * mult);
-state.balance += win;
-const resEl = document.getElementById('wheelRes');
-resEl.innerText = mult > 0 ? (mult + 'x • +' + win + ' $AERO') : '0x • МИМО';
-resEl.style.color = mult >= 1.5 ? 'var(--ios-green)' : 'var(--ios-red)';
-playSound(mult >= 1.5 ? 'win' : 'boom');
-saveState();
-}
-// 5. Кейс Пилота
-function openPilotCase() {
-if (state.balance < 50) return showIslandNotice('Нужно 50 $AERO');
-state.balance -= 50;
-const prize = Math.floor(15 + Math.random() * 135);
-state.balance += prize;
-const resEl = document.getElementById('caseRes');
-resEl.innerText = '🎁 ВЫПАЛО: +' + prize + ' $AERO';
-resEl.style.color = prize >= 50 ? 'var(--ios-green)' : 'var(--ios-orange)';
-playSound(prize >= 50 ? 'win' : 'tap');
-saveState();
-}
-// 6. Орел / Решка
-function playCoin(choice) {
-const bet = getValidBet('coinBet');
-if (!bet) return;
-state.balance -= bet;
-const result = Math.random() < 0.48 ? choice : (choice === 'ОРЕЛ' ? 'РЕШКА' : 'ОРЕЛ');
-const resEl = document.getElementById('coinResult');
-if (result === choice) {
-const win = bet * 2;
-state.balance += win;
-resEl.innerText = result + '! +' + win + ' $AERO';
-resEl.style.color = 'var(--ios-green)';
-playSound('win');
-} else {
-resEl.innerText = 'ВЫПАЛ ' + result;
-resEl.style.color = 'var(--ios-red)';
-playSound('boom');
-}
-saveState();
-}
-// Сейф 24ч (🚀 → 🧭 → 📡 → ⚡)
-let safeInput = '';
-function pressSafeBtn(sym) {
-if (Date.now() - state.lastSafe24 < 24 * 3600000) {
-return showIslandNotice('Сейф уже открыт сегодня');
-}
-safeInput += sym;
-playSound('tap');
-document.getElementById('safeDisplay').innerText = safeInput;
-if (Array.from(safeInput).length === 4) {
-if (safeInput === '🚀🧭📡⚡') {
-state.lastSafe24 = Date.now();
-state.balance += 300;
-playSound('win');
-saveState();
-showIslandNotice('🔐 Сейф открыт: +300 $AERO');
-} else {
-playSound('boom');
-showIslandNotice('❌ Неверный порядок');
-}
-safeInput = '';
-document.getElementById('safeDisplay').innerText = '_ _ _ _';
-}
-}
-// Рефералы, TON, паек и шифры
-function copyRefLink() {
-const link = getRefLink();
-if (navigator.clipboard) navigator.clipboard.writeText(link);
-showIslandNotice('📋 Ссылка скопирована');
-}
-function claimRefBonus() {
-if (Date.now() - state.lastRefBonus < 12 * 3600000) {
-return showIslandNotice('Бонус раз в 12 часов');
-}
-state.balance += 200;
-state.lastRefBonus = Date.now();
-playSound('win');
-saveState();
-showIslandNotice('+200 $AERO за экипаж');
-}
-function saveTonWallet() {
-const addr = document.getElementById('tonAddressInput').value.trim();
-if (addr.length < 20) return showIslandNotice('Неверный адрес TON');
-state.tonWallet = addr;
-playSound('win');
-saveState();
-showIslandNotice('Кошелек TON сохранен');
-}
-function claimDaily() {
-if (Date.now() - state.lastDaily < 24 * 3600000) return showIslandNotice('Паек уже получен');
-state.balance += 120;
-state.lastDaily = Date.now();
-playSound('win');
-saveState();
-showIslandNotice('+120 $AERO получено');
-}
-const secretCodes = {
-'AERO2026': 250,
-'IPHONE': 200,
-'TONJET': 200,
-'PILOT': 150
-};
-function activateSecretCode() {
-const input = document.getElementById('secretCodeInput');
-const code = input.value.trim().toUpperCase();
-if (!secretCodes[code]) return showIslandNotice('Неверный шифр');
-if (state.usedCodes.includes(code)) return showIslandNotice('Шифр уже использован');
-state.usedCodes.push(code);
-state.balance += secretCodes[code];
-input.value = '';
-playSound('win');
-saveState();
-showIslandNotice('+' + secretCodes[code] + ' $AERO за шифр');
-}
+// Игровой тик каждую секунду (пассивный доход + реген энергии)
 setInterval(() => {
-if (heatLevel > 0) heatLevel = Math.max(0, heatLevel - 8);
-if (state.energy < state.maxEnergy) state.energy = Math.min(state.maxEnergy, state.energy + 1.5);
-if (state.passiveHour > 0) state.balance += state.passiveHour / 3600;
+const profitPerSec = empire.getTotalProfitPerHour() / 3600;
+if (profitPerSec > 0) {
+state.balance += profitPerSec;
+state.totalEarned += profitPerSec;
+}
+if (state.energy < state.maxEnergy) {
+state.energy = Math.min(state.maxEnergy, state.energy + 2);
+}
 updateUI();
 }, 1000);
-setInterval(saveState, 5000);
-renderShop();
-updateUI();
+// Автосохранение и синхронизация с сервером каждые 10 секунд
+setInterval(() => {
+saveState();
+syncWithServer();
+}, 10000);
+setInterval(updateClock, 15000);
+});
