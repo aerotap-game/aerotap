@@ -465,3 +465,125 @@ body {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.25; transform: scale(0.75); }
 }
+/* Живые переливающиеся обои iOS + звёзды */
+.iphone-frame {
+    background-size: 200% 200% !important;
+    animation: iosWallpaperShift 14s ease infinite !important;
+}
+
+@keyframes iosWallpaperShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.iphone-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(2px 2px at 40px 60px, #fff, transparent),
+        radial-gradient(2px 2px at 140px 180px, #38bdf8, transparent),
+        radial-gradient(1.5px 1.5px at 260px 90px, #fff, transparent),
+        radial-gradient(2px 2px at 340px 240px, #30d158, transparent);
+    background-size: 400px 400px;
+    opacity: 0.35;
+    animation: starsDrift 25s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes starsDrift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-400px); }
+}
+
+/* Живое покачивание иконок iOS и блик */
+.ios-icon {
+    position: relative;
+    overflow: hidden;
+    animation: iconFloat 4s ease-in-out infinite;
+}
+
+.ios-app:nth-child(even) .ios-icon { animation-delay: 1.5s; }
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.ios-icon::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 40%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: rotate(25deg);
+    animation: iconShine 5s infinite;
+}
+
+@keyframes iconShine {
+    0%, 75% { left: -60%; }
+    100% { left: 140%; }
+}
+
+/* Анимация реактивной турбины и ударная волна при клике */
+.ios-turbine {
+    animation: turbinePulse 2.5s infinite ease-in-out;
+}
+
+@keyframes turbinePulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(10, 132, 255, 0.4), inset 0 0 20px rgba(48, 209, 88, 0.2); }
+    50% { box-shadow: 0 0 55px rgba(10, 132, 255, 0.75), inset 0 0 35px rgba(48, 209, 88, 0.45); }
+}
+
+.t-plane {
+    display: inline-block;
+    animation: planeHover 2s ease-in-out infinite;
+    filter: drop-shadow(0 8px 12px rgba(10, 132, 255, 0.6));
+}
+
+@keyframes planeHover {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-8px) rotate(4deg); }
+}
+
+.tap-ripple {
+    position: fixed;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #30d158;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.5);
+    animation: rippleExpand 0.55s ease-out forwards;
+    z-index: 98;
+}
+
+@keyframes rippleExpand {
+    to { opacity: 0; transform: translate(-50%, -50%) scale(4.5); }
+}
+
+/* Взлётная полоса с бегущими огнями для игр */
+.atc-screen {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #050814 0%, #0d1b36 100%) !important;
+}
+
+.atc-screen::after {
+    content: "";
+    position: absolute;
+    bottom: 6px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, #38bdf8 0px, #38bdf8 12px, transparent 12px, transparent 24px);
+    animation: runwayLights 1s linear infinite;
+}
+
+@keyframes runwayLights {
+    from { background-position: 0 0; }
+    to { background-position: 24px 0; }
+}
