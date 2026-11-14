@@ -1,5 +1,3 @@
-// app.js — Главный движок "Бомж Инвестор" ($HOBO) [Полная сборка с Казино]
-
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) {
     tg.expand();
@@ -7,7 +5,6 @@ if (tg) {
     tg.setHeaderColor('#000000');
 }
 
-// Звуковой движок (Web Audio API)
 let soundOn = true;
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 const audioCtx = AudioCtx ? new AudioCtx() : null;
@@ -56,8 +53,7 @@ function playSound(type) {
     } catch (e) {}
 }
 
-// Состояние игрока
-let state = JSON.parse(localStorage.getItem('hobo_state_v1')) || {
+let state = JSON.parse(localStorage.getItem('hobo_os_v2')) || {
     balance: 0,
     totalEarned: 0,
     energy: 1000,
@@ -76,65 +72,60 @@ const games = new HoboGames(state, empire, () => {
 let currentCategory = 'street';
 let islandTimer = null;
 let lastTapTimestamp = 0;
+let isUnlocked = false;
 
-// Расчет офлайн-заработка (максимум за 3 часа отсутствия)
-function calculateOfflineProfit() {
-    const now = Date.now();
-    const diffSec = Math.floor((now - (state.lastSaveTime || now)) / 1000);
-    if (diffSec > 10) {
-        const cappedSec = Math.min(diffSec, 3 * 3600);
-        const profitPerSec = empire.getTotalProfitPerHour() / 3600;
-        const offlineEarned = Math.floor(profitPerSec * cappedSec);
-
-        state.energy = Math.min(state.maxEnergy, state.energy + cappedSec * 2);
-
-        if (offlineEarned > 0) {
-            state.balance += offlineEarned;
-            state.totalEarned += offlineEarned;
-            notifyDynamicIsland(`Пока тебя не было, накапало +${offlineEarned.toLocaleString()} $HOBO!`, 5000);
-        }
-    }
-    state.lastSaveTime = now;
+function unlockPhone() {
+    isUnlocked = true;
+    document.getElementById('lock-screen').classList.add('unlocked');
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    notifyDynamicIsland("iPhone разблокирован! Выбери приложение.", 3000);
 }
 
-// Управление Dynamic Island
+function lockPhone() {
+    isUnlocked = false;
+    goHome();
+    document.getElementById('lock-screen').classList.remove('unlocked');
+}
+
+function openApp(appId) {
+    document.querySelectorAll('.ios-app-window').forEach(w => w.classList.remove('open'));
+    const target = document.getElementById(appId);
+    if (target) target.classList.add('open');
+    if (appId === 'app-empire') renderCurrentCards();
+    if (appId === 'app-casino') initMinesBoard();
+}
+
+function goHome() {
+    document.querySelectorAll('.ios-app-window').forEach(w => w.classList.remove('open'));
+}
+
+function handleHomeBarClick() {
+    if (!isUnlocked) {
+        unlockPhone();
+    } else {
+        goHome();
+    }
+}
+
 function toggleIslandExpand() {
-    const island = document.getElementById('dynamic-island');
-    if (island) island.classList.toggle('expanded');
+    document.getElementById('dynamic-island')?.classList.toggle('expanded');
 }
 
 function notifyDynamicIsland(text, duration = 3500) {
     const island = document.getElementById('dynamic-island');
     const alertBox = document.getElementById('island-notification');
     if (!island || !alertBox) return;
-
     alertBox.innerText = text;
     island.classList.add('expanded');
-
     if (islandTimer) clearTimeout(islandTimer);
-    islandTimer = setTimeout(() => {
-        island.classList.remove('expanded');
-    }, duration);
+    islandTimer = setTimeout(() => island.classList.remove('expanded'), duration);
 }
-
-// Живые часы iOS в статус-баре
-function updateClock() {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const clockEl = document.getElementById('ios-clock');
-    if (clockEl) clockEl.innerText = `${h}:${m}`;
-}
-
-// Обработка Тапа
 function handleTap(e) {
     const now = Date.now();
     if (now - lastTapTimestamp < 35) return;
     lastTapTimestamp = now;
 
-    const rank = empire.getCurrentRank();
-    const power = rank.tapPower;
-
+    const power = empire.getCurrentRank().tapPower;
     if (state.energy < power) {
         notifyDynamicIsland("Энергия на нуле! Подожди пару секунд.", 2000);
         return;
@@ -143,218 +134,179 @@ function handleTap(e) {
     state.energy -= power;
     state.balance += power;
     state.totalEarned += power;
-
     playSound('tap');
-    if (tg?.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred('light');
-    }
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
     const touch = e.touches ? e.touches : e;
     if (touch) {
-        spawnFloatingText(touch.clientX, touch.clientY, `+${power}`);
+        const el = document.createElement('div');
+        el.className = 'floating-plus';
+        el.innerText = `+${power}`;
+        el.style.left = `${touch.clientX - 15}px`;
+        el.style.top = `${touch.clientY - 25}px`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 800);
     }
-
     updateUI();
 }
 
-function spawnFloatingText(x, y, text) {
-    const el = document.createElement('div');
-    el.className = 'floating-plus';
-    el.innerText = text;
-    el.style.left = `${x - 15}px`;
-    el.style.top = `${y - 25}px`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 800);
-}
-
-// Обновление интерфейса
 function updateUI() {
     const rank = empire.getCurrentRank();
     const nextRank = HOBO_RANKS.find(r => r.level === rank.level + 1);
-    const profitPerHour = empire.getTotalProfitPerHour();
-    const realTokens = empire.getEstimatedRealTokens();
+    const profit = empire.getTotalProfitPerHour();
+    const balText = Math.floor(state.balance).toLocaleString();
 
-    document.getElementById('balance-display').innerText = Math.floor(state.balance).toLocaleString();
-    document.getElementById('real-token-display').innerText = realTokens;
-    document.getElementById('stat-balance').innerText = Math.floor(state.balance).toLocaleString();
-    document.getElementById('stat-real').innerText = `${realTokens} $HOBO`;
+    document.getElementById('home-balance').innerText = balText;
+    document.getElementById('tap-balance').innerText = balText;
+    document.getElementById('empire-bal-mini').innerText = balText;
+    document.getElementById('casino-bal-mini').innerText = balText;
+    document.getElementById('drop-balance').innerText = balText;
+    document.getElementById('island-balance').innerText = balText;
 
-    document.getElementById('rank-icon').innerText = rank.icon;
-    document.getElementById('rank-name').innerText = rank.name;
+    document.getElementById('home-profit').innerText = `+${profit.toLocaleString()} / ч`;
+    document.getElementById('drop-profit').innerText = `+${profit.toLocaleString()}/ч`;
+    document.getElementById('island-profit-badge').innerText = `+${profit.toLocaleString()}/ч`;
+    document.getElementById('island-defense').innerText = `${empire.getTotalDefense()} 🛡️`;
+    document.getElementById('raid-def-val').innerText = `${empire.getTotalDefense()} 🛡️`;
+
+    document.getElementById('widget-rank-icon').innerText = rank.icon;
+    document.getElementById('widget-rank-name').innerText = rank.name;
     document.getElementById('tap-avatar').innerText = rank.icon;
-    document.getElementById('tap-power-display').innerText = rank.tapPower;
+    document.getElementById('tap-power').innerText = rank.tapPower;
 
-    let progress = 100;
-    if (nextRank) {
-        const range = nextRank.minEarned - rank.minEarned;
-        const current = state.totalEarned - rank.minEarned;
-        progress = Math.min(100, Math.max(5, (current / range) * 100));
-    }
-    document.getElementById('rank-progress').style.width = `${progress}%`;
+    let prog = 100;
+    if (nextRank) prog = Math.min(100, Math.max(5, ((state.totalEarned - rank.minEarned) / (nextRank.minEarned - rank.minEarned)) * 100));
+    document.getElementById('rank-progress').style.width = `${prog}%`;
 
     document.getElementById('energy-current').innerText = Math.floor(state.energy);
     document.getElementById('energy-max').innerText = state.maxEnergy;
     document.getElementById('energy-fill').style.width = `${(state.energy / state.maxEnergy) * 100}%`;
-
-    document.getElementById('island-profit-badge').innerText = `+${profitPerHour.toLocaleString()}/ч`;
-    document.getElementById('island-real-tokens').innerText = `${realTokens} $HOBO`;
-    document.getElementById('island-defense').innerText = `${empire.getTotalDefense()} 🛡️`;
-}
-
-// Переключение вкладок
-function switchTab(tabName, btnEl) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.dock-item').forEach(b => b.classList.remove('active'));
-
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    btnEl.classList.add('active');
-
-    if (tabName === 'empire') {
-        renderCurrentCards();
-    }
 }
 
 function renderCurrentCards() {
-    empire.renderCards(currentCategory, 'cards-container', () => {
-        saveState();
-        updateUI();
-        renderCurrentCards();
-    });
+    empire.renderCards(currentCategory, 'cards-container', () => { saveState(); updateUI(); renderCurrentCards(); });
 }
 
-function switchCategory(cat, btnEl) {
+function switchCategory(cat, btn) {
     currentCategory = cat;
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    btnEl.classList.add('active');
+    btn.classList.add('active');
     renderCurrentCards();
 }
 
-// === МИНИ-ИГРЫ И КАЗИНО ===
-
-function handleRaidClick() {
-    const res = games.executeRaid();
-    notifyDynamicIsland(res.message, 4500);
+function switchCasinoGame(gameId, btn) {
+    document.querySelectorAll('.casino-game-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.c-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById(`game-${gameId}`).classList.add('active');
+    btn.classList.add('active');
 }
 
-function setMaxBet() {
-    const maxBet = Math.min(Math.floor(state.balance), 50000);
-    document.getElementById('thimble-bet').value = maxBet;
-}
+function getGlobalBet() { return parseInt(document.getElementById('global-bet').value, 10) || 0; }
+function multBet(m) { document.getElementById('global-bet').value = Math.min(Math.floor(state.balance), getGlobalBet() * m); }
+function setMaxBet() { document.getElementById('global-bet').value = Math.min(Math.floor(state.balance), 100000); }
 
-function setBetMax(inputId) {
-    const maxBet = Math.min(Math.floor(state.balance), 50000);
-    const input = document.getElementById(inputId);
-    if (input) input.value = maxBet;
-}
-
-function handleCupClick(cupIndex) {
-    const bet = parseInt(document.getElementById('thimble-bet').value, 10);
-    const res = games.playThimbles(bet, cupIndex);
-    notifyDynamicIsland(res.message, 4000);
-}
-
-// Обработчик Крипто-Ракетки (Старт / Забрать выигрыш)
-function handleCrashButton() {
-    const btn = document.getElementById('crash-btn');
-    const screen = document.getElementById('crash-screen');
-    const multEl = document.getElementById('crash-mult');
-    const rocketEl = document.getElementById('crash-rocket');
-
+function uiCrashAction() {
+    const btn = document.getElementById('crash-btn'), scr = document.getElementById('crash-screen'), mult = document.getElementById('crash-mult'), rkt = document.getElementById('crash-rocket');
     if (games.crashActive) {
         const res = games.cashoutCrash();
-        if (res.success) {
-            btn.innerText = "Запустить ракету";
-            btn.classList.remove('cashout-mode');
-            rocketEl.innerText = "💰";
-            notifyDynamicIsland(res.message, 4000);
-        }
+        btn.innerText = "Запустить ракету"; btn.classList.remove('cashout-mode'); rkt.innerText = "💰";
+        notifyDynamicIsland(res.message, 3500);
         return;
     }
+    const bet = getGlobalBet();
+    scr.classList.remove('crashed'); rkt.innerText = "🚀"; mult.innerText = "1.00x";
+    const start = games.startCrash(bet,
+        (m) => { mult.innerText = `${m.toFixed(2)}x`; btn.innerText = `Забрать ${Math.floor(bet * m).toLocaleString()}`; },
+        (c) => { scr.classList.add('crashed'); rkt.innerText = "💥"; mult.innerText = `СКАМ ${c.toFixed(2)}x`; btn.innerText = "Запустить ракету"; btn.classList.remove('cashout-mode'); notifyDynamicIsland(`Скам на ${c.toFixed(2)}x!`, 3500); }
+    );
+    if (!start.success) notifyDynamicIsland(start.message, 2500);
+    else { btn.classList.add('cashout-mode'); btn.innerText = `Забрать ${bet}`; }
+}
 
-    const bet = parseInt(document.getElementById('crash-bet').value, 10);
-    screen.classList.remove('crashed');
-    rocketEl.innerText = "🚀";
-    multEl.innerText = "1.00x";
+function initMinesBoard() {
+    const grid = document.getElementById('mines-grid');
+    grid.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'mine-cell'; btn.innerText = '❓';
+        btn.onclick = () => {
+            const res = games.stepMine(i);
+            if (!res.success) return notifyDynamicIsland(res.message, 2000);
+            if (res.boom) {
+                btn.classList.add('boom'); btn.innerText = '💣';
+                document.getElementById('mines-btn').innerText = "Начать игру (3 мины)";
+                notifyDynamicIsland(res.message, 3500);
+            } else {
+                btn.classList.add('safe'); btn.innerText = '💎'; btn.disabled = true;
+                document.getElementById('mines-mult').innerText = `${res.mult}x`;
+                document.getElementById('mines-win').innerText = res.win.toLocaleString();
+                document.getElementById('mines-btn').innerText = `Забрать ${res.win.toLocaleString()}`;
+            }
+        };
+        grid.appendChild(btn);
+    }
+}
 
-    const startRes = games.startCrash(
-        bet,
-        (currentMult) => {
-            multEl.innerText = `${currentMult.toFixed(2)}x`;
-            const potentialWin = Math.floor(bet * currentMult);
-            btn.innerText = `Забрать ${potentialWin.toLocaleString()} $HOBO`;
-        },
-        (crashedAt) => {
-            screen.classList.add('crashed');
-            rocketEl.innerText = "💥";
-            multEl.innerText = `СКАМ на ${crashedAt.toFixed(2)}x`;
-            btn.innerText = "Запустить ракету";
-            btn.classList.remove('cashout-mode');
-            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-notifyDynamicIsland(Разраб соскамил токен на ${crashedAt.toFixed(2)}x! Ставка сгорела., 4000);
+function uiMinesAction() {
+    if (games.minesActive) {
+        const res = games.cashoutMines();
+        if (res.success) { document.getElementById('mines-btn').innerText = "Начать игру (3 мины)"; initMinesBoard(); }
+        return notifyDynamicIsland(res.message, 3000);
+    }
+    const res = games.startMines(getGlobalBet());
+    if (!res.success) return notifyDynamicIsland(res.message, 2500);
+    initMinesBoard();
+    document.getElementById('mines-mult').innerText = "1.00x";
+    document.getElementById('mines-win').innerText = "0";
+    document.getElementById('mines-btn').innerText = "Выбери клетку...";
 }
-);
-if (!startRes.success) {
-notifyDynamicIsland(startRes.message, 3000);
-} else {
-btn.classList.add('cashout-mode');
-btn.innerText = Забрать ${bet} $HOBO;
+
+function uiPlaySlots() {
+    const res = games.playSlots(getGlobalBet());
+    if (!res.success) return notifyDynamicIsland(res.message, 2500);
+    [1, 2, 3].forEach((n, idx) => document.getElementById(`reel-${n}`).innerText = res.reels[idx]);
+    notifyDynamicIsland(res.message, 3500);
 }
+
+function uiPlayCoin(side) {
+    const res = games.playCoin(getGlobalBet(), side);
+    if (!res.success) return notifyDynamicIsland(res.message, 2500);
+    document.getElementById('coin-visual').innerText = res.side === 'orel' ? '🦅' : '👑';
+    notifyDynamicIsland(res.message, 3500);
 }
-// Обработчик Слотов (Однорукий Бомж)
-function handleSlotsSpin() {
-const bet = parseInt(document.getElementById('slots-bet').value, 10);
-const reels = [
-document.getElementById('reel-1'),
-document.getElementById('reel-2'),
-document.getElementById('reel-3')
-];
-const res = games.playSlots(bet);
-if (!res.success) {
-notifyDynamicIsland(res.message, 3000);
-return;
+
+function uiPlayCups(idx) {
+    const res = games.playThimbles(getGlobalBet(), idx);
+    notifyDynamicIsland(res.message, 3500);
 }
-reels.forEach(r => r.classList.add('spinning'));
-setTimeout(() => {
-reels.forEach((r, idx) => {
-r.classList.remove('spinning');
-r.innerText = res.reels[idx];
-});
-notifyDynamicIsland(res.message, 4000);
-}, 500);
+
+function uiExecuteRaid() { notifyDynamicIsland(games.executeRaid().message, 4000); }
+function saveState() { state.lastSaveTime = Date.now(); localStorage.setItem('hobo_os_v2', JSON.stringify(state)); }
+
+function updateClocks() {
+    const d = new Date(), t = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    document.getElementById('ios-clock').innerText = t;
+    document.getElementById('lock-clock').innerText = t;
 }
-function connectWalletStub() {
-notifyDynamicIsland("TON Connect подключится перед TGE (листингом)!", 3500);
-}
-function saveState() {
-state.lastSaveTime = Date.now();
-localStorage.setItem('hobo_state_v1', JSON.stringify(state));
-}
-// Запуск приложения
+
 document.addEventListener('DOMContentLoaded', () => {
-calculateOfflineProfit();
-updateClock();
-updateUI();
-const tapBtn = document.getElementById('tap-button');
-if (tapBtn) {
-tapBtn.addEventListener('touchstart', (e) => {
-e.preventDefault();
-handleTap(e);
-}, { passive: false });
-tapBtn.addEventListener('mousedown', handleTap);
-}
-// Игровой цикл (каждую секунду)
-setInterval(() => {
-const profitPerSec = empire.getTotalProfitPerHour() / 3600;
-if (profitPerSec > 0) {
-state.balance += profitPerSec;
-state.totalEarned += profitPerSec;
-}
-if (state.energy < state.maxEnergy) {
-state.energy = Math.min(state.maxEnergy, state.energy + 2);
-}
-updateUI();
-}, 1000);
-// Автосохранение каждые 5 секунд
-setInterval(saveState, 5000);
-setInterval(updateClock, 15000);
+    const diff = Math.min(Math.floor((Date.now() - (state.lastSaveTime || Date.now())) / 1000), 10800);
+    if (diff > 10) {
+        const earned = Math.floor((empire.getTotalProfitPerHour() / 3600) * diff);
+        state.energy = Math.min(state.maxEnergy, state.energy + diff * 2);
+        if (earned > 0) { state.balance += earned; state.totalEarned += earned; }
+    }
+    updateClocks(); updateUI(); initMinesBoard();
+
+    const tapBtn = document.getElementById('tap-button');
+    tapBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleTap(e); }, { passive: false });
+    tapBtn.addEventListener('mousedown', handleTap);
+
+    setInterval(() => {
+        const p = empire.getTotalProfitPerHour() / 3600;
+        if (p > 0) { state.balance += p; state.totalEarned += p; }
+        if (state.energy < state.maxEnergy) state.energy = Math.min(state.maxEnergy, state.energy + 2);
+        updateUI();
+    }, 1000);
+    setInterval(() => { saveState(); updateClocks(); }, 5000);
 });
