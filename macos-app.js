@@ -191,16 +191,45 @@ window.claimDailySupply = function() {
     alert('🪂 Груз получен: +1 500 $AERO!');
 };
 
+const STARS_API_URL = 'https://vercel.app';
+
 window.buyVipStars = function(tier, stars, bonusCoins, mult) {
-    if (confirm(`Оформить статус VIP за ${stars} Telegram Stars?\nБонус: +${bonusCoins.toLocaleString('ru-RU')} $AERO и множитель дохода x${mult}!`)) {
+    function activateVipReward() {
         state.vipTier = tier;
         state.vipMult = mult;
         state.balance += bonusCoins;
         if (typeof recalcEmpireIncome === 'function') recalcEmpireIncome();
         playSound('win');
         saveState();
-        alert(`👑 VIP-статус активирован! Доход умножен на x${mult}, начислено +${bonusCoins.toLocaleString('ru-RU')} $AERO!`);
+        alert('👑 Оплата ' + stars + ' Stars прошла успешно! Активирован VIP (x' + mult + ') и начислено +' + bonusCoins.toLocaleString('ru-RU') + ' $AERO!');
     }
+
+    if (!window.Telegram || !window.Telegram.WebApp || !window.Telegram.WebApp.openInvoice) {
+        return alert('Открой игру внутри Telegram, чтобы оплатить через Telegram Stars!');
+    }
+
+    fetch(STARS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: tier, stars: stars })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.invoice_link) {
+            window.Telegram.WebApp.openInvoice(data.invoice_link, function(status) {
+                if (status === 'paid') {
+                    activateVipReward();
+                } else if (status === 'failed') {
+                    alert('❌ Ошибка при оплате Stars.');
+                }
+            });
+        } else {
+            alert('Не удалось создать счет на оплату. Проверь токен бота в api/invoice.js.');
+        }
+    })
+    .catch(function() {
+        alert('Сервер оплаты временно недоступен.');
+    });
 };
 
 window.changeCallsign = function() {
