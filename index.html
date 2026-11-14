@@ -357,30 +357,55 @@
         </section>
 
 
-                <!-- ВКЛАДКА 4: ЗАДАНИЯ -->
+                        <!-- ВКЛАДКА 4: ИМПЕРИЯ (БИЗНЕСЫ + 50 АВТО + ПЕРЕКУПЫ + 1 ДЕКАБРЯ) -->
         <section id="tab-tasks" class="screen">
-            <div class="panel">
-                <b>📋 БОЕВЫЕ ЗАДАНИЯ</b>
-                <div class="task-row">
-                    <div>
-                        <b>Подписка на Telegram-канал</b>
-                        <div class="sub-txt">Награда: +1 000 $AERO</div>
-                    </div>
-                    <button class="big-btn btn-cyan sm-btn" onclick="claimTask('tg', 1000)">Забрать</button>
+            <div class="mode-tabs-scroll">
+                <button class="m-tab active" onclick="switchEmpireTab('biz', this)">🏢 Бизнесы</button>
+                <button class="m-tab" onclick="switchEmpireTab('cars', this)">🚘 Автосалон (50)</button>
+                <button class="m-tab" onclick="switchEmpireTab('market', this)">🤝 Перекупы</button>
+                <button class="m-tab" onclick="switchEmpireTab('airdrop', this)">💎 1 Декабря</button>
+            </div>
+
+            <!-- Подраздел 1: Бизнесы -->
+            <div id="emp-biz" class="emp-box">
+                <div class="panel">
+                    <div class="panel-head"><b>🏢 БИЗНЕС-ИМПЕРИЯ</b><span class="tag-cyan" id="bizIncomeBadge">+0/ч</span></div>
+                    <div id="bizList"></div>
                 </div>
-                <div class="task-row">
-                    <div>
-                        <b>Поставить позывной пилота</b>
-                        <div class="sub-txt">Награда: +500 $AERO</div>
+            </div>
+
+            <!-- Подраздел 2: Автосалон (50 машин) -->
+            <div id="emp-cars" class="emp-box" style="display:none;">
+                <div class="panel">
+                    <div class="panel-head"><b>🚘 АВТОСАЛОН И ГАРАЖ</b><span class="tag-gold" id="respectBadge">Влияние: 0</span></div>
+                    <div class="mode-tabs-scroll" style="margin-bottom:8px;">
+                        <button class="m-tab active" onclick="filterCars('all', this)">Все (50)</button>
+                        <button class="m-tab" onclick="filterCars('low', this)">🚗 Тазы</button>
+                        <button class="m-tab" onclick="filterCars('mid', this)">🚙 Средний</button>
+                        <button class="m-tab" onclick="filterCars('prem', this)">🏎️ Мерсы/Бэхи</button>
+                        <button class="m-tab" onclick="filterCars('lux', this)">👑 Люкс/Ройс</button>
                     </div>
-                    <button class="big-btn btn-orange sm-btn" onclick="claimTask('nick', 500)">Забрать</button>
+                    <div id="carList"></div>
                 </div>
-                <div class="task-row">
-                    <div>
-                        <b>Сделать 50 кликов по штурвалу</b>
-                        <div class="sub-txt">Награда: +750 $AERO</div>
-                    </div>
-                    <button class="big-btn btn-gold sm-btn" onclick="claimTask('taps', 750)">Забрать</button>
+            </div>
+
+            <!-- Подраздел 3: Биржа перекупов -->
+            <div id="emp-market" class="emp-box" style="display:none;">
+                <div class="panel">
+                    <div class="panel-head"><b>🤝 БИРЖА ПЕРЕПРОДАЖИ</b><span class="tag-orange">КОМИССИЯ 5%</span></div>
+                    <p class="sub-txt" style="margin-bottom:8px;">Скупай тачки по низу рынка или выставляй свои с наценкой!</p>
+                    <div id="marketList"></div>
+                </div>
+            </div>
+
+            <!-- Подраздел 4: Листинг 1 декабря -->
+            <div id="emp-airdrop" class="emp-box" style="display:none;">
+                <div class="panel">
+                    <div class="panel-head"><b>💎 ДРОП МЕМ-КОИНА $AERO</b><span class="tag-gold">1 ДЕКАБРЯ</span></div>
+                    <p class="sub-txt" style="margin:6px 0 10px;">Размер дропа 1 декабря зависит от твоего баланса, бизнесов и автопарка.</p>
+                    <input type="text" id="tonWalletInput" class="bet-field" style="width:100%; margin-bottom:8px;" placeholder="Адрес TON-кошелька (UQ...)">
+                    <button class="big-btn btn-cyan" onclick="saveTonWallet()" id="walletBtn">ПРИВЯЗАТЬ КОШЕЛЕК</button>
+                    <div id="walletStatus" class="status-line">Кошелек не привязан</div>
                 </div>
             </div>
         </section>
