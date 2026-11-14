@@ -219,13 +219,13 @@ window.maxBet = function(id) {
 // === ИМПЕРИЯ: БИЗНЕСЫ И 50 АВТО ===
 
 const businessesData = new Array(
-    { id: 'wash', name: '🚿 Автомойка 24/7', cost: 2000, inc: 300 },
-    { id: 'tire', name: '🛞 Шиномонтаж на районе', cost: 8000, inc: 1100 },
-    { id: 'detail', name: '✨ Детейлинг-студия', cost: 25000, inc: 3500 },
-    { id: 'service', name: '🔧 Автосервис и тюнинг', cost: 75000, inc: 10500 },
-    { id: 'rental', name: '🚘 Прокат элитных авто', cost: 650000, inc: 88000 },
-    { id: 'salon', name: '🏢 Автосалон Премиум', cost: 1800000, inc: 245000 },
-    { id: 'oil', name: '🛢️ Нефтяная вышка', cost: 5000000, inc: 700000 }
+    { id: 'wash', name: '🚿 Автомойка 24/7', cost: 2500, inc: 60 },
+    { id: 'tire', name: '🛞 Шиномонтаж на районе', cost: 10000, inc: 220 },
+    { id: 'detail', name: '✨ Детейлинг-студия', cost: 30000, inc: 700 },
+    { id: 'service', name: '🔧 Автосервис и тюнинг', cost: 90000, inc: 2100 },
+    { id: 'rental', name: '🚘 Прокат элитных авто', cost: 750000, inc: 17500 },
+    { id: 'salon', name: '🏢 Автосалон Премиум', cost: 2000000, inc: 49000 },
+    { id: 'oil', name: '🛢️ Нефтяная вышка', cost: 6000000, inc: 140000 }
 );
 
 const carsCatalog = new Array(
