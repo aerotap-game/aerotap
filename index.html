@@ -6,16 +6,13 @@
     <title>HoboOS | $HOBO</title>
     <script src="https://telegram.org"></script>
     <script src="https://adsgram.ai"></script>
-    <link rel="stylesheet" href="style.css?v=12">
+    <link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
     <div class="iphone-frame">
         <header class="ios-status-bar">
-            <span class="ios-time" id="ios-clock">00:44</span>
-            <div class="dynamic-island-static">
-                <span class="island-dot"></span>
-                <span>$HOBO OS</span>
-            </div>
+            <span class="ios-time" id="ios-clock">00:47</span>
+            <div class="dynamic-island-static"><span class="island-dot"></span><span>$HOBO OS</span></div>
             <div class="ios-icons"><span>5G</span> <span>🔋</span></div>
         </header>
 
@@ -24,7 +21,7 @@
         <div id="lock-screen" class="lock-screen active">
             <div class="lock-top">
                 <div class="lock-padlock">🔒</div>
-                <div class="lock-big-time" id="lock-clock">00:44</div>
+                <div class="lock-big-time" id="lock-clock">00:47</div>
                 <div class="lock-date">Воскресенье, 15 ноября</div>
             </div>
             <div class="lock-notifications">
@@ -34,7 +31,7 @@
                 </div>
             </div>
             <div class="unlock-shelf" id="unlock-shelf" onclick="unlockPhone()">
-                <div class="unlock-shelf-text">Нажми или смахни вверх по полочке</div>
+                <div class="unlock-shelf-text">Смахни вверх или нажми на полочку</div>
                 <div class="unlock-pill"></div>
             </div>
         </div>
@@ -58,25 +55,18 @@
                 <button type="button" class="dock-btn" onclick="openApp('app-top')">🏆<span>Топ</span></button>
             </div>
         </div>
-
         <div id="app-bank" class="ios-app-window">
             <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">Hobo Bank</span><button type="button" class="sound-btn" id="soundBtn" onclick="toggleSound()">🔊</button></div>
             <div class="app-body">
                 <div class="mc-card">
-                    <div class="mc-top">
-                        <span class="mc-bank-name">HOBO BLACK PLATINUM</span>
-                        <span class="mc-chip">💳</span>
-                    </div>
+                    <div class="mc-top"><span class="mc-bank-name">HOBO BLACK PLATINUM</span><span class="mc-chip">💳</span></div>
                     <div class="mc-balance-label">Доступный остаток</div>
                     <div class="mc-balance-val">🪙 <span id="bank-balance">0</span></div>
-                    <div class="mc-bottom">
-                        <span class="mc-number">•••• •••• •••• 7777</span>
-                        <div class="mc-circles"><span class="mc-red"></span><span class="mc-yellow"></span></div>
-                    </div>
+                    <div class="mc-bottom"><span class="mc-number">•••• •••• •••• 7777</span><div class="mc-circles"><span class="mc-red"></span><span class="mc-yellow"></span></div></div>
                 </div>
                 <div class="game-box">
                     <h3>🔐 Секретная информация</h3>
-                    <p>Общая эмиссия монеты составит <b>1 000 000 000 $HOBO</b>. Все накопленные на карте средства фиксируются в твоем профиле. Финальный курс обмена и привязка TON откроются перед листингом!</p>
+                    <p>Общая эмиссия монеты составит <b>1 000 000 000 $HOBO</b>. Все средства на карте фиксируются в твоем профиле. Финальный курс обмена и привязка TON откроются перед листингом!</p>
                     <div class="airdrop-stats" style="margin-top:8px;font-size:13px;">
                         <div>Статус: <b id="bank-rank">Коробка у Пятерочки</b></div>
                         <div>Пассивный доход: <b class="neon-green" id="bank-profit">+0 / ч</b></div>
@@ -85,6 +75,7 @@
                 </div>
             </div>
         </div>
+
         <div id="app-tap" class="ios-app-window">
             <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">HoboTap</span><span style="width:50px;"></span></div>
             <div class="app-body center-col">
@@ -128,7 +119,6 @@
                 <div id="game-cups" class="casino-game-panel"><p class="game-hint">Выбери стакан с шариком — выигрыш <b>x2.5</b>!</p><div class="cups-row"><button type="button" class="cup-btn" onclick="uiPlayCups(0)">🥤<br>№1</button><button type="button" class="cup-btn" onclick="uiPlayCups(1)">🥤<br>№2</button><button type="button" class="cup-btn" onclick="uiPlayCups(2)">🥤<br>№3</button></div></div>
             </div>
         </div>
-
         <div id="app-logic" class="ios-app-window">
             <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">🧠 Мозги</span><span class="neon-green" style="font-size:12px;" id="logic-bal-mini">0</span></div>
             <div class="app-body">
@@ -162,13 +152,13 @@
 
         <div id="app-top" class="ios-app-window">
             <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">🏆 Топ района</span><span style="width:50px;"></span></div>
-            <div class="app-body"><div id="leaderboard-list"></div><button type="button" class="action-btn neon-btn" style="margin-top:10px;" id="invite-btn" onclick="inviteFriend()">🤝 Позвать друга (+3 000)</button></div>
+            <div class="app-body"><div id="leaderboard-list"></div><button type="button" class="action-btn neon-btn" style="margin-top:10px;" onclick="inviteFriend()">🤝 Позвать друга (+3 000)</button></div>
         </div>
     </div>
 
-    <script src="./empire.js?v=12"></script>
-    <script src="./games.js?v=12"></script>
-    <script src="./app.js?v=12"></script>
-    <script src="./logic_ads.js?v=12"></script>
+    <script src="./empire.js?v=20"></script>
+    <script src="./games.js?v=20"></script>
+    <script src="./app.js?v=20"></script>
+    <script src="./logic_ads.js?v=20"></script>
 </body>
 </html>
