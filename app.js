@@ -542,14 +542,23 @@ function spinWheel() {
 function openPilotCase() {
     if (state.balance < 50) return showIslandNotice('Нужно 50 $AERO');
     state.balance -= 50;
-    const rewards =;
-    const prize = rewards[Math.floor(Math.random() * rewards.length)];
+    const prize = Math.floor(15 + Math.random() * 135);
     state.balance += prize;
     const resEl = document.getElementById('caseRes');
     resEl.innerText = '🎁 ВЫПАЛО: +' + prize + ' $AERO';
     resEl.style.color = prize >= 50 ? 'var(--ios-green)' : 'var(--ios-orange)';
     playSound(prize >= 50 ? 'win' : 'tap');
     saveState();
+}
+
+function claimChannelReward() {
+    if (!state.channelClaimed) {
+        state.channelClaimed = true;
+        state.balance += 150;
+        playSound('win');
+        showIslandNotice('+150 $AERO за @aerotap');
+        saveState();
+    }
 }
 
 // 6. Орел / Решка
