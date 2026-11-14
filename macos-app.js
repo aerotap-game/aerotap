@@ -283,12 +283,12 @@ const carsCatalog = new Array(
 let currentCarFilter = 'all';
 
 function recalcEmpireIncome() {
-    let total = (state.lvlAuto || 0) * 400;
+    let total = (state.lvlAuto || 0) * 80;
     businessesData.forEach(function(b) { total += (state.bizOwned[b.id] || 0) * b.inc; });
     (state.taxiFleet || []).forEach(function(slot) {
         if (slot.hp > 0) {
             const car = carsCatalog.find(function(x) { return x.id === slot.carId; });
-            if (car) total += car.rent;
+            if (car) total += Math.floor(car.rent / 4);
         }
     });
     state.passivePerHour = Math.floor(total * (state.vipMult || 1));
