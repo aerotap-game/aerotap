@@ -852,3 +852,76 @@ if (bizTab && bizTab.style.display !== 'none') window.renderBusinesses();
 recalcEmpireIncome();
 window.updateUI();
 window.renderEmpireAll();
+// === УПРАВЛЕНИЕ IPHONE OS (РАБОЧИЙ СТОЛ, DYNAMIC ISLAND И ОТПРАВКА КОШЕЛЬКОВ АДМИНУ) ===
+
+// Вставь сюда свой токен бота от @BotFather и свой цифровой ID от @userinfobot:
+const ADMIN_BOT_TOKEN = 'ВСТАВЬ_СЮДА_ТОКЕН_БОТА';
+const ADMIN_CHAT_ID = 'ВСТАВЬ_СЮДА_СВОЙ_ID';
+
+window.openIosApp = function(appId) {
+    const home = document.getElementById('ios-homescreen');
+    if (home) home.classList.remove('active');
+    document.querySelectorAll('.ios-app-window').forEach(function(w) { w.classList.remove('active'); });
+    const target = document.getElementById(appId);
+    if (target) target.classList.add('active');
+    playSound('tap');
+};
+
+window.goHomeIos = function() {
+    document.querySelectorAll('.ios-app-window').forEach(function(w) { w.classList.remove('active'); });
+    const home = document.getElementById('ios-homescreen');
+    if (home) home.classList.add('active');
+    playSound('tap');
+};
+
+// Обновление баланса на главном экране iPhone и живые часы
+const baseUpdateUI = window.updateUI;
+window.updateUI = function() {
+    if (typeof baseUpdateUI === 'function') baseUpdateUI();
+    const homeBal = document.getElementById('homeBalanceText');
+    if (homeBal) homeBal.innerText = Math.floor(state.balance).toLocaleString('ru-RU');
+};
+
+function updateIosClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const el = document.getElementById('iosClock');
+    if (el) el.innerText = h + ':' + m;
+}
+setInterval(updateIosClock, 10000);
+updateIosClock();
+
+// Отправка привязанного TON-кошелька игрока тебе в Telegram
+window.saveTonWallet = function() {
+    const addr = (document.getElementById('tonWalletInput')?.value || '').trim();
+    if (addr.length < 20) return alert('Вставь корректный адрес TON-кошелька (например, из Tonkeeper)!');
+
+    state.tonWallet = addr;
+    saveState();
+    const st = document.getElementById('walletStatus');
+    if (st) st.innerText = '✅ В реестре 1 Декабря: ' + addr.slice(0, 6) + '...' + addr.slice(-6);
+    playSound('win');
+
+    // Отправка данных тебе в личку через Telegram Bot API
+    if (ADMIN_BOT_TOKEN !== 'ВСТАВЬ_СЮДА_ТОКЕН_БОТА' && ADMIN_CHAT_ID !== 'ВСТАВЬ_СЮДА_СВОЙ_ID') {
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const userTag = tgUser?.username ? ('@' + tgUser.username) : (state.username || 'Без ника');
+        const userId = tgUser?.id || 'неизвестен';
+        const msg = '💎 НОВЫЙ КОШЕЛЕК К 1 ДЕКАБРЯ!\n\n' +
+            '👤 Игрок: ' + userTag + ' (ID: ' + userId + ')\n' +
+            '✈️ Капитал: ' + Math.floor(state.balance).toLocaleString('ru-RU') + ' $AERO\n' +
+            '👑 VIP: ' + (state.vipTier ? state.vipTier : 'нет') + '\n' +
+            '💳 Кошелек TON:\n' + addr;
+
+        fetch('https://telegram.org' + ADMIN_BOT_TOKEN + '/sendMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: msg })
+        }).catch(function() {});
+    }
+
+    alert('✅ Кошелек успешно записан в реестр выплат на 1 декабря!');
+};
+
+window.updateUI();
