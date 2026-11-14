@@ -1,8 +1,13 @@
 // === МОДУЛЬ БИЗНЕС-ИМПЕРИИ И АВТОСАЛОНА (50 АВТО) ===
 
-if (!state.bizOwned) state.bizOwned = {};
-if (!state.carsOwned) state.carsOwned = {};
-if (!state.marketListings) state.marketListings = [];
+function ensureEmpireState() {
+    if (typeof window.state === 'undefined') {
+        window.state = JSON.parse(localStorage.getItem('aerotap_v3') || '{"balance":500,"passivePerHour":0}');
+    }
+    if (!state.bizOwned) state.bizOwned = {};
+    if (!state.carsOwned) state.carsOwned = {};
+    if (!state.marketListings) state.marketListings = [];
+}
 
 const businessesData = new Array(
     { id: 'wash', name: '🚿 Автомойка 24/7', cost: 2000, inc: 300 },
@@ -16,7 +21,6 @@ const businessesData = new Array(
 );
 
 const carsCatalog = new Array(
-    // Низкий класс — Тазы (12 авто)
     { id: 'c1', cls: 'low', name: 'ВАЗ-2106 «Шаха»', price: 2500, rep: 5, rent: 90 },
     { id: 'c2', cls: 'low', name: 'ВАЗ-2107 «Семерка»', price: 4500, rep: 10, rent: 160 },
     { id: 'c3', cls: 'low', name: 'ВАЗ-2109 «Девятка»', price: 7000, rep: 15, rent: 240 },
@@ -29,8 +33,6 @@ const carsCatalog = new Array(
     { id: 'c10', cls: 'low', name: 'Chevrolet Lacetti', price: 28000, rep: 55, rent: 840 },
     { id: 'c11', cls: 'low', name: 'Ford Focus 2', price: 35000, rep: 70, rent: 1050 },
     { id: 'c12', cls: 'low', name: 'Mitsubishi Lancer IX', price: 42000, rep: 85, rent: 1250 },
-
-    // Средний класс — Джили и городской комфорт (14 авто)
     { id: 'c13', cls: 'mid', name: 'Hyundai Solaris', price: 65000, rep: 130, rent: 1900 },
     { id: 'c14', cls: 'mid', name: 'Kia Rio X-Line', price: 75000, rep: 150, rent: 2200 },
     { id: 'c15', cls: 'mid', name: 'Volkswagen Polo GT', price: 85000, rep: 170, rent: 2500 },
@@ -45,7 +47,6 @@ const carsCatalog = new Array(
     { id: 'c24', cls: 'mid', name: 'Toyota Camry 3.5', price: 320000, rep: 650, rent: 9400 },
     { id: 'c25', cls: 'mid', name: 'Honda Accord Sport', price: 290000, rep: 580, rent: 8500 },
     { id: 'c26', cls: 'mid', name: 'Volkswagen Passat CC', price: 270000, rep: 540, rent: 7900 },
-    // Мерсы и Бэхи — Немецкий бизнес (14 авто)
     { id: 'c27', cls: 'prem', name: 'Mercedes-Benz A-Class (Ашка)', price: 380000, rep: 780, rent: 11200 },
     { id: 'c28', cls: 'prem', name: 'Mercedes-Benz CLA 250', price: 450000, rep: 920, rent: 13200 },
     { id: 'c29', cls: 'prem', name: 'Mercedes-Benz C-Class (Цешка)', price: 550000, rep: 1150, rent: 16200 },
@@ -60,8 +61,6 @@ const carsCatalog = new Array(
     { id: 'c38', cls: 'prem', name: 'BMW X5 M-Sport', price: 1500000, rep: 3250, rent: 44500 },
     { id: 'c39', cls: 'prem', name: 'Audi A6 Quattro', price: 820000, rep: 1750, rent: 24200 },
     { id: 'c40', cls: 'prem', name: 'Audi RS6 Avant', price: 2100000, rep: 4700, rent: 63000 },
-
-    // Люкс, Гиперкары и Ройсы (10 авто)
     { id: 'c41', cls: 'lux', name: 'Mercedes-Benz S-Class Maybach', price: 3200000, rep: 7500, rent: 98000 },
     { id: 'c42', cls: 'lux', name: 'Mercedes-Benz G63 AMG (Гелик)', price: 3800000, rep: 9000, rent: 118000 },
     { id: 'c43', cls: 'lux', name: 'Porsche 911 Turbo S', price: 4500000, rep: 11000, rent: 140000 },
@@ -75,22 +74,29 @@ const carsCatalog = new Array(
 );
 let currentCarFilter = 'all';
 
-function switchEmpireTab(tabName, pillEl) {
+window.switchEmpireTab = function(tabName, pillEl) {
+    ensureEmpireState();
     document.querySelectorAll('.emp-box').forEach(b => b.style.display = 'none');
-    document.getElementById('emp-' + tabName).style.display = 'block';
-    pillEl.parentElement.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
-    pillEl.classList.add('active');
-    renderEmpireAll();
-}
+    const target = document.getElementById('emp-' + tabName);
+    if (target) target.style.display = 'block';
+    if (pillEl && pillEl.parentElement) {
+        pillEl.parentElement.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
+        pillEl.classList.add('active');
+    }
+    window.renderEmpireAll();
+};
 
-function filterCars(cls, pillEl) {
+window.filterCars = function(cls, pillEl) {
     currentCarFilter = cls;
-    pillEl.parentElement.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
-    pillEl.classList.add('active');
-    renderCars();
-}
+    if (pillEl && pillEl.parentElement) {
+        pillEl.parentElement.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
+        pillEl.classList.add('active');
+    }
+    window.renderCars();
+};
 
-function renderBusinesses() {
+window.renderBusinesses = function() {
+    ensureEmpireState();
     const box = document.getElementById('bizList');
     if (!box) return;
     box.innerHTML = '';
@@ -117,9 +123,10 @@ function renderBusinesses() {
 
     const badge = document.getElementById('bizIncomeBadge');
     if (badge) badge.innerText = `+${totalBizInc.toLocaleString('ru-RU')}/ч`;
-}
+};
 
-function buyBusiness(bizId) {
+window.buyBusiness = function(bizId) {
+    ensureEmpireState();
     const b = businessesData.find(x => x.id === bizId);
     if (!b) return;
     const lvl = state.bizOwned[bizId] || 0;
@@ -128,13 +135,14 @@ function buyBusiness(bizId) {
     if (state.balance < cost) return alert('Недостаточно $AERO для покупки бизнеса!');
     state.balance -= cost;
     state.bizOwned[bizId] = lvl + 1;
-    state.passivePerHour += b.inc;
-    playSound('win');
-    saveState();
-    renderBusinesses();
-}
+    state.passivePerHour = (state.passivePerHour || 0) + b.inc;
+    if (typeof playSound === 'function') playSound('win');
+    if (typeof saveState === 'function') saveState();
+    window.renderBusinesses();
+};
 
-function renderCars() {
+window.renderCars = function() {
+    ensureEmpireState();
     const box = document.getElementById('carList');
     if (!box) return;
     box.innerHTML = '';
@@ -162,22 +170,24 @@ function renderCars() {
 
     const repEl = document.getElementById('respectBadge');
     if (repEl) repEl.innerText = `Влияние: ${totalRep.toLocaleString('ru-RU')}`;
-}
+};
 
-function buyCar(carId) {
+window.buyCar = function(carId) {
+    ensureEmpireState();
     const c = carsCatalog.find(x => x.id === carId);
     if (!c) return;
     if (state.balance < c.price) return alert('Не хватает $AERO на эту тачку!');
 
     state.balance -= c.price;
     state.carsOwned[carId] = (state.carsOwned[carId] || 0) + 1;
-    state.passivePerHour += c.rent;
-    playSound('win');
-    saveState();
-    renderCars();
-}
+    state.passivePerHour = (state.passivePerHour || 0) + c.rent;
+    if (typeof playSound === 'function') playSound('win');
+    if (typeof saveState === 'function') saveState();
+    window.renderCars();
+};
 
-function listCarOnMarket(carId) {
+window.listCarOnMarket = function(carId) {
+    ensureEmpireState();
     const c = carsCatalog.find(x => x.id === carId);
     if (!c || (state.carsOwned[carId] || 0) <= 0) return;
 
@@ -186,22 +196,23 @@ function listCarOnMarket(carId) {
     if (!askPrice || askPrice < Math.floor(c.price * 0.5)) return alert('Некорректная цена!');
 
     state.carsOwned[carId]--;
-    state.passivePerHour = Math.max(0, state.passivePerHour - c.rent);
+    state.passivePerHour = Math.max(0, (state.passivePerHour || 0) - c.rent);
     state.marketListings.push({
         lotId: Date.now(),
         carId: c.id,
         name: c.name,
-        seller: state.username,
+        seller: state.username || 'Игрок',
         price: askPrice
     });
 
-    playSound('tap');
-    saveState();
-    renderCars();
+    if (typeof playSound === 'function') playSound('tap');
+    if (typeof saveState === 'function') saveState();
+    window.renderCars();
     alert(`Лот «${c.name}» выставлен на биржу за ${askPrice.toLocaleString('ru-RU')} $AERO!`);
-}
+};
 
-function renderMarket() {
+window.renderMarket = function() {
+    ensureEmpireState();
     const box = document.getElementById('marketList');
     if (!box) return;
 
@@ -227,9 +238,10 @@ function renderMarket() {
         `;
         box.appendChild(row);
     });
-}
+};
 
-function buyMarketLot(idx) {
+window.buyMarketLot = function(idx) {
+    ensureEmpireState();
     const lot = state.marketListings.at(idx);
     if (!lot) return;
     if (state.balance < lot.price) return alert('Недостаточно $AERO для выкупа лота!');
@@ -237,38 +249,40 @@ function buyMarketLot(idx) {
     const carInfo = carsCatalog.find(x => x.id === lot.carId);
     state.balance -= lot.price;
     state.carsOwned[lot.carId] = (state.carsOwned[lot.carId] || 0) + 1;
-    if (carInfo) state.passivePerHour += carInfo.rent;
+    if (carInfo) state.passivePerHour = (state.passivePerHour || 0) + carInfo.rent;
 
     state.marketListings.splice(idx, 1);
-    playSound('win');
-    saveState();
-    renderMarket();
+    if (typeof playSound === 'function') playSound('win');
+    if (typeof saveState === 'function') saveState();
+    window.renderMarket();
     alert(`🎉 Поздравляем с покупкой: ${lot.name}!`);
-}
+};
 
-function saveTonWallet() {
+window.saveTonWallet = function() {
+    ensureEmpireState();
     const inp = document.getElementById('tonWalletInput');
     const addr = inp ? inp.value.trim() : '';
     if (addr.length < 20) return alert('Вставь корректный адрес TON-кошелька (например, из Tonkeeper)!');
 
     state.tonWallet = addr;
-    saveState();
+    if (typeof saveState === 'function') saveState();
     const st = document.getElementById('walletStatus');
     if (st) st.innerText = `✅ Привязан: ${addr.slice(0, 6)}...${addr.slice(-6)}`;
-    playSound('win');
+    if (typeof playSound === 'function') playSound('win');
     alert('Кошелек привязан к твоему аккаунту к листингу 1 декабря!');
-}
+};
 
-function renderEmpireAll() {
-    renderBusinesses();
-    renderCars();
-    renderMarket();
+window.renderEmpireAll = function() {
+    window.renderBusinesses();
+    window.renderCars();
+    window.renderMarket();
     if (state.tonWallet) {
         const inp = document.getElementById('tonWalletInput');
         const st = document.getElementById('walletStatus');
         if (inp) inp.value = state.tonWallet;
         if (st) st.innerText = `✅ Привязан: ${state.tonWallet.slice(0, 6)}...${state.tonWallet.slice(-6)}`;
     }
-}
+};
 
-renderEmpireAll();
+document.addEventListener('DOMContentLoaded', window.renderEmpireAll);
+setTimeout(window.renderEmpireAll, 300);
