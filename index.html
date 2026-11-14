@@ -3,328 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AeroTap — Flight Simulator</title>
+    <title>AeroTap iOS</title>
     <script src="https://telegram.org"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="app-shell">
-    <div class="sky-bg">
-        <div class="radar-circle"></div>
-        <div class="flying-jet">✈️</div>
+<div class="iphone-frame">
+    <!-- Статус-бар iPhone -->
+    <div class="ios-statusbar">
+        <span id="iosClock">22:00</span>
+        <div class="dynamic-island" id="dynamicIsland">
+            <span class="di-dot"></span>
+            <span id="diText">AeroOS • TON</span>
+        </div>
+        <div class="ios-signals">
+            <span>5G</span>
+            <span class="battery-pill">100%</span>
+        </div>
     </div>
 
-    <div class="island-bar">
-        <span class="island-dot"></span>
-        <span>AeroOS • TON NETWORK</span>
+    <!-- Виджет баланса iOS -->
+    <div class="ios-widget-balance">
+        <div class="widget-top">
+            <div class="user-chip" onclick="changePilotName()">
+                <span class="chip-ava" id="avatarInitial">П</span>
+                <span id="displayUsername">Пилот #01</span>
+                <span class="rank-tag" id="pilotRank">Курсант</span>
+            </div>
+            <div class="widget-controls">
+                <span class="pph-chip">+<span id="passiveRate">0</span>/ч</span>
+                <button class="mute-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+            </div>
+        </div>
+        <div class="main-balance">
+            <span class="plane-ico">✈️</span>
+            <span id="balanceText">50</span>
+            <span class="currency-tag">$AERO</span>
+        </div>
+        <div class="heat-bar-wrap">
+            <div class="heat-bar-fill" id="heatBar"></div>
+        </div>
     </div>
 
-    <header class="top-bar">
-        <div class="pilot-pill" onclick="changePilotName()">
-            <div class="pilot-avatar" id="avatarInitial">П</div>
-            <div class="pilot-meta">
-                <span class="pilot-name" id="displayUsername">Пилот #01</span>
-                <span class="pilot-sub" id="pilotRank">Курсант</span>
+    <!-- РАБОЧИЙ СТОЛ IPHONE -->
+    <main id="screen-home" class="ios-screen active">
+        <div class="ios-grid">
+            <div class="ios-app" onclick="openApp('screen-tap')">
+                <div class="ios-icon bg-blue">🕹️</div>
+                <span>Штурвал</span>
             </div>
-        </div>
-        <div class="top-actions">
-            <div class="income-pill">+<span id="passiveRate">0</span>/ч</div>
-            <button class="icon-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
-        </div>
-    </header>
-
-    <section class="balance-hero">
-        <div class="balance-row">
-            <span class="coin-symbol">✈️</span>
-            <span class="balance-value" id="balanceText">50</span>
-        </div>
-        <div class="combo-badge" id="comboBadge">СЕРИЯ x1 • НАГРЕВ 0%</div>
-    </section>
-
-    <div id="bonusDrone" class="bonus-drone" onclick="catchDrone()">🛸 +35</div>
-
-    <main id="screen-home" class="screen active">
-        <div class="apps-grid">
-            <div class="app-tile" onclick="openApp('screen-tap')">
-                <div class="app-icon grad-blue">🕹️</div>
-                <span>Полет</span>
+            <div class="ios-app" onclick="openApp('screen-radar')">
+                <div class="ios-icon bg-teal">🛫</div>
+                <span>Диспетчер</span>
             </div>
-            <div class="app-tile" onclick="openApp('screen-business')">
-                <div class="app-icon grad-green">🏢</div>
+            <div class="ios-app" onclick="openApp('screen-business')">
+                <div class="ios-icon bg-green">🏢</div>
                 <span>Империя</span>
             </div>
-            <div class="app-tile" onclick="openApp('screen-hangar')">
-                <div class="app-icon grad-orange">🛩️</div>
-                <span>Ангар</span>
+            <div class="ios-app" onclick="openApp('screen-hangar')">
+                <div class="ios-icon bg-orange">🏎️</div>
+                <span>Гараж</span>
             </div>
-            <div class="app-tile" onclick="openApp('screen-games')">
-                <div class="app-icon grad-purple">🎰</div>
+            <div class="ios-app" onclick="openApp('screen-games')">
+                <div class="ios-icon bg-purple">🎰</div>
                 <span>Аркада</span>
             </div>
-            <div class="app-tile" onclick="openApp('screen-daily24')">
-                <div class="app-icon grad-red">🔐</div>
+            <div class="ios-app" onclick="openApp('screen-daily24')">
+                <div class="ios-icon bg-red">🔐</div>
                 <span>Сейф 24ч</span>
             </div>
-            <div class="app-tile" onclick="openApp('screen-quests')">
-                <div class="app-icon grad-gold">🎯</div>
-                <span>Миссии</span>
-            </div>
-            <div class="app-tile" onclick="openApp('screen-friends')">
-                <div class="app-icon grad-cyan">📡</div>
+            <div class="ios-app" onclick="openApp('screen-friends')">
+                <div class="ios-icon bg-cyan">📡</div>
                 <span>Экипаж</span>
             </div>
-            <div class="app-tile" onclick="openApp('screen-secret')">
-                <div class="app-icon grad-dark">⬛</div>
+            <div class="ios-app" onclick="openApp('screen-secret')">
+                <div class="ios-icon bg-dark">⬛</div>
                 <span>Шифры</span>
             </div>
         </div>
 
-        <div class="glass-card links-banner">
-            <div class="banner-info">
-                <strong>Канал @aerotap</strong>
-                <span>Свежие шифры и новости проекта</span>
+        <!-- Уведомление iOS со ссылкой на канал -->
+        <div class="ios-notification" onclick="openTgChannel()">
+            <div class="notif-icon">📢</div>
+            <div class="notif-body">
+                <div class="notif-head">
+                    <strong>TELEGRAM • @aerotap</strong>
+                    <span>Сейчас</span>
+                </div>
+                <p>Забирай бонус +150 $AERO и свежие шифры для Сейфа в нашем канале!</p>
             </div>
-            <button class="action-btn btn-blue" onclick="openTgChannel()">Перейти</button>
         </div>
     </main>
-    <section id="screen-tap" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Штурвал</h2>
-            <span class="badge-info">+<span id="tapPowerText">1</span> за клик</span>
+    <!-- ПРИЛОЖЕНИЕ: ШТУРВАЛ -->
+    <section id="screen-tap" class="ios-screen">
+        <div class="ios-nav">
+            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
+            <h3>Штурвал</h3>
+            <span class="ios-badge">+<span id="tapPowerText">1</span></span>
         </div>
-        <div class="tap-zone">
-            <button class="turbine-btn" id="mainTapBtn">
-                <div class="turbine-ring"></div>
-                <div class="turbine-core">✈️</div>
-                <span>ФОРСАЖ</span>
+        <div class="tap-center">
+            <button class="ios-turbine" id="mainTapBtn">
+                <div class="turbine-glow"></div>
+                <span class="t-plane">✈️</span>
+                <span class="t-sub">ЖМИ ФОРСАЖ</span>
             </button>
         </div>
-        <div class="energy-panel glass-card">
-            <div class="energy-head">
-                <span>⚡ Топливо реактора</span>
+        <div class="ios-card">
+            <div class="row-between">
+                <span>⚡ Топливо</span>
                 <span><strong id="energyText">500</strong> / <strong id="maxEnergyText">500</strong></span>
             </div>
-            <div class="progress-track">
-                <div class="progress-fill" id="energyBar"></div>
-            </div>
-            <div class="boosters-row">
-                <button class="mini-boost" onclick="activateTurbo()">🔥 Турбо x2</button>
-                <button class="mini-boost" onclick="refillFuel()">⛽ Бак (<span id="refillCount">2/2</span>)</button>
+            <div class="ios-progress"><div class="ios-progress-bar" id="energyBar"></div></div>
+            <div class="btn-row" style="margin-top:12px;">
+                <button class="ios-btn btn-blue" onclick="activateTurbo()">🔥 Турбо x2</button>
+                <button class="ios-btn btn-green" onclick="refillFuel()">⛽ Бак (<span id="refillCount">2/2</span>)</button>
             </div>
         </div>
     </section>
 
-    <section id="screen-business" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Авиа-Империя</h2>
+    <!-- НОВАЯ ИГРА: АВИАДИСПЕТЧЕР -->
+    <section id="screen-radar" class="ios-screen">
+        <div class="ios-nav">
+            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
+            <h3>Авиадиспетчер</h3>
+            <span class="ios-badge" id="atcTimer">15с</span>
+        </div>
+        <div class="ios-card" style="text-align:center;">
+            <p class="ios-muted">Нажимай на полосу, куда просит посадку борт! Каждый успешный рейс приносит <strong>+5 $AERO</strong>.</p>
+            <div class="atc-screen" id="atcPrompt">Нажми «Начать смену»</div>
+            <div class="btn-row" id="atcControls" style="display:none;">
+                <button class="ios-btn btn-blue" onclick="landPlane('ЛЕВАЯ')">🛬 Полоса А</button>
+                <button class="ios-btn btn-purple" onclick="landPlane('ПРАВАЯ')">🛬 Полоса Б</button>
+            </div>
+            <button class="ios-btn btn-green full-w" id="atcStartBtn" onclick="startATC()">Начать смену (раз в 10 мин)</button>
+        </div>
+    </section>
+
+    <!-- ИМПЕРИЯ И ГАРАЖ -->
+    <section id="screen-business" class="ios-screen">
+        <div class="ios-nav">
+            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
+            <h3>Авиа-Империя</h3>
         </div>
         <div id="businessList"></div>
     </section>
 
-    <section id="screen-hangar" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Ангар и Тюнинг</h2>
+    <section id="screen-hangar" class="ios-screen">
+        <div class="ios-nav">
+            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
+            <h3>Гараж и Тюнинг</h3>
         </div>
         <div id="hangarList"></div>
     </section>
 
-    <section id="screen-games" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Игровой Центр</h2>
+    <!-- АРКАДА (6 РЕЖИМОВ) -->
+    <section id="screen-games" class="ios-screen">
+        <div class="ios-nav">
+            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
+            <h3>Аркада</h3>
         </div>
-
-        <div id="gamesLobby" class="games-grid">
-            <div class="game-card" onclick="selectGame('crash')">
-                <span class="g-ico">🚀</span>
-                <strong>Краш Ракетка</strong>
-                <small>До x15</small>
-            </div>
-            <div class="game-card" onclick="selectGame('mines')">
-                <span class="g-ico">💣</span>
-                <strong>Минное поле</strong>
-                <small>Сетка 5x5</small>
-            </div>
-            <div class="game-card" onclick="selectGame('aviator')">
-                <span class="g-ico">✈️</span>
-                <strong>Высотный рейс</strong>
-                <small>Быстрый взлет</small>
-            </div>
-            <div class="game-card" onclick="selectGame('wheel')">
-                <span class="g-ico">🎡</span>
-                <strong>Колесо Фортуны</strong>
-                <small>До x5</small>
-            </div>
-            <div class="game-card" onclick="selectGame('case')">
-                <span class="g-ico">🧳</span>
-                <strong>Кейс Пилота</strong>
-                <small>Случайный лут</small>
-            </div>
-            <div class="game-card" onclick="selectGame('coin')">
-                <span class="g-ico">🪙</span>
-                <strong>Орел / Решка</strong>
-                <small>Классика x2</small>
-            </div>
+        <div id="gamesLobby" class="arcade-grid">
+            <div class="arcade-tile" onclick="selectGame('crash')"><span>🚀</span><strong>Краш Ракетка</strong><small>До x15</small></div>
+            <div class="arcade-tile" onclick="selectGame('mines')"><span>💣</span><strong>Минное поле</strong><small>Сетка 5x5</small></div>
+            <div class="arcade-tile" onclick="selectGame('aviator')"><span>✈️</span><strong>Высотный рейс</strong><small>Взлет</small></div>
+            <div class="arcade-tile" onclick="selectGame('wheel')"><span>🎡</span><strong>Колесо</strong><small>До x5</small></div>
+            <div class="arcade-tile" onclick="selectGame('case')"><span>🧳</span><strong>Кейс Пилота</strong><small>50 $AERO</small></div>
+            <div class="arcade-tile" onclick="selectGame('coin')"><span>🪙</span><strong>Орел / Решка</strong><small>x2</small></div>
         </div>
-        <div id="activeGameBox" class="glass-card" style="display:none;">
-            <button class="back-btn" style="margin-bottom:10px;" onclick="closeGame()">‹ К списку игр</button>
+        <div id="activeGameBox" class="ios-card" style="display:none;">
+            <button class="ios-back" style="margin-bottom:10px;" onclick="closeGame()">‹ К списку игр</button>
 
             <div id="game-crash" class="sub-game" style="display:none;">
-                <div class="radar-box">
-                    <div class="mult-big" id="crashMult">1.00x</div>
-                    <div class="radar-status" id="crashStatus">Лимит ставки: 300 $AERO</div>
+                <div class="atc-screen">
+                    <div class="big-mult" id="crashMult">1.00x</div>
+                    <div class="ios-muted" id="crashStatus">Ставка от 5 до 300 $AERO</div>
                 </div>
-                <div class="bet-controls">
-                    <input type="number" id="crashBet" value="20" min="5" max="300">
-                    <button class="action-btn btn-green" id="crashBtn" onclick="toggleCrash()">ПУСК</button>
+                <div class="btn-row">
+                    <input type="number" id="crashBet" value="20" min="5" max="300" class="ios-input">
+                    <button class="ios-btn btn-green" id="crashBtn" onclick="toggleCrash()">ПУСК</button>
                 </div>
             </div>
 
             <div id="game-mines" class="sub-game" style="display:none;">
-                <div class="mines-top">
+                <div class="row-between" style="margin-bottom:8px;">
                     <span>Бомб: 5</span>
-                    <span id="minesMultText" style="color:var(--accent);">Множитель: 1.00x</span>
+                    <span id="minesMultText" style="color:var(--ios-green); font-weight:700;">1.00x</span>
                 </div>
-                <div id="minesGrid" class="mines-board"></div>
-                <div class="bet-controls">
-                    <input type="number" id="minesBet" value="20" min="5" max="300">
-                    <button class="action-btn btn-gold" id="minesBtn" onclick="toggleMines()">ИГРАТЬ</button>
+                <div id="minesGrid" class="mines-grid"></div>
+                <div class="btn-row">
+                    <input type="number" id="minesBet" value="20" min="5" max="300" class="ios-input">
+                    <button class="ios-btn btn-orange" id="minesBtn" onclick="toggleMines()">ИГРАТЬ</button>
                 </div>
             </div>
 
             <div id="game-aviator" class="sub-game" style="display:none;">
-                <div class="radar-box">
-                    <div class="mult-big" id="aviatorMult" style="color:#38bdf8;">1.00x</div>
-                    <div class="radar-status" id="aviatorStatus">На взлетной полосе</div>
+                <div class="atc-screen">
+                    <div class="big-mult" id="aviatorMult" style="color:var(--ios-blue);">1.00x</div>
+                    <div class="ios-muted" id="aviatorStatus">На взлетной полосе</div>
                 </div>
-                <div class="bet-controls">
-                    <input type="number" id="aviatorBet" value="20" min="5" max="300">
-                    <button class="action-btn btn-blue" id="aviatorBtn" onclick="toggleAviator()">ВЗЛЕТ</button>
+                <div class="btn-row">
+                    <input type="number" id="aviatorBet" value="20" min="5" max="300" class="ios-input">
+                    <button class="ios-btn btn-blue" id="aviatorBtn" onclick="toggleAviator()">ВЗЛЕТ</button>
                 </div>
             </div>
 
             <div id="game-wheel" class="sub-game" style="display:none;">
-                <div class="radar-box" style="height:105px;">
-                    <div class="mult-big" id="wheelRes" style="font-size:24px;">КРУТИ БАРАБАН</div>
-                    <div class="radar-status">Сектора: 0x, 0.5x, 1.5x, 2x, 5x</div>
+                <div class="atc-screen">
+                    <div class="big-mult" id="wheelRes" style="font-size:22px;">КРУТИ КОЛЕСО</div>
+                    <div class="ios-muted">Сектора: 0x, 0.5x, 1.5x, 2x, 5x</div>
                 </div>
-                <div class="bet-controls">
-                    <input type="number" id="wheelBet" value="20" min="5" max="300">
-                    <button class="action-btn btn-purple" onclick="spinWheel()">КРУТИТЬ</button>
+                <div class="btn-row">
+                    <input type="number" id="wheelBet" value="20" min="5" max="300" class="ios-input">
+                    <button class="ios-btn btn-purple" onclick="spinWheel()">КРУТИТЬ</button>
                 </div>
             </div>
 
             <div id="game-case" class="sub-game" style="display:none;">
-                <div class="radar-box" style="height:105px;">
-                    <div class="mult-big" id="caseRes" style="font-size:22px;">🧳 ОТКРОЙ КЕЙС</div>
-                    <div class="radar-status">Цена: 50 $AERO</div>
+                <div class="atc-screen">
+                    <div class="big-mult" id="caseRes" style="font-size:22px;">🧳 ОТКРОЙ КЕЙС</div>
+                    <div class="ios-muted">Цена открытия: 50 $AERO</div>
                 </div>
-                <button class="action-btn btn-gold full-width" onclick="openPilotCase()">Открыть за 50 $AERO</button>
+                <button class="ios-btn btn-orange full-w" onclick="openPilotCase()">Открыть за 50 $AERO</button>
             </div>
 
             <div id="game-coin" class="sub-game" style="display:none;">
-                <div class="radar-box" style="height:95px;">
-                    <div class="mult-big" id="coinResult" style="font-size:22px;">ВЫБЕРИ СТОРОНУ</div>
+                <div class="atc-screen">
+                    <div class="big-mult" id="coinResult" style="font-size:22px;">ВЫБЕРИ СТОРОНУ</div>
                 </div>
-                <div class="bet-controls">
-                    <input type="number" id="coinBet" value="20" min="5" max="300">
-                </div>
-                <div class="bet-controls" style="margin-top:8px;">
-                    <button class="action-btn btn-gold" style="flex:1;" onclick="playCoin('ОРЕЛ')">🦅 ОРЕЛ (x2)</button>
-                    <button class="action-btn btn-blue" style="flex:1;" onclick="playCoin('РЕШКА')">✈️ РЕШКА (x2)</button>
+                <input type="number" id="coinBet" value="20" min="5" max="300" class="ios-input" style="margin-bottom:8px;">
+                <div class="btn-row">
+                    <button class="ios-btn btn-orange" onclick="playCoin('ОРЕЛ')">🦅 ОРЕЛ (x2)</button>
+                    <button class="ios-btn btn-blue" onclick="playCoin('РЕШКА')">✈️ РЕШКА (x2)</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="screen-daily24" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Сейф 24 часа</h2>
+    <!-- СЕЙФ 24 ЧАСА -->
+    <section id="screen-daily24" class="ios-screen">
+        <div class="ios-nav">
+            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
+            <h3>Сейф 24 часа</h3>
         </div>
-        <div class="glass-card" style="text-align:center;">
-            <h3>🔐 Ежедневный взлом борта</h3>
-            <p class="muted-text">Нажми кнопки по порядку, чтобы открыть сейф и забрать <strong>+300 $AERO</strong> (раз в 24 часа).</p>
-            <div class="radar-box" style="height:80px; margin:10px 0;">
-                <div class="mult-big" id="safeDisplay" style="font-size:24px; letter-spacing:6px;">_ _ _ _</div>
-                <div class="radar-status">Подсказка: Взлет → Курс → Радар → Топливо</div>
+        <div class="ios-card" style="text-align:center;">
+            <p class="ios-muted">Нажми кнопки в правильном порядке для открытия сейфа (<strong>+300 $AERO</strong> раз в 24 часа).</p>
+            <div class="atc-screen">
+                <div class="big-mult" id="safeDisplay" style="font-size:24px; letter-spacing:6px;">_ _ _ _</div>
+                <div class="ios-muted">Подсказка: Взлет → Курс → Радар → Топливо</div>
             </div>
-            <div class="bet-controls">
-                <button class="action-btn btn-blue" style="flex:1;" onclick="pressSafeBtn('🚀')">🚀</button>
-                <button class="action-btn btn-blue" style="flex:1;" onclick="pressSafeBtn('🧭')">🧭</button>
-                <button class="action-btn btn-blue" style="flex:1;" onclick="pressSafeBtn('📡')">📡</button>
-                <button class="action-btn btn-blue" style="flex:1;" onclick="pressSafeBtn('⚡')">⚡</button>
-            </div>
-        </div>
-    </section>
-
-    <section id="screen-quests" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Миссии и TON</h2>
-        </div>
-        <div class="glass-card">
-            <h4>Ежедневный паек</h4>
-            <button class="action-btn btn-green full-width" onclick="claimDaily()">🎁 Забрать +120 $AERO (24ч)</button>
-        </div>
-        <div class="glass-card">
-            <h4>Привязка кошелька TON</h4>
-            <input type="text" id="tonAddressInput" placeholder="UQ... или EQ..." class="text-input">
-            <button class="action-btn btn-blue full-width" style="margin-top:8px;" onclick="saveTonWallet()">Сохранить кошелек</button>
-        </div>
-    </section>
-
-    <section id="screen-friends" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Экипаж и Связь</h2>
-        </div>
-        <div class="glass-card">
-            <h3>Пригласи друзей</h3>
-            <p class="muted-text">Бонус +200 $AERO за приглашение (доступно раз в 12 часов).</p>
-            <input type="text" id="refLinkInput" readonly class="text-input">
-            <div class="bet-controls" style="margin-top:10px;">
-                <button class="action-btn btn-blue" style="flex:1;" onclick="shareRefTelegram()">📲 Поделиться в ТГ</button>
-                <button class="action-btn btn-gold" onclick="copyRefLink()">📋 Копия</button>
-            </div>
-            <button class="action-btn btn-green full-width" style="margin-top:10px;" onclick="claimRefBonus()">Забрать бонус (+200 $AERO)</button>
-        </div>
-        <div class="glass-card">
-            <h4>Официальные ресурсы</h4>
-            <div class="link-row" onclick="openTgChannel()" style="cursor:pointer;">
-                <span>📢 Telegram-канал @aerotap</span>
-                <span style="color:var(--blue);">Открыть ›</span>
-            </div>
-            <div class="link-row" onclick="openTgBot()" style="cursor:pointer;">
-                <span>🤖 Игровой бот @aerotap_bot</span>
-                <span style="color:var(--blue);">Запуск ›</span>
+            <div class="btn-row">
+                <button class="ios-btn btn-blue" onclick="pressSafeBtn('🚀')">🚀</button>
+                <button class="ios-btn btn-blue" onclick="pressSafeBtn('🧭')">🧭</button>
+                <button class="ios-btn btn-blue" onclick="pressSafeBtn('📡')">📡</button>
+                <button class="ios-btn btn-blue" onclick="pressSafeBtn('⚡')">⚡</button>
             </div>
         </div>
     </section>
 
-    <section id="screen-secret" class="screen">
-        <div class="screen-header">
-            <button class="back-btn" onclick="openApp('screen-home')">‹ Домой</button>
-            <h2>Черный Ящик</h2>
+    <!-- ЭКИПАЖ И ССЫЛКИ -->
+    <section id="screen-friends" class="ios-screen">
+        <div class="ios-nav">
+            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
+            <h3>Экипаж и TON</h3>
         </div>
-        <div class="glass-card">
-            <h3>🔐 Секретный шифр</h3>
-            <p class="muted-text">Вводи коды из постов канала <span onclick="openTgChannel()" style="color:#38bdf8; text-decoration:underline; cursor:pointer;">@aerotap</span>.</p>
-            <input type="text" id="secretCodeInput" placeholder="Введи шифр..." class="text-input">
-            <button class="action-btn btn-purple full-width" style="margin-top:10px;" onclick="activateSecretCode()">Расшифровать</button>
+        <div class="ios-card">
+            <h4>Пригласи друзей (+200 $AERO)</h4>
+            <input type="text" id="refLinkInput" readonly class="ios-input" style="margin-bottom:8px;">
+            <div class="btn-row">
+                <button class="ios-btn btn-blue" onclick="shareRefTelegram()">📲 Отправить в ТГ</button>
+                <button class="ios-btn btn-orange" onclick="copyRefLink()">📋 Копия</button>
+            </div>
+            <button class="ios-btn btn-green full-w" style="margin-top:8px;" onclick="claimRefBonus()">Забрать бонус (раз в 12ч)</button>
+        </div>
+        <div class="ios-card">
+            <h4>Кошелек TON для дропа</h4>
+            <input type="text" id="tonAddressInput" placeholder="UQ... или EQ..." class="ios-input" style="margin-bottom:8px;">
+            <button class="ios-btn btn-blue full-w" onclick="saveTonWallet()">Сохранить адрес TON</button>
+        </div>
+        <div class="ios-card">
+            <div class="ios-link-item" onclick="openTgChannel()">
+                <span>📢 Канал @aerotap</span><span>Открыть ›</span>
+            </div>
+            <div class="ios-link-item" onclick="openTgBot()">
+                <span>🤖 Бот @aerotap_bot</span><span>Запуск ›</span>
+            </div>
         </div>
     </section>
 
-    <nav class="bottom-dock">
-        <button class="dock-btn active" onclick="openApp('screen-home')">🏠<span>Меню</span></button>
-        <button class="dock-btn" onclick="openApp('screen-tap')">🕹️<span>Полет</span></button>
-        <button class="dock-btn" onclick="openApp('screen-games')">🎰<span>Аркада</span></button>
-        <button class="dock-btn" onclick="openApp('screen-daily24')">🔐<span>Сейф 24ч</span></button>
+    <!-- ШИФРЫ -->
+    <section id="screen-secret" class="ios-screen">
+        <div class="ios-nav">
+            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
+            <h3>Секретные шифры</h3>
+        </div>
+        <div class="ios-card">
+            <p class="ios-muted">Вводи коды из постов канала <span onclick="openTgChannel()" style="color:var(--ios-blue); text-decoration:underline; cursor:pointer;">@aerotap</span>.</p>
+            <input type="text" id="secretCodeInput" placeholder="Введи код..." class="ios-input" style="margin-bottom:8px;">
+            <button class="ios-btn btn-purple full-w" onclick="activateSecretCode()">Активировать шифр</button>
+        </div>
+        <div class="ios-card">
+            <button class="ios-btn btn-green full-w" onclick="claimDaily()">🎁 Ежедневный паек +120 $AERO</button>
+        </div>
+    </section>
+
+    <!-- НИЖНИЙ ДОК IPHONE -->
+    <nav class="ios-dock">
+        <button class="dock-item active" onclick="openApp('screen-home')">🏠<span>Экран</span></button>
+        <button class="dock-item" onclick="openApp('screen-tap')">🕹️<span>Штурвал</span></button>
+        <button class="dock-item" onclick="openApp('screen-radar')">🛫<span>Рейсы</span></button>
+        <button class="dock-item" onclick="openApp('screen-games')">🎰<span>Аркада</span></button>
     </nav>
+    <div class="home-indicator"></div>
 </div>
 
 <script src="app.js"></script>
