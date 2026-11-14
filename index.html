@@ -5,469 +5,503 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AeroTap iOS</title>
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --glass: rgba(28, 28, 32, 0.82);
+            --border: rgba(255, 255, 255, 0.14);
+            --blue: #0a84ff;
+            --green: #30d158;
+            --orange: #ff9f0a;
+            --red: #ff453a;
+            --purple: #bf5af2;
+            --gray: #8e8e93;
+        }
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
+        body { margin: 0; background: #000; color: #fff; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        .iphone {
+            width: 100%; max-width: 440px; height: 100%; position: relative; overflow: hidden; display: flex; flex-direction: column;
+            background: linear-gradient(135deg, #040914, #0a1930, #160d2b, #05131f);
+            background-size: 300% 300%; animation: bgFlow 12s ease infinite;
+        }
+        @keyframes bgFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .jet-sky { position: absolute; top: 14%; left: -60px; font-size: 24px; opacity: 0.45; pointer-events: none; animation: skyFly 11s linear infinite; }
+        @keyframes skyFly { 0% { transform: translate(-60px, 30px) rotate(12deg); } 100% { transform: translate(500px, -50px) rotate(12deg); } }
+        .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 8px 18px 4px; font-size: 13px; font-weight: 600; z-index: 5; }
+        .island { background: #000; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 5px 14px; display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; }
+        .dot-green { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        .widget { margin: 6px 16px 8px; background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 22px; padding: 12px 16px; z-index: 5; }
+        .w-row { display: flex; justify-content: space-between; align-items: center; }
+        .bal-num { font-size: 36px; font-weight: 800; text-align: center; margin: 6px 0; text-shadow: 0 0 20px rgba(10,132,255,0.5); }
+        .screen { display: none; flex: 1; overflow-y: auto; padding: 4px 16px 95px; z-index: 5; }
+        .screen.active { display: block; animation: popIn 0.2s ease; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 10px; margin-top: 8px; }
+        .app { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; font-size: 11px; }
+        .ico { width: 58px; height: 58px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 6px 15px rgba(0,0,0,0.4); animation: floatIco 3.5s ease-in-out infinite; }
+        @keyframes floatIco { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        .c-blue { background: linear-gradient(180deg, #38bdf8, #007aff); }
+        .c-green { background: linear-gradient(180deg, #34c759, #248a3d); }
+        .c-orange { background: linear-gradient(180deg, #ff9f0a, #ff6b00); }
+        .c-purple { background: linear-gradient(180deg, #bf5af2, #8944ab); }
+        .c-red { background: linear-gradient(180deg, #ff453a, #c92a2a); }
+        .c-teal { background: linear-gradient(180deg, #5ac8fa, #00a8e8); }
+        .c-cyan { background: linear-gradient(180deg, #32ade6, #0a84ff); }
+        .c-dark { background: #2c2c2e; border: 1px solid var(--border); }
+        .card { background: var(--glass); border: 1px solid var(--border); border-radius: 18px; padding: 14px; margin-bottom: 10px; }
+        .btn { border: none; padding: 11px 14px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; color: #fff; flex: 1; text-align: center; text-decoration: none; display: inline-block; }
+        .btn-b { background: var(--blue); } .btn-g { background: var(--green); color: #000; } .btn-o { background: var(--orange); color: #000; } .btn-p { background: var(--purple); }
+        .row { display: flex; gap: 8px; }
+        .inp { background: rgba(0,0,0,0.6); border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 12px; width: 100%; font-size: 14px; }
+        .turbine { width: 185px; height: 185px; border-radius: 50%; margin: 14px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #1e3a8a, #050811); border: 4px solid var(--blue); box-shadow: 0 0 40px rgba(10,132,255,0.5); cursor: pointer; transition: transform 0.08s; }
+        .turbine:active { transform: scale(0.92); }
+        .plane-anim { font-size: 62px; animation: hoverPlane 1.8s ease-in-out infinite; }
+        @keyframes hoverPlane { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-9px) rotate(4deg); } }
+        .dock { position: absolute; bottom: 14px; left: 16px; right: 16px; background: rgba(36,36,40,0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px; display: flex; justify-content: space-around; padding: 8px; z-index: 20; }
+        .dock button { background: none; border: none; color: #fff; font-size: 20px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+        .dock span { font-size: 10px; color: var(--gray); }
+        .ripple { position: fixed; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--green); pointer-events: none; transform: translate(-50%,-50%); animation: rip 0.5s ease-out forwards; z-index: 99; }
+        @keyframes rip { to { opacity: 0; transform: translate(-50%,-50%) scale(4.5); } }
+        .float { position: fixed; color: var(--green); font-weight: 800; font-size: 20px; pointer-events: none; animation: up 0.6s ease-out forwards; z-index: 99; }
+        @keyframes up { to { opacity: 0; transform: translateY(-45px); } }
+    </style>
 </head>
 <body>
-
-<div class="iphone-frame">
-    <!-- Статус-бар iPhone -->
-    <div class="ios-statusbar">
-        <span id="iosClock">22:00</span>
-        <div class="dynamic-island" id="dynamicIsland">
-            <span class="di-dot"></span>
-            <span id="diText">AeroOS • TON</span>
-        </div>
-        <div class="ios-signals">
-            <span>5G</span>
-            <span class="battery-pill">100%</span>
-        </div>
+<div class="iphone">
+    <div class="jet-sky">✈️</div>
+    <div class="statusbar">
+        <span id="clock">23:40</span>
+        <div class="island"><span class="dot-green"></span><span id="diMsg">AeroOS • TON</span></div>
+        <span style="color:var(--green); font-size:11px;">5G • 100%</span>
     </div>
 
-    <!-- Виджет баланса iOS -->
-    <div class="ios-widget-balance">
-        <div class="widget-top">
-            <div class="user-chip" onclick="changePilotName()">
-                <span class="chip-ava" id="avatarInitial">П</span>
-                <span id="displayUsername">Пилот #01</span>
-                <span class="rank-tag" id="pilotRank">Курсант</span>
-            </div>
-            <div class="widget-controls">
-                <span class="pph-chip">+<span id="passiveRate">0</span>/ч</span>
-                <button class="mute-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+    <div class="widget">
+        <div class="w-row">
+            <strong id="uName" onclick="setPilotName()" style="cursor:pointer;">Пилот #01 ✏️</strong>
+            <div>
+                <span style="color:var(--green); font-size:12px; font-weight:700;">+<span id="pph">0</span>/ч</span>
+                <button onclick="toggleMute()" id="sndBtn" style="background:none; border:none; color:#fff; font-size:15px; cursor:pointer;">🔊</button>
             </div>
         </div>
-        <div class="main-balance">
-            <span class="plane-ico">✈️</span>
-            <span id="balanceText">50</span>
-            <span class="currency-tag">$AERO</span>
-        </div>
-        <div class="heat-bar-wrap">
-            <div class="heat-bar-fill" id="heatBar"></div>
-        </div>
+        <div class="bal-num">✈️ <span id="bal">50</span> <span style="font-size:14px; color:var(--gray);">$AERO</span></div>
     </div>
 
-    <!-- РАБОЧИЙ СТОЛ IPHONE -->
-    <main id="screen-home" class="ios-screen active">
-        <div class="ios-grid">
-            <div class="ios-app" onclick="openApp('screen-tap')">
-                <div class="ios-icon bg-blue">🕹️</div>
-                <span>Штурвал</span>
-            </div>
-            <div class="ios-app" onclick="openApp('screen-radar')">
-                <div class="ios-icon bg-teal">🛫</div>
-                <span>Диспетчер</span>
-            </div>
-            <div class="ios-app" onclick="openApp('screen-business')">
-                <div class="ios-icon bg-green">🏢</div>
-                <span>Империя</span>
-            </div>
-            <div class="ios-app" onclick="openApp('screen-hangar')">
-                <div class="ios-icon bg-orange">🏎️</div>
-                <span>Гараж</span>
-            </div>
-            <div class="ios-app" onclick="openApp('screen-games')">
-                <div class="ios-icon bg-purple">🎰</div>
-                <span>Аркада</span>
-            </div>
-            <div class="ios-app" onclick="openApp('screen-daily24')">
-                <div class="ios-icon bg-red">🔐</div>
-                <span>Сейф 24ч</span>
-            </div>
-            <div class="ios-app" onclick="openApp('screen-friends')">
-                <div class="ios-icon bg-cyan">📡</div>
-                <span>Экипаж</span>
-            </div>
-            <div class="ios-app" onclick="openApp('screen-secret')">
-                <div class="ios-icon bg-dark">⬛</div>
-                <span>Шифры</span>
-            </div>
+    <main id="s-home" class="screen active">
+        <div class="grid4">
+            <div class="app" onclick="go('s-tap')"><div class="ico c-blue">🕹️</div><span>Штурвал</span></div>
+            <div class="app" onclick="go('s-atc')"><div class="ico c-teal">🛫</div><span>Диспетчер</span></div>
+            <div class="app" onclick="go('s-biz')"><div class="ico c-green">🏢</div><span>Империя</span></div>
+            <div class="app" onclick="go('s-car')"><div class="ico c-orange">🏎️</div><span>Гараж</span></div>
+            <div class="app" onclick="go('s-game')"><div class="ico c-purple">🎰</div><span>Аркада</span></div>
+            <div class="app" onclick="go('s-safe')"><div class="ico c-red">🔐</div><span>Сейф 24ч</span></div>
+            <div class="app" onclick="go('s-ref')"><div class="ico c-cyan">📡</div><span>Экипаж</span></div>
+            <div class="app" onclick="go('s-code')"><div class="ico c-dark">⬛</div><span>Шифры</span></div>
         </div>
-
-        <!-- Уведомление iOS со ссылкой на канал -->
-                <a href="https://t.me/aerotap" target="_blank" rel="noopener" class="ios-notification" style="text-decoration:none; color:inherit;" onclick="claimChannelReward()">
-            <div class="notif-icon">📢</div>
-            <div class="notif-body">
-                <div class="notif-head">
-                    <strong>https://t.me/aerotap</strong>
-                    <span>Сейчас</span>
-                </div>
-                <p>Забирай бонус +150 $AERO и свежие шифры для Сейфа в нашем канале!</p>
+        <a href="https://t.me" target="_blank" rel="noopener" class="card" onclick="claimChan()" style="display:flex; align-items:center; gap:12px; margin-top:18px; text-decoration:none; color:#fff;">
+            <div style="font-size:28px;">📢</div>
+            <div>
+                <strong style="font-size:13px; color:var(--blue);">https://t.me</strong>
+                <div style="font-size:12px; color:var(--gray);">Подпишись (+150 $AERO) и лови шифры к Сейфу!</div>
             </div>
         </a>
     </main>
-    <!-- ПРИЛОЖЕНИЕ: ШТУРВАЛ -->
-    <section id="screen-tap" class="ios-screen">
-        <div class="ios-nav">
-            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
-            <h3>Штурвал</h3>
-            <span class="ios-badge">+<span id="tapPowerText">1</span></span>
-        </div>
-        <div class="tap-center">
-            <button class="ios-turbine" id="mainTapBtn">
-                <div class="turbine-glow"></div>
-               <div class="t-plane">
-    <svg width="78" height="78" viewBox="0 0 64 64" fill="none">
-        <path d="M32 4L40 26L60 36L58 42L38 38L36 52L44 58L42 61L32 58L22 61L20 58L28 52L26 38L6 42L4 36L24 26L32 4Z" fill="url(#jetGrad)" stroke="#64d2ff" stroke-width="1.5"/>
-        <circle cx="32" cy="22" r="4" fill="#0a84ff"/>
-        <defs>
-            <linearGradient id="jetGrad" x1="32" y1="4" x2="32" y2="61" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#ffffff"/>
-                <stop offset="0.5" stop-color="#38bdf8"/>
-                <stop offset="1" stop-color="#0a84ff"/>
-            </linearGradient>
-        </defs>
-    </svg>
-</div>
 
-                <span class="t-sub">ЖМИ ФОРСАЖ</span>
-            </button>
+    <section id="s-tap" class="screen">
+        <div class="w-row" style="margin-bottom:10px;">
+            <button class="btn btn-b" style="flex:0 0 auto; padding:6px 12px;" onclick="go('s-home')">‹ Домой</button>
+            <strong>Штурвал (+<span id="tPow">1</span>)</strong>
         </div>
-        <div class="ios-card">
-            <div class="row-between">
-                <span>⚡ Топливо</span>
-                <span><strong id="energyText">500</strong> / <strong id="maxEnergyText">500</strong></span>
+        <div class="turbine" id="tapZone">
+            <div class="plane-anim">✈️</div>
+            <span style="font-size:11px; font-weight:800; color:var(--green); letter-spacing:1.5px;">ЖМИ ФОРСАЖ</span>
+        </div>
+        <div class="card">
+            <div class="w-row" style="font-size:13px; margin-bottom:8px;">
+                <span>⚡ Топливо</span><span><strong id="en">500</strong> / <strong id="maxEn">500</strong></span>
             </div>
-            <div class="ios-progress"><div class="ios-progress-bar" id="energyBar"></div></div>
-            <div class="btn-row" style="margin-top:12px;">
-                <button class="ios-btn btn-blue" onclick="activateTurbo()">🔥 Турбо x2</button>
-                <button class="ios-btn btn-green" onclick="refillFuel()">⛽ Бак (<span id="refillCount">2/2</span>)</button>
+            <div class="row">
+                <button class="btn btn-b" onclick="boostX2()">🔥 Турбо x2</button>
+                <button class="btn btn-g" onclick="fillTank()">⛽ Бак (<span id="tanks">2</span>/2)</button>
             </div>
         </div>
     </section>
 
-    <!-- НОВАЯ ИГРА: АВИАДИСПЕТЧЕР -->
-    <section id="screen-radar" class="ios-screen">
-        <div class="ios-nav">
-            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
-            <h3>Авиадиспетчер</h3>
-            <span class="ios-badge" id="atcTimer">15с</span>
+    <section id="s-atc" class="screen">
+        <div class="w-row" style="margin-bottom:10px;">
+            <button class="btn btn-b" style="flex:0 0 auto; padding:6px 12px;" onclick="go('s-home')">‹ Домой</button>
+            <strong>Диспетчер (<span id="atcSec">15</span>с)</strong>
         </div>
-        <div class="ios-card" style="text-align:center;">
-            <p class="ios-muted">Нажимай на полосу, куда просит посадку борт! Каждый успешный рейс приносит <strong>+5 $AERO</strong>.</p>
-            <div class="atc-screen" id="atcPrompt">Нажми «Начать смену»</div>
-            <div class="btn-row" id="atcControls" style="display:none;">
-                <button class="ios-btn btn-blue" onclick="landPlane('ЛЕВАЯ')">🛬 Полоса А</button>
-                <button class="ios-btn btn-purple" onclick="landPlane('ПРАВАЯ')">🛬 Полоса Б</button>
+        <div class="card" style="text-align:center;">
+            <div id="atcTxt" style="font-size:16px; font-weight:700; padding:18px 0;">Посади самолеты на нужную полосу!</div>
+            <div class="row" id="atcBtns" style="display:none; margin-bottom:10px;">
+                <button class="btn btn-b" onclick="hitATC('L')">🛬 Полоса А</button>
+                <button class="btn btn-p" onclick="hitATC('R')">🛬 Полоса Б</button>
             </div>
-            <button class="ios-btn btn-green full-w" id="atcStartBtn" onclick="startATC()">Начать смену (раз в 10 мин)</button>
+            <button class="btn btn-g" style="width:100%;" id="atcGo" onclick="runATC()">Начать смену (+15 за борт)</button>
         </div>
     </section>
 
-    <!-- ИМПЕРИЯ И ГАРАЖ -->
-    <section id="screen-business" class="ios-screen">
-        <div class="ios-nav">
-            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
-            <h3>Авиа-Империя</h3>
+    <section id="s-biz" class="screen">
+        <div class="w-row" style="margin-bottom:10px;">
+            <button class="btn btn-b" style="flex:0 0 auto; padding:6px 12px;" onclick="go('s-home')">‹ Домой</button>
+            <strong>Авиа-Империя</strong>
         </div>
-        <div id="businessList"></div>
+        <div id="bizList"></div>
     </section>
 
-    <section id="screen-hangar" class="ios-screen">
-        <div class="ios-nav">
-            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
-            <h3>Гараж и Тюнинг</h3>
+    <section id="s-car" class="screen">
+        <div class="w-row" style="margin-bottom:10px;">
+            <button class="btn btn-b" style="flex:0 0 auto; padding:6px 12px;" onclick="go('s-home')">‹ Домой</button>
+            <strong>Гараж и Тюнинг</strong>
         </div>
-        <div id="hangarList"></div>
+        <div id="carList"></div>
     </section>
-
-    <!-- АРКАДА (6 РЕЖИМОВ) -->
-    <section id="screen-games" class="ios-screen">
-        <div class="ios-nav">
-            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
-            <h3>Аркада</h3>
+    <section id="s-game" class="screen">
+        <div class="w-row" style="margin-bottom:10px;">
+            <button class="btn btn-b" style="flex:0 0 auto; padding:6px 12px;" onclick="go('s-home')">‹ Домой</button>
+            <strong>Аркада</strong>
         </div>
-        <div id="gamesLobby" class="arcade-grid">
-            <div class="arcade-tile" onclick="selectGame('crash')"><span>🚀</span><strong>Краш Ракетка</strong><small>До x15</small></div>
-            <div class="arcade-tile" onclick="selectGame('mines')"><span>💣</span><strong>Минное поле</strong><small>Сетка 5x5</small></div>
-            <div class="arcade-tile" onclick="selectGame('aviator')"><span>✈️</span><strong>Высотный рейс</strong><small>Взлет</small></div>
-            <div class="arcade-tile" onclick="selectGame('wheel')"><span>🎡</span><strong>Колесо</strong><small>До x5</small></div>
-            <div class="arcade-tile" onclick="selectGame('case')"><span>🧳</span><strong>Кейс Пилота</strong><small>50 $AERO</small></div>
-            <div class="arcade-tile" onclick="selectGame('coin')"><span>🪙</span><strong>Орел / Решка</strong><small>x2</small></div>
+        <div class="card">
+            <div class="w-row"><strong>🚀 Краш Ракетка</strong><span id="crMult" style="font-size:22px; font-weight:800; color:var(--green);">1.00x</span></div>
+            <div id="crStat" style="font-size:12px; color:var(--orange); margin:6px 0;">Ставка 10–5000 $AERO</div>
+            <div class="row">
+                <input type="number" id="crBet" value="50" class="inp">
+                <button class="btn btn-g" id="crBtn" onclick="playCrash()">ПУСК</button>
+            </div>
         </div>
-        <div id="activeGameBox" class="ios-card" style="display:none;">
-            <button class="ios-back" style="margin-bottom:10px;" onclick="closeGame()">‹ К списку игр</button>
-
-            <div id="game-crash" class="sub-game" style="display:none;">
-                <div class="atc-screen">
-                    <div class="big-mult" id="crashMult">1.00x</div>
-                    <div class="ios-muted" id="crashStatus">Ставка от 5 до 300 $AERO</div>
-                </div>
-                <div class="btn-row">
-                    <input type="number" id="crashBet" value="20" min="5" max="300" class="ios-input">
-                    <button class="ios-btn btn-green" id="crashBtn" onclick="toggleCrash()">ПУСК</button>
-                </div>
+        <div class="card">
+            <div class="w-row"><strong>🎡 Колесо Фортуны</strong><span id="whRes" style="font-weight:800; color:var(--blue);">До x5</span></div>
+            <div class="row" style="margin-top:8px;">
+                <input type="number" id="whBet" value="50" class="inp">
+                <button class="btn btn-p" onclick="spinWheel()">КРУТИТЬ</button>
             </div>
-
-            <div id="game-mines" class="sub-game" style="display:none;">
-                <div class="row-between" style="margin-bottom:8px;">
-                    <span>Бомб: 5</span>
-                    <span id="minesMultText" style="color:var(--ios-green); font-weight:700;">1.00x</span>
-                </div>
-                <div id="minesGrid" class="mines-grid"></div>
-                <div class="btn-row">
-                    <input type="number" id="minesBet" value="20" min="5" max="300" class="ios-input">
-                    <button class="ios-btn btn-orange" id="minesBtn" onclick="toggleMines()">ИГРАТЬ</button>
-                </div>
-            </div>
-
-            <div id="game-aviator" class="sub-game" style="display:none;">
-                <div class="atc-screen">
-                    <div class="big-mult" id="aviatorMult" style="color:var(--ios-blue);">1.00x</div>
-                    <div class="ios-muted" id="aviatorStatus">На взлетной полосе</div>
-                </div>
-                <div class="btn-row">
-                    <input type="number" id="aviatorBet" value="20" min="5" max="300" class="ios-input">
-                    <button class="ios-btn btn-blue" id="aviatorBtn" onclick="toggleAviator()">ВЗЛЕТ</button>
-                </div>
-            </div>
-
-            <div id="game-wheel" class="sub-game" style="display:none;">
-                <div class="atc-screen">
-                    <div class="big-mult" id="wheelRes" style="font-size:22px;">КРУТИ КОЛЕСО</div>
-                    <div class="ios-muted">Сектора: 0x, 0.5x, 1.5x, 2x, 5x</div>
-                </div>
-                <div class="btn-row">
-                    <input type="number" id="wheelBet" value="20" min="5" max="300" class="ios-input">
-                    <button class="ios-btn btn-purple" onclick="spinWheel()">КРУТИТЬ</button>
-                </div>
-            </div>
-
-            <div id="game-case" class="sub-game" style="display:none;">
-                <div class="atc-screen">
-                    <div class="big-mult" id="caseRes" style="font-size:22px;">🧳 ОТКРОЙ КЕЙС</div>
-                    <div class="ios-muted">Цена открытия: 50 $AERO</div>
-                </div>
-                <button class="ios-btn btn-orange full-w" onclick="openPilotCase()">Открыть за 50 $AERO</button>
-            </div>
-
-            <div id="game-coin" class="sub-game" style="display:none;">
-                <div class="atc-screen">
-                    <div class="big-mult" id="coinResult" style="font-size:22px;">ВЫБЕРИ СТОРОНУ</div>
-                </div>
-                <input type="number" id="coinBet" value="20" min="5" max="300" class="ios-input" style="margin-bottom:8px;">
-                <div class="btn-row">
-                    <button class="ios-btn btn-orange" onclick="playCoin('ОРЕЛ')">🦅 ОРЕЛ (x2)</button>
-                    <button class="ios-btn btn-blue" onclick="playCoin('РЕШКА')">✈️ РЕШКА (x2)</button>
-                </div>
+        </div>
+        <div class="card">
+            <div class="w-row"><strong>🧳 Кейс Пилота</strong><span id="csRes" style="font-weight:800; color:var(--orange);">Цена: 50</span></div>
+            <button class="btn btn-o" style="width:100%; margin-top:8px;" onclick="openCase()">Открыть за 50 $AERO</button>
+        </div>
+        <div class="card">
+            <div class="w-row"><strong>🪙 Орел / Решка</strong><span id="cnRes" style="font-weight:800;">x2</span></div>
+            <input type="number" id="cnBet" value="50" class="inp" style="margin:8px 0;">
+            <div class="row">
+                <button class="btn btn-o" onclick="flipCoin('ОРЕЛ')">🦅 ОРЕЛ</button>
+                <button class="btn btn-b" onclick="flipCoin('РЕШКА')">✈️ РЕШКА</button>
             </div>
         </div>
     </section>
 
-    <!-- СЕЙФ 24 ЧАСА -->
-    <section id="screen-daily24" class="ios-screen">
-        <div class="ios-nav">
-            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
-            <h3>Сейф 24 часа</h3>
+    <section id="s-safe" class="screen">
+        <div class="w-row" style="margin-bottom:10px;">
+            <button class="btn btn-b" style="flex:0 0 auto; padding:6px 12px;" onclick="go('s-home')">‹ Домой</button>
+            <strong>Сейф 24 часа</strong>
         </div>
-        <div class="ios-card" style="text-align:center;">
-            <p class="ios-muted">Нажми кнопки в правильном порядке для открытия сейфа (<strong>+300 $AERO</strong> раз в 24 часа).</p>
-            <div class="atc-screen">
-                <div class="big-mult" id="safeDisplay" style="font-size:24px; letter-spacing:6px;">_ _ _ _</div>
-                <div class="ios-muted">Подсказка: Взлет → Курс → Радар → Топливо</div>
-            </div>
-            <div class="btn-row">
-                <button class="ios-btn btn-blue" onclick="pressSafeBtn('🚀')">🚀</button>
-                <button class="ios-btn btn-blue" onclick="pressSafeBtn('🧭')">🧭</button>
-                <button class="ios-btn btn-blue" onclick="pressSafeBtn('📡')">📡</button>
-                <button class="ios-btn btn-blue" onclick="pressSafeBtn('⚡')">⚡</button>
+        <div class="card" style="text-align:center;">
+            <p style="font-size:12px; color:var(--gray); margin:0 0 8px;">Порядок: Взлет → Курс → Радар → Топливо (+1000 $AERO)</p>
+            <div id="safeDisp" style="font-size:24px; letter-spacing:6px; padding:12px; background:rgba(0,0,0,0.5); border-radius:12px; margin-bottom:10px;">_ _ _ _</div>
+            <div class="row">
+                <button class="btn btn-b" onclick="tapSafe('🚀')">🚀</button>
+                <button class="btn btn-b" onclick="tapSafe('🧭')">🧭</button>
+                <button class="btn btn-b" onclick="tapSafe('📡')">📡</button>
+                <button class="btn btn-b" onclick="tapSafe('⚡')">⚡</button>
             </div>
         </div>
     </section>
 
-    <!-- ЭКИПАЖ И ССЫЛКИ -->
-    <section id="screen-friends" class="ios-screen">
-        <div class="ios-nav">
-            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
-            <h3>Экипаж и TON</h3>
+    <section id="s-ref" class="screen">
+        <div class="w-row" style="margin-bottom:10px;">
+            <button class="btn btn-b" style="flex:0 0 auto; padding:6px 12px;" onclick="go('s-home')">‹ Домой</button>
+            <strong>Экипаж и TON</strong>
         </div>
-        <div class="ios-card">
-            <h4>Пригласи друзей (+200 $AERO)</h4>
-            <input type="text" id="refLinkInput" readonly class="ios-input" style="margin-bottom:8px;">
-            <div class="btn-row">
-                <button class="ios-btn btn-blue" onclick="shareRefTelegram()">📲 Отправить в ТГ</button>
-                <button class="ios-btn btn-orange" onclick="copyRefLink()">📋 Копия</button>
+        <div class="card">
+            <strong style="font-size:14px;">Пригласить друга (+1500 $AERO)</strong>
+            <input type="text" id="refInp" readonly class="inp" style="margin:8px 0;">
+            <div class="row">
+                <a id="tgShare" href="https://t.me" target="_blank" rel="noopener" class="btn btn-b">📲 Отправить в ТГ</a>
+                <button class="btn btn-o" onclick="copyRef()">📋 Копия</button>
             </div>
-            <button class="ios-btn btn-green full-w" style="margin-top:8px;" onclick="claimRefBonus()">Забрать бонус (раз в 12ч)</button>
+            <button class="btn btn-g" style="width:100%; margin-top:8px;" onclick="getRefBonus()">Забрать бонус (раз в 12ч)</button>
         </div>
-        <div class="ios-card">
-            <h4>Кошелек TON для дропа</h4>
-            <input type="text" id="tonAddressInput" placeholder="UQ... или EQ..." class="ios-input" style="margin-bottom:8px;">
-            <button class="ios-btn btn-blue full-w" onclick="saveTonWallet()">Сохранить адрес TON</button>
+        <div class="card">
+            <strong style="font-size:14px;">TON Кошелек</strong>
+            <input type="text" id="tonInp" placeholder="UQ... или EQ..." class="inp" style="margin:8px 0;">
+            <button class="btn btn-b" style="width:100%;" onclick="saveTon()">Сохранить кошелек</button>
         </div>
-                <div class="ios-card">
-            <a href="https://t.me/aerotap" target="_blank" rel="noopener" class="ios-link-item" style="text-decoration:none; color:#fff;" onclick="claimChannelReward()">
-                <span>📢 https://t.me/aerotap</span><span style="color:#0a84ff;">Открыть ›</span>
+        <div class="card">
+            <a href="https://t.me" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; color:#fff; text-decoration:none; padding:6px 0;" onclick="claimChan()">
+                <span>📢 https://t.me</span><span style="color:var(--blue);">Открыть ›</span>
             </a>
-                       <a href="https://t.me" target="_blank" rel="noopener" class="ios-link-item" style="text-decoration:none; color:#fff;">
-                <span>🤖 https://t.me</span><span style="color:#0a84ff;">Запуск ›</span>
-            </a>
-
+            <a href="https://t.me_bot" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; color:#fff; text-decoration:none; padding:6px 0; border-top:1px solid var(--border);">
+                <span>🤖 https://t.me_bot</span><span style="color:var(--blue);">Запуск ›</span>
             </a>
         </div>
     </section>
 
-    <!-- ШИФРЫ -->
-    <section id="screen-secret" class="ios-screen">
-        <div class="ios-nav">
-            <button class="ios-back" onclick="openApp('screen-home')">‹ Домой</button>
-            <h3>Секретные шифры</h3>
+    <section id="s-code" class="screen">
+        <div class="w-row" style="margin-bottom:10px;">
+            <button class="btn btn-b" style="flex:0 0 auto; padding:6px 12px;" onclick="go('s-home')">‹ Домой</button>
+            <strong>Секретные шифры</strong>
         </div>
-        <div class="ios-card">
-            <p class="ios-muted">Вводи коды из постов канала <span onclick="openTgChannel()" style="color:var(--ios-blue); text-decoration:underline; cursor:pointer;">@aerotap</span>.</p>
-            <input type="text" id="secretCodeInput" placeholder="Введи код..." class="ios-input" style="margin-bottom:8px;">
-            <button class="ios-btn btn-purple full-w" onclick="activateSecretCode()">Активировать шифр</button>
+        <div class="card">
+            <p style="font-size:12px; color:var(--gray); margin-top:0;">Ищи коды в канале <a href="https://t.me" target="_blank" rel="noopener" style="color:var(--blue);">https://t.me</a></p>
+            <input type="text" id="codeInp" placeholder="Введи шифр..." class="inp" style="margin-bottom:8px;">
+            <button class="btn btn-p" style="width:100%;" onclick="useCode()">Активировать</button>
         </div>
-        <div class="ios-card">
-            <button class="ios-btn btn-green full-w" onclick="claimDaily()">🎁 Ежедневный паек +120 $AERO</button>
+        <div class="card">
+            <button class="btn btn-g" style="width:100%;" onclick="getDaily()">🎁 Ежедневный паек +1000 $AERO</button>
         </div>
     </section>
 
-    <!-- НИЖНИЙ ДОК IPHONE -->
-    <nav class="ios-dock">
-        <button class="dock-item active" onclick="openApp('screen-home')">🏠<span>Экран</span></button>
-        <button class="dock-item" onclick="openApp('screen-tap')">🕹️<span>Штурвал</span></button>
-        <button class="dock-item" onclick="openApp('screen-radar')">🛫<span>Рейсы</span></button>
-        <button class="dock-item" onclick="openApp('screen-games')">🎰<span>Аркада</span></button>
+    <nav class="dock">
+        <button onclick="go('s-home')">🏠<span>Экран</span></button>
+        <button onclick="go('s-tap')">🕹️<span>Штурвал</span></button>
+        <button onclick="go('s-atc')">🛫<span>Рейсы</span></button>
+        <button onclick="go('s-game')">🎰<span>Аркада</span></button>
     </nav>
-    <div class="home-indicator"></div>
 </div>
-
 <script>
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.expand(); tg.ready(); }
 
-let soundOn = true;
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-const audioCtx = AudioCtx ? new AudioCtx() : null;
+let snd = true;
+const AC = window.AudioContext || window.webkitAudioContext;
+const actx = AC ? new AC() : null;
 
-function toggleSound() {
-    soundOn = !soundOn;
-    document.getElementById('soundBtn').innerText = soundOn ? '🔊' : '🔇';
+function toggleMute() {
+    snd = !snd;
+    document.getElementById('sndBtn').innerText = snd ? '🔊' : '🔇';
 }
 
-function playSound(type) {
-    if (!soundOn || !audioCtx) return;
+function beep(type) {
+    if (!snd || !actx) return;
     try {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
-        osc.type = type === 'boom' ? 'sawtooth' : 'sine';
-        osc.frequency.setValueAtTime(type === 'boom' ? 140 : 480, now);
-        osc.frequency.exponentialRampToValueAtTime(type === 'boom' ? 35 : 780, now + 0.12);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-        osc.start(now); osc.stop(now + 0.12);
+        if (actx.state === 'suspended') actx.resume();
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.connect(g); g.connect(actx.destination);
+        const t = actx.currentTime;
+        o.type = type === 'bad' ? 'sawtooth' : 'sine';
+        o.frequency.setValueAtTime(type === 'bad' ? 130 : 520, t);
+        o.frequency.exponentialRampToValueAtTime(type === 'bad' ? 35 : 840, t + 0.12);
+        g.gain.setValueAtTime(0.12, t);
+        g.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        o.start(t); o.stop(t + 0.12);
     } catch (e) {}
 }
 
-function showIslandNotice(text) {
-    const di = document.getElementById('diText');
-    if (!di) return;
-    di.innerText = text;
-    setTimeout(() => { di.innerText = 'AeroOS • TON'; }, 2800);
+function notice(txt) {
+    const el = document.getElementById('diMsg');
+    if (!el) return;
+    el.innerText = txt;
+    setTimeout(() => { el.innerText = 'AeroOS • TON'; }, 2800);
 }
 
-const STORAGE_KEY = 'aerotap_ios_final_v1';
-const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-const userId = (tgUser && tgUser.id) ? tgUser.id : Math.floor(10000 + Math.random() * 90000);
+const KEY = 'aerotap_onefile_v1';
+const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+const uid = (u && u.id) ? u.id : Math.floor(10000 + Math.random() * 90000);
 
-let state = Object.assign({
-    username: (tgUser && tgUser.first_name) ? tgUser.first_name : 'Пилот #' + String(userId).slice(-3),
-    balance: 50, energy: 500, maxEnergy: 500, tapPower: 1, passiveHour: 0,
-    refills: 2, lastDaily: 0, lastRefBonus: 0, lastSafe24: 0, lastAtcTime: 0,
-    channelClaimed: false, usedCodes: [], tonWallet: '', bizLevels: {}, hangarLevels: {}
-}, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
+let st = Object.assign({
+    name: (u && u.first_name) ? u.first_name : 'Пилот #' + String(uid).slice(-3),
+    bal: 50, en: 500, maxEn: 500, pow: 1, pph: 0, tanks: 2,
+    tDaily: 0, tRef: 0, tSafe: 0, tAtc: 0, chan: false, codes: [], ton: '', biz: {}, car: {}
+}, JSON.parse(localStorage.getItem(KEY) || '{}'));
 
-let turboMult = 1, heatLevel = 0;
+let x2 = 1;
+function save() { localStorage.setItem(KEY, JSON.stringify(st)); draw(); }
+function refUrl() { return 'https://t.me_' + uid; }
 
-function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    updateUI();
+function draw() {
+    const d = new Date();
+    document.getElementById('clock').innerText = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    document.getElementById('uName').innerText = st.name + ' ✏️';
+    document.getElementById('bal').innerText = Math.floor(st.bal).toLocaleString('ru-RU');
+    document.getElementById('pph').innerText = st.pph.toLocaleString('ru-RU');
+    document.getElementById('tPow').innerText = st.pow * x2;
+    document.getElementById('en').innerText = Math.floor(st.en);
+    document.getElementById('maxEn').innerText = st.maxEn;
+    document.getElementById('tanks').innerText = st.tanks;
+    document.getElementById('refInp').value = refUrl();
+    const txt = encodeURIComponent('Залетай в AeroTap ($AERO) в сети TON!');
+    document.getElementById('tgShare').href = 'https://t.me' + encodeURIComponent(refUrl()) + '&text=' + txt;
+    if (st.ton && !document.getElementById('tonInp').value) document.getElementById('tonInp').value = st.ton;
 }
 
-function getRefLink() {
-    return 'https://t.me_' + userId;
+function go(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
-function claimChannelReward() {
-    if (!state.channelClaimed) {
-        state.channelClaimed = true;
-        state.balance += 150;
-        playSound('win');
-        showIslandNotice('+150 $AERO за @aerotap');
-        saveState();
+function setPilotName() {
+    const n = prompt('Новый позывной:', st.name);
+    if (n && n.trim()) { st.name = n.trim().slice(0, 16); save(); }
+}
+
+document.getElementById('tapZone').addEventListener('pointerdown', (e) => {
+    if (st.en < st.pow) return;
+    const g = st.pow * x2;
+    st.bal += g; st.en -= st.pow; beep('ok');
+    const r = document.createElement('div'); r.className = 'ripple'; r.style.left = e.clientX + 'px'; r.style.top = e.clientY + 'px'; document.body.appendChild(r); setTimeout(() => r.remove(), 500);
+    const f = document.createElement('div'); f.className = 'float'; f.innerText = '+' + g; f.style.left = (e.clientX - 15) + 'px'; f.style.top = (e.clientY - 25) + 'px'; document.body.appendChild(f); setTimeout(() => f.remove(), 600);
+    save();
+});
+
+function boostX2() {
+    if (x2 > 1) return notice('Турбо уже работает!');
+    x2 = 2; beep('ok'); notice('🔥 Турбо x2 на 15 сек'); draw();
+    setTimeout(() => { x2 = 1; draw(); }, 15000);
+}
+function fillTank() {
+    if (st.tanks <= 0) return notice('Баки пусты!');
+    st.tanks--; st.en = st.maxEn; beep('ok'); save();
+}
+
+// Диспетчер
+let atcOn = false, atcSide = 'L', atcPts = 0, atcT = 15, atcInt = null;
+function nextPlane() {
+    atcSide = Math.random() < 0.5 ? 'L' : 'R';
+    document.getElementById('atcTxt').innerText = '✈️ Посадка на: ' + (atcSide === 'L' ? 'ПОЛОСУ А' : 'ПОЛОСУ Б');
+}
+function runATC() {
+    if (Date.now() - st.tAtc < 600000) return notice('Смена раз в 10 мин');
+    atcOn = true; atcPts = 0; atcT = 15;
+    document.getElementById('atcGo').style.display = 'none';
+    document.getElementById('atcBtns').style.display = 'flex';
+    nextPlane();
+    atcInt = setInterval(() => {
+        atcT--; document.getElementById('atcSec').innerText = atcT;
+        if (atcT <= 0) {
+            clearInterval(atcInt); atcOn = false; st.tAtc = Date.now();
+            const win = atcPts * 15; st.bal += win;
+            document.getElementById('atcGo').style.display = 'block';
+            document.getElementById('atcBtns').style.display = 'none';
+            document.getElementById('atcTxt').innerText = 'Смена окончена! +' + win + ' $AERO';
+            beep('ok'); save();
+        }
+    }, 1000);
+}
+function hitATC(s) {
+    if (!atcOn) return;
+    if (s === atcSide) { atcPts++; beep('ok'); nextPlane(); }
+    else { beep('bad'); document.getElementById('atcTxt').innerText = '⚠️ Не та полоса!'; }
+}
+
+// Магазины
+const bizData = [
+    { id: 'b1', n: 'Вышка связи', c: 250, p: 60 },
+    { id: 'b2', n: 'Топливный хаб', c: 900, p: 210 },
+    { id: 'b3', n: 'Аэродром TON', c: 3000, p: 650 },
+    { id: 'b4', n: 'Авиалинии', c: 10000, p: 2100 }
+];
+const carData = [
+    { id: 'c1', n: 'Тюнинг штурвала (+1/клик)', c: 300, t: 'pow', v: 1 },
+    { id: 'c2', n: 'Доп. бак (+250 энергии)', c: 400, t: 'en', v: 250 },
+    { id: 'c3', n: 'Спорткар сопровождения (+900/ч)', c: 5000, t: 'pph', v: 900 },
+    { id: 'c4', n: 'Бизнес-джет (+3200/ч)', c: 20000, t: 'pph', v: 3200 }
+];
+function buildShops() {
+    document.getElementById('bizList').innerHTML = bizData.map(x => {
+        const l = st.biz[x.id] || 0, cost = Math.floor(x.c * Math.pow(1.45, l));
+        return '<div class="card w-row"><div><strong>' + x.n + ' (Ур.' + l + ')</strong><div style="font-size:12px;color:var(--green);">+' + x.p + '/ч</div></div><button class="btn btn-g" style="flex:0 0 auto;" onclick="buyB(\'' + x.id + '\')">' + cost + '</button></div>';
+    }).join('');
+    document.getElementById('carList').innerHTML = carData.map(x => {
+        const l = st.car[x.id] || 0, cost = Math.floor(x.c * Math.pow(1.5, l));
+        return '<div class="card w-row"><div><strong>' + x.n + '</strong><div style="font-size:12px;color:var(--orange);">Уровень ' + l + '</div></div><button class="btn btn-b" style="flex:0 0 auto;" onclick="buyC(\'' + x.id + '\')">' + cost + '</button></div>';
+    }).join('');
+}
+function buyB(id) {
+    const x = bizData.find(i => i.id === id), l = st.biz[id] || 0, cost = Math.floor(x.c * Math.pow(1.45, l));
+    if (st.bal < cost) return notice('Мало $AERO');
+    st.bal -= cost; st.biz[id] = l + 1; st.pph += x.p; beep('ok'); buildShops(); save();
+}
+function buyC(id) {
+    const x = carData.find(i => i.id === id), l = st.car[id] || 0, cost = Math.floor(x.c * Math.pow(1.5, l));
+    if (st.bal < cost) return notice('Мало $AERO');
+    st.bal -= cost; st.car[id] = l + 1;
+    if (x.t === 'pow') st.pow += x.v;
+    if (x.t === 'en') { st.maxEn += x.v; st.en += x.v; }
+    if (x.t === 'pph') st.pph += x.v;
+    beep('ok'); buildShops(); save();
+}
+
+// Игры
+let crOn = false, crInt = null, crM = 1, crB = 0;
+function playCrash() {
+    const btn = document.getElementById('crBtn'), mEl = document.getElementById('crMult'), sEl = document.getElementById('crStat');
+    if (!crOn) {
+        const b = parseInt(document.getElementById('crBet').value);
+        if (isNaN(b) || b < 10 || b > 5000 || b > st.bal) return notice('Неверная ставка');
+        st.bal -= b; crB = b; crM = 1; crOn = true; btn.innerText = 'ЗАБРАТЬ'; btn.className = 'btn btn-o'; save();
+        const lim = Math.random() < 0.35 ? 1.08 : 1.2 + Math.random() * 5;
+        crInt = setInterval(() => {
+            crM += 0.04; mEl.innerText = crM.toFixed(2) + 'x';
+            if (crM >= lim) { clearInterval(crInt); crOn = false; sEl.innerText = '💥 Улетела!'; btn.innerText = 'ПУСК'; btn.className = 'btn btn-g'; beep('bad'); save(); }
+        }, 100);
+    } else {
+        clearInterval(crInt); crOn = false; const w = Math.floor(crB * crM); st.bal += w;
+        sEl.innerText = '✅ +' + w + ' $AERO'; btn.innerText = 'ПУСК'; btn.className = 'btn btn-g'; beep('ok'); save();
     }
 }
-
-function updateUI() {
-    const now = new Date();
-    const clockEl = document.getElementById('iosClock');
-    if (clockEl) clockEl.innerText = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('displayUsername').innerText = state.username;
-    document.getElementById('avatarInitial').innerText = state.username.charAt(0).toUpperCase();
-    document.getElementById('balanceText').innerText = Math.floor(state.balance).toLocaleString('ru-RU');
-    document.getElementById('passiveRate').innerText = state.passiveHour.toLocaleString('ru-RU');
-    const comboMult = heatLevel >= 80 ? 3 : (heatLevel >= 40 ? 2 : 1);
-    document.getElementById('tapPowerText').innerText = state.tapPower * turboMult * comboMult;
-    document.getElementById('heatBar').style.width = heatLevel + '%';
-    document.getElementById('energyText').innerText = Math.floor(state.energy);
-    document.getElementById('maxEnergyText').innerText = state.maxEnergy;
-    document.getElementById('refillCount').innerText = state.refills + '/2';
-    document.getElementById('energyBar').style.width = Math.min(100, (state.energy / state.maxEnergy) * 100) + '%';
-
-    const refInput = document.getElementById('refLinkInput');
-    if (refInput) refInput.value = getRefLink();
-    const shareBtn = document.getElementById('tgShareLink');
-    if (shareBtn) {
-        const txt = encodeURIComponent('Залетай в AeroTap ($AERO) в сети TON! Лови бонус на старт:');
-        shareBtn.href = 'https://t.me' + encodeURIComponent(getRefLink()) + '&text=' + txt;
-    }
+function spinWheel() {
+    const b = parseInt(document.getElementById('whBet').value);
+    if (isNaN(b) || b < 10 || b > 5000 || b > st.bal) return notice('Неверная ставка');
+    st.bal -= b; const r = Math.random();
+    const m = r > 0.85 ? 5 : (r > 0.65 ? 2 : (r > 0.4 ? 1.5 : 0));
+    const w = Math.floor(b * m); st.bal += w;
+    document.getElementById('whRes').innerText = m > 0 ? (m + 'x (+' + w + ')') : '0x (Мимо)';
+    beep(m > 0 ? 'ok' : 'bad'); save();
+}
+function openCase() {
+    if (st.bal < 50) return notice('Нужно 50 $AERO');
+    st.bal -= 50; const w = Math.floor(15 + Math.random() * 160); st.bal += w;
+    document.getElementById('csRes').innerText = '🎁 +' + w + ' $AERO'; beep('ok'); save();
+}
+function flipCoin(c) {
+    const b = parseInt(document.getElementById('cnBet').value);
+    if (isNaN(b) || b < 10 || b > 5000 || b > st.bal) return notice('Неверная ставка');
+    st.bal -= b; const res = Math.random() < 0.48 ? c : (c === 'ОРЕЛ' ? 'РЕШКА' : 'ОРЕЛ');
+    if (res === c) { st.bal += b * 2; document.getElementById('cnRes').innerText = res + '! +' + (b * 2); beep('ok'); }
+    else { document.getElementById('cnRes').innerText = 'Выпал ' + res; beep('bad'); }
+    save();
 }
 
-function openApp(screenId) {
-    document.querySelectorAll('.ios-screen').forEach(s => s.classList.remove('active'));
-    const target = document.getElementById(screenId);
-    if (target) target.classList.add('active');
+// Сейф, шифры, рефералы
+let safeStr = '';
+function tapSafe(s) {
+    if (Date.now() - st.tSafe < 86400000) return notice('Сейф уже открыт сегодня');
+safeStr += s; beep('ok'); document.getElementById('safeDisp').innerText = safeStr;
+if (Array.from(safeStr).length === 4) {
+if (safeStr === '🚀🧭📡⚡') { st.tSafe = Date.now(); st.bal += 1000; beep('ok'); save(); notice('🔐 Сейф: +1000 $AERO'); }
+else { beep('bad'); notice('❌ Неверный порядок'); }
+safeStr = ''; document.getElementById('safeDisp').innerText = '_ _ _ _';
 }
-
-function changePilotName() {
-    const name = prompt('Новый позывной:', state.username);
-    if (name && name.trim()) { state.username = name.trim().slice(0, 16); saveState(); }
 }
-
-const tapBtn = document.getElementById('mainTapBtn');
-if (tapBtn) {
-    tapBtn.addEventListener('pointerdown', (e) => {
-        if (state.energy < state.tapPower) return;
-        heatLevel = Math.min(100, heatLevel + 6);
-        const gain = state.tapPower * turboMult * (heatLevel >= 80 ? 3 : (heatLevel >= 40 ? 2 : 1));
-        state.balance += gain;
-        state.energy -= state.tapPower;
-        playSound('tap');
-        const el = document.createElement('div');
-        el.className = 'float-plus';
-        el.innerText = '+' + gain;
-        el.style.left = (e.clientX - 15) + 'px';
-        el.style.top = (e.clientY - 25) + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 700);
-        saveState();
-    });
+function copyRef() { if (navigator.clipboard) navigator.clipboard.writeText(refUrl()); notice('📋 Скопировано'); }
+function getRefBonus() {
+if (Date.now() - st.tRef < 43200000) return notice('Раз в 12 часов');
+st.bal += 1500; st.tRef = Date.now(); beep('ok'); save(); notice('+1500 $AERO');
 }
-
-function activateTurbo() {
-    if (turboMult > 1) return showIslandNotice('Форсаж уже активен!');
-    turboMult = 2; playSound('win'); showIslandNotice('🔥 Турбо x2 на 15 сек'); updateUI();
-    setTimeout(() => { turboMult = 1; updateUI(); }, 15000);
+function claimChan() {
+if (!st.chan) { st.chan = true; st.bal += 150; beep('ok'); save(); notice('+150 $AERO за канал'); }
 }
-
-function refillFuel() {
-    if (state.refills <= 0) return showIslandNotice('Баки пусты на сегодня');
-    state.refills--; state.energy = state.maxEnergy; playSound('win'); saveState();
+function saveTon() {
+const v = document.getElementById('tonInp').value.trim();
+if (v.length < 20) return notice('Неверный кошелек');
+st.ton = v; beep('ok'); save(); notice('Кошелек сохранен');
 }
-</script>
-
-</body>
-</html>
+function getDaily() {
+if (Date.now() - st.tDaily < 86400000) return notice('Уже получено сегодня');
+st.bal += 1000; st.tDaily = Date.now(); beep('ok'); save(); notice('+1000 $AERO');
+}
+const codesDB = { 'AERO2026': 2500, 'IPHONE': 2000, 'TONJET': 2000, 'PILOT': 1500 };
+function useCode() {
+const i = document.getElementById('codeInp'), c = i.value.trim().toUpperCase();
+if (!codesDB[c]) return notice('Неверный шифр');
+if (st.codes.includes(c)) return notice('Уже использован');
+st.codes.push(c); st.bal += codesDB[c]; i.value = ''; beep('ok'); save(); notice('+' + codesDB[c] + ' $AERO');
+}
+setInterval(() => {
+if (st.en < st.maxEn) st.en = Math.min(st.maxEn, st.en + 2);
+if (st.pph > 0) st.bal += st.pph / 3600;
+draw();
+}, 1000);
+setInterval(save, 5000);
+buildShops();
+draw();
