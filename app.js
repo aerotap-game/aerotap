@@ -184,3 +184,105 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => { const p = empire.getTotalProfitPerHour() / 3600; if (p > 0) { state.balance += p; state.totalEarned += p; } if (state.energy < state.maxEnergy) state.energy = Math.min(state.maxEnergy, state.energy + 2); updateUI(); }, 1000);
     setInterval(() => { saveState(); updateClocks(); }, 5000);
 });
+let crashAnimFrame = null;
+let crashStars = Array.from({ length: 18 }, () => ({ x: Math.random() * 320, y: Math.random() * 150, s: 1 + Math.random() * 2 }));
+
+function drawCrashScene(mult, stateMode) {
+    const canvas = document.getElementById('crash-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Движущиеся звезды на фоне
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+    crashStars.forEach(st => {
+        if (stateMode === 'fly') {
+            st.x -= st.s * 1.8;
+            st.y += st.s * 0.9;
+            if (st.x < 0) st.x = w;
+            if (st.y > h) st.y = 0;
+        }
+        ctx.fillRect(st.x, st.y, st.s, st.s);
+    });
+
+    // Расчет координат ракеты по кривой роста
+    const progress = Math.min(1, (mult - 1) / 4);
+    const rx = 35 + progress * (w - 85);
+    const ry = h - 25 - Math.pow(progress, 0.85) * (h - 60);
+
+    // Светящийся неоновый шлейф (кривая Безье)
+    ctx.beginPath();
+    ctx.moveTo(20, h - 18);
+    ctx.quadraticCurveTo(rx * 0.55, h - 18, rx, ry);
+    ctx.strokeStyle = stateMode === 'crash' ? '#ff3b30' : '#00ff88';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = stateMode === 'crash' ? '#ff3b30' : '#00ff88';
+    ctx.shadowBlur = 12;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Отрисовка самой ракеты или взрыва
+    ctx.font = '28px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    if (stateMode === 'crash') {
+        ctx.fillText('💥', rx, ry);
+    } else if (stateMode === 'win') {
+        ctx.fillText('💰', rx, ry);
+    } else {
+        ctx.save();
+        ctx.translate(rx, ry);
+        ctx.rotate(-0.35);
+        ctx.fillText('🚀', 0, 0);
+        ctx.restore();
+    }
+}
+
+window.uiCrashAction = function() {
+    const btn = document.getElementById('crash-btn');
+    const scr = document.getElementById('crash-screen');
+    const multEl = document.getElementById('crash-mult');
+
+    if (games.crashActive) {
+        const res = games.cashoutCrash();
+        btn.innerText = "Запустить ракету";
+        btn.classList.remove('cashout-mode');
+        drawCrashScene(games.crashMultiplier, 'win');
+        notifyDynamicIsland(res.message, 3500);
+        return;
+    }
+
+    const bet = getGlobalBet();
+    scr.classList.remove('crashed');
+    multEl.innerText = "1.00x";
+    drawCrashScene(1.00, 'fly');
+
+    const start = games.startCrash(
+        bet,
+        (m) => {
+            multEl.innerText = `${m.toFixed(2)}x`;
+            btn.innerText = `Забрать ${Math.floor(bet * m).toLocaleString()}`;
+            drawCrashScene(m, 'fly');
+        },
+        (c) => {
+            scr.classList.add('crashed');
+            multEl.innerText = `СКАМ ${c.toFixed(2)}x`;
+            btn.innerText = "Запустить ракету";
+            btn.classList.remove('cashout-mode');
+            drawCrashScene(c, 'crash');
+            notifyDynamicIsland(`Разраб соскамил токен на ${c.toFixed(2)}x!`, 3500);
+        }
+    );
+
+    if (!start.success) {
+        notifyDynamicIsland(start.message, 2500);
+    } else {
+        btn.classList.add('cashout-mode');
+        btn.innerText = `Забрать ${bet}`;
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => drawCrashScene(1.00, 'idle'));
