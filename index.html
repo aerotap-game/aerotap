@@ -157,12 +157,14 @@
                     <button type="button" class="c-tab" onclick="switchCasinoGame('cups', this)">🥤 Стаканы</button>
                 </div>
                 <div class="bet-panel"><span>Ставка:</span><input type="number" id="global-bet" value="100" min="10"><button type="button" onclick="multBet(2)">x2</button><button type="button" onclick="setMaxBet()">MAX</button></div>
-                <div id="game-crash" class="casino-game-panel active"><div class="crash-screen" id="crash-screen"><span class="crash-rocket" id="crash-rocket">🚀</span><div class="crash-mult" id="crash-mult">1.00x</div></div><button type="button" class="action-btn neon-btn" id="crash-btn" onclick="uiCrashAction()">Запустить ракету</button></div>
-                <div id="game-mines" class="casino-game-panel"><div class="mines-info"><span>Множитель: <b class="neon-green" id="mines-mult">1.00x</b></span><span>Выигрыш: <b id="mines-win">0</b></span></div><div class="mines-grid" id="mines-grid"></div><button type="button" class="action-btn neon-btn" id="mines-btn" onclick="uiMinesAction()">Начать игру (3 мины)</button></div>
-                <div id="game-slots" class="casino-game-panel"><p class="game-hint">🍾 x3 | 💵 x5 | 💎 x10 | 7️⃣ x15</p><div class="slots-display"><div class="slot-reel" id="reel-1">🍾</div><div class="slot-reel" id="reel-2">💎</div><div class="slot-reel" id="reel-3">7️⃣</div></div><button type="button" class="action-btn gold-btn" onclick="uiPlaySlots()">Крутить барабан</button></div>
-                <div id="game-coin" class="casino-game-panel"><p class="game-hint">Угадай сторону монеты — выигрыш <b>x1.9</b>!</p><div class="coin-visual" id="coin-visual">🪙</div><div class="cups-row"><button type="button" class="action-btn neon-btn" onclick="uiPlayCoin('orel')">🦅 Орел</button><button type="button" class="action-btn gold-btn" onclick="uiPlayCoin('reshka')">👑 Решка</button></div></div>
-                <div id="game-cups" class="casino-game-panel"><p class="game-hint">Выбери стакан с шариком — выигрыш <b>x2.5</b>!</p><div class="cups-row"><button type="button" class="cup-btn" onclick="uiPlayCups(0)">🥤<br>№1</button><button type="button" class="cup-btn" onclick="uiPlayCups(1)">🥤<br>№2</button><button type="button" class="cup-btn" onclick="uiPlayCups(2)">🥤<br>№3</button></div></div>
-            </div>
+                               <div id="game-crash" class="casino-game-panel active">
+                    <div class="crash-screen" id="crash-screen" style="height: 150px; padding: 0; position: relative;">
+                        <canvas id="crash-canvas" width="320" height="150" style="width: 100%; height: 100%; display: block;"></canvas>
+                        <div class="crash-mult" id="crash-mult" style="position: absolute; top: 14px; left: 16px; font-size: 28px; text-shadow: 0 2px 10px #000;">1.00x</div>
+                    </div>
+                    <button type="button" class="action-btn neon-btn" id="crash-btn" onclick="uiCrashAction()">Запустить ракету</button>
+                </div>
+
         </div>
         <div id="app-logic" class="ios-app-window">
             <div class="app-topbar"><button type="button" class="back-btn" onclick="goHome()">‹ Домой</button><span class="app-window-title">🧠 Мозги</span><span class="neon-green" style="font-size:12px;" id="logic-bal-mini">0</span></div>
